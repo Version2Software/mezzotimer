@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<!-- Copyright (C) 2021 Version 2 Software, LLC. All rights reserved. -->
+
+<html>
+
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css"  href="../css/main.css">
+    <link rel="stylesheet" type="text/css"  href="../lib/jquery.alerts-1.1/jquery.alerts.css">
+    <title>Mezzo</title>
+</head>
+
+<body>
+    <div id="main-component">
+        <component v-bind:is="currentView"></component>
+    </div>
+
+    <audio id="audio-tick" src="../ogg/ticktock.ogg"></audio>
+    <audio id="audio-gong" src="../ogg/gong.ogg"></audio>
+    <audio id="audio-extra-gong" src="../ogg/extra-gong.ogg"></audio>
+    <audio id="audio-alarm" src="../ogg/low-gong.ogg"></audio>
+
+    <!-- This enables jquery to work -->
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+    <script src="../lib/jquery.min.js"></script>
+    <script src="../lib/jquery.alerts-1.1/jquery.alerts.js"></script>
+    <script src="../lib/vue.js"></script>
+
+    <script src="../lib/axios/dist/axios.standalone.js"></script>
+    <script src="../lib/url-template/url-template.js"></script>
+    <script src="../controller/download.js"></script>
+    <script src="../controller/timerfront.js"></script>
+    <script src="../controller/timermenu.js"></script>
+    <script src="../controller/options.js"></script>
+    <script src="../controller/mainComponent.js"></script>
+
+</body>
+
+</html>

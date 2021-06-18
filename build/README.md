@@ -1,0 +1,1 @@
+Make icon.ico (for windows) and icon.icns (for mac and linux) and place them in the build directory.

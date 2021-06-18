@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<!-- Copyright (C) 2021 Version 2 Software, LLC. All rights reserved. -->
+
+<html>
+
+<head>
+    <title>About Mezzo</title>
+
+    <style>
+        body {
+            text-align: center;
+            font-family: "Times New Roman";
+            margin: 1em;
+        }
+
+        h1 {
+            font-size: 16pt;
+        }
+
+        h2 {
+            font-family: "Arial";
+            font-size: 12pt;
+        }
+
+        p {
+            font-size: 12pt;
+        }
+
+        .you {
+            color: red;
+        }
+
+        footer {
+            font-size: 10pt;
+            color: gray;
+            bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="about" class="center">
+    <h1>Mezzo Timer</h1>
+    <h2>What can <span class="you">you</span> do in thirty minutes?</h2>
+    <br>
+    <p>Version {{version}}</p>
+    <p v-if="version !== availableVersion" class="you">New Version Available: {{availableVersion}}<br><br>
+        <button @click="download()">Go to download site</button>
+    </p>
+</div>
+
+<!--<div id="attribution">-->
+<!--<header>Attribution</header><br>-->
+<!--<article>-->
+<!--Sounds courtesy of freesound:<br/><br/>-->
+<!--1840 Grandfather Clock by daveincamas<br><span class="fineprint">(http://www.freesound.org/people/daveincamas/sounds/27078/)</span><br><br>-->
+<!--1840 Grandfather Clock Retake by daveincamas<br><span class="fineprint">(http://www.freesound.org/people/daveincamas/sounds/44099/)</span><br><br>-->
+<!--Egg Timer by xyzr_kx<br><span class="fineprint">(http://www.freesound.org/people/xyzr_kx/sounds/14263/)</span>-->
+<!--</article>-->
+
+<!--</div>-->
+<br><br>
+<footer>
+    Copyright (C) 2021 Version 2 Software, LLC. All rights reserved.
+</footer>
+
+<script src="../lib/vue.js"></script>
+<script>
+    const mrp = require("minimal-request-promise");
+    const {shell} = require('electron');
+
+    new Vue({
+        el: "#about",
+        data: {
+            version: "2.0.0",
+            availableVersion: null
+        },
+        methods: {
+            download() {
+                shell.openExternal("https://mezzotimer.com")
+            }
+        },
+        mounted() {
+            mrp.get("https://mezzotimer.com/version.json", {}).then(response => {
+                let body = JSON.parse(response.body);
+                this.availableVersion = body.version;
+            }).catch(err => {
+                console.error(err);
+                this.availableVersion = "Could not check for available version.";
+            })
+        }
+    });
+</script>
+</body>
+</html>

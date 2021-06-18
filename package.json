@@ -1,0 +1,69 @@
+{
+  "name": "Mezzo",
+  "version": "2.0.0",
+  "description": "Mezzo",
+  "main": "src/app.js",
+  "repository": {
+    "type": "git",
+    "url": ".git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "clean": "rm -rf dist; rm -rf coverage",
+    "test": "jest --coverage",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.mezzotimer.mezzo",
+    "directories": {
+      "output": "dist"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 100,
+          "y": 220
+        },
+        {
+          "x": 400,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "win": {
+      "target": "nsis"
+    }
+  },
+  "author": "Version 2 Software, LLC",
+  "license": "Apache 2.0",
+  "dependencies": {
+    "electron-store": "8.0.0",
+    "jquery": "3.6.0",
+    "lodash": "4.17.21",
+    "minimal-request-promise": "1.5.0",
+    "node-cron": "3.0.0",
+    "sqlite3": "5.0.2",
+    "uuid": "8.3.2"
+  },
+  "devDependencies": {
+    "electron": "13.1.2",
+    "electron-builder": "22.11.7",
+    "electron-installer-dmg": "3.0.0",
+    "electron-packager": "15.2.0",
+    "eslint-config-standard": "16.0.3",
+    "eslint-plugin-import": "2.23.4",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-promise": "5.1.0",
+    "jasmine": "3.7.0",
+    "jest": "27.0.4"
+  }
+}

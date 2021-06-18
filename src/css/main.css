@@ -1,0 +1,350 @@
+/*
+ * Copyright (C) 2013 Version 2 Software, LLC. All rights reserved.
+ */
+body {
+    background-color: black;
+    font-family: Helvetica;
+    font-size: 12pt;
+    width: 100%;
+    height: 100%;
+}
+header {
+    text-align: center;
+    font-size: 14pt;
+    font-weight: bold;
+}
+#timer-back header {
+    font-size: 12pt;
+}
+h2 {
+    font-size: 12pt;
+}
+#timer-back h2 {
+    text-align: center;
+}
+article {
+    font-size: 8pt;
+}
+footer {
+    position: relative;
+    text-align: center;
+    font-size: 10pt;
+}
+.fineprint {
+    font-size: 10pt;
+}
+#info-button {
+    font-size: 12pt;
+    font-style: italic;
+    font-family: georgia;
+}
+/* end of fonts */
+#mezzora {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    top: 8%;
+    height: 80%;
+}
+#clock {
+    position: absolute;
+    left: 0%;
+    right: 0%;
+    top: 0%;
+    height: 79%;
+    border-top-left-radius: 200px;
+    border-top-right-radius: 200px;
+}
+#triangle {
+    position: absolute;
+    bottom: 32%;
+    left: 45%;
+    right: 45%;
+    width: 10%;
+    height: 10%;
+}
+#feedback-button {
+    position: absolute;
+    bottom: 0px;
+    left: 5px;
+    -webkit-user-select: none;
+    user-select: none;
+}
+#completed-counter {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    font-size: 12pt;
+    color: white;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#mezzcanvas {
+    position: absolute;
+    bottom: 0%;
+    left: 0px;
+    width: 100%;
+    height: 30%;
+}
+/*.big-button {*/
+    /*position: absolute;*/
+    /*bottom: 0px;*/
+    /*height: 100%;*/
+    /*background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #858585), color-stop(50%, #a1a1a1), color-stop(51%, #989898), color-stop(100%, #c6c6c6));*/
+/*}*/
+
+#start-stop, #pause-resume, #short-break, #long-break {
+    position: absolute;
+    height: 100%;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #858585), color-stop(50%, #a1a1a1), color-stop(51%, #989898), color-stop(100%, #c6c6c6));
+}
+
+#middle-buttons {
+    position: absolute;
+    bottom: 0px;
+    height: 20%;
+    width: 100%;
+}
+
+#start-stop {
+    left: 0px;
+    width: 44.5%;
+    border-bottom-left-radius: 20px;
+}
+
+#pause-resume {
+    right: 0px;
+    width: 44.5%;
+    border-bottom-right-radius: 20px;
+}
+
+#short-break {
+    top: 0px;
+    height: 40%;
+    left: 45%;
+    right: 45%;
+}
+
+#long-break {
+    bottom: 0px;
+    height: 60%;
+    left: 45%;
+    right: 45%;
+}
+
+#volume-control {
+    position: absolute;
+    bottom: 7px;
+    left: 5px;
+    width: 20px;
+    height: 20px;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#log-button {
+    position: absolute;
+    bottom: 0px;
+    left: 40%;
+    width: 20%;
+    text-align: left;
+}
+
+#refresh-button {
+    position: absolute;
+    bottom: 0px;
+    right: 40%;
+    text-align: right;
+}
+
+#cloud-button {
+    position: absolute;
+    bottom: 0px;
+    right: 20%;
+    text-align: right;
+}
+
+#options-button {
+    position: absolute;
+    bottom: 0px;
+    right: 10%;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#info-button {
+    position: absolute;
+    bottom: 0px;
+    right: 5px;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#options-button img,
+#info-button img,
+#refresh-button img,
+#cloud-button img {
+    width: 22px;
+    height: 22px;
+}
+#menu-button {
+    position: absolute;
+    bottom: 7px;
+    right: 7px;
+    background-color: black;
+    color: white;
+    font-size: 18pt;
+}
+.done-button {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+}
+#out-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+.done-button img,
+#out-button img,
+#log-button img,
+#feedback-button img {
+    width: 20px;
+    height: 20px;
+}
+
+#cloud-button img,
+#options-button img {
+    width: 15px;
+    height: 15px;
+    margin-bottom: 7px;
+    margin-right: 7px;
+    /*background-color: yellow;*/
+    vertical-align: top;
+}
+
+#timer-front {
+    position: absolute;
+    height: 96%;
+    width: 96%;
+}
+
+#timer-menu, #timer-change-password, #timer-forgot-password, #timer-back, #signin, #signup, #options, #loggedout, #confirmation, #delete-user, #download {
+    position: absolute;
+    /*display: none;*/
+    height: 94%;
+    width: 94%;
+    background-color: black;
+    color: white;
+}
+
+#options {
+    font-size: 8pt;
+    line-height: 1.5em;
+}
+
+#timer-back footer {
+    position: absolute;
+    width: 96%;
+    font-size: 8pt;
+    font-weight: normal;
+    text-align: center;
+    bottom: 2px;
+}
+#timer-back .help-topic {
+    font-size: 8pt;
+    font-weight: bold;
+    padding-right: 5px;
+    padding-top: 2px;
+    vertical-align: top;
+    text-align: right;
+}
+#timer-back .help-text {
+    font-size: 8pt;
+    font-weight: normal;
+    padding-left: 5px;
+    padding-top: 2px;
+    vertical-align: top;
+}
+#timer-back .help-icon {
+    font-size: 8pt;
+    font-weight: normal;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+/*#attribution,*/
+/*#options {*/
+    /*margin: 20px;*/
+    /*padding: 20px;*/
+    /*background-color: white;*/
+    /*min-width: 400px;*/
+    /*min-height: 300px;*/
+    /*width: 400px;*/
+    /*height: 300px;*/
+    /*border-radius: 20px;*/
+    /*border: 1px solid #DDDDDD;*/
+    /*box-shadow: 2px 2px 2px #DDDDDD;*/
+/*}*/
+
+.center {
+    text-align: center;
+}
+
+.button {
+    background-color: dodgerblue;
+    border: none;
+    color: white;
+    padding: 5px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 20px;
+    margin-top: 5px;
+}
+
+.disabled-button {
+    background-color: gray;
+    border: none;
+    color: white;
+    padding: 5px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 20px;
+    margin-top: 5px;
+}
+
+.secondary-button {
+    background-color: black;
+    border: solid dodgerblue 2px;
+    color: white;
+    padding: 5px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 20px;
+    margin-top: 5px;
+}
+
+.loginStatus {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.play-pause {
+    width: 35%;
+    height: 100%;
+    margin: auto;
+}
+
+.defaultCursor {
+    cursor: default;
+}
+
+.menuitem:hover {
+    background-color: dodgerblue;
+}

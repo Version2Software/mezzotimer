@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<!-- Copyright (C) 2021 Version 2 Software, LLC. All rights reserved. -->
+
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="../css/print.css">
+
+    <title>Event Log</title>
+</head>
+
+<body>
+    <div id="report">
+        <p><a href="" @click="print()">Print</a></p>
+        <div class="center">{{ localStorage["email"] }}</div>
+        <br><br>
+        Report Date: {{reportDate}}
+        <br>
+        Period: {{periodFrom}} - {{periodTo}}
+        <br><br>
+        <div class="center">Completed: {{totalCount}}</div>
+        <div>
+            <table>
+                <tr v-for="sr in summaryRows">
+                    <td width="70%">{{sr.taskDescription}}</td>
+                    <td width="30%">{{sr.count}}</td>
+                </tr>
+            </table>
+        </div>
+        <br>
+        <div class="center">Events</div>
+        <div>
+            <table>
+                <tr v-for="d in docs">
+                    <td width="30%">{{dateFormat(new Date(d.eventTimestamp), "yyyy-mm-dd h:MM TT")}}</td>
+                    <td width="45%">{{d.description}}</td>
+                    <td width="20%">{{d.eventType}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- This enables jquery to work -->
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+    <script src="../lib/jquery.min.js"></script>
+    <script src="../lib/date.format.js"></script>
+    <script src="../lib/vue.js"></script>
+    <script src="../controller/print.js"></script>
+</body>
+</html>
