@@ -12,7 +12,8 @@
 `npm run start`  
 
 ### Built using:   
-node v16.0.0  
+node 16.0.0  
+electron 13.1.2
 
 ### To Download Prebuilt Release:
 https://mezzotimer.com
