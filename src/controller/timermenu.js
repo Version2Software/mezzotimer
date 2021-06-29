@@ -4,7 +4,7 @@
 
 // const {shell} = require('electron');
 
-timerMenuComponent = Vue.component("menu-component", {
+const timerMenuComponent = {
     template: `
         <div id="timer-menu" class="defaultCursor">
             <table>
@@ -30,5 +30,4 @@ timerMenuComponent = Vue.component("menu-component", {
             ipcRenderer.send("about");
         }
     }
-});
-
+}

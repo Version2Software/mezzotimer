@@ -2,17 +2,18 @@
   "name": "Mezzo",
   "version": "2.0.0",
   "description": "Mezzo",
-  "main": "src/app.js",
+  "main": "staging/app.js",
   "repository": {
     "type": "git",
     "url": ".git"
   },
   "scripts": {
-    "start": "electron .",
-    "clean": "rm -rf dist; rm -rf coverage",
+    "clean": "rm -rf dist coverage staging",
+    "copy-files": "mkdir -p staging && cp -R electron/ staging/ && cp -R src/ staging/",
+    "stage": "npm run clean && npm run copy-files",
     "test": "jest --coverage",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "start": "npm run stage && electron staging/app.js",
+    "dist": "npm run stage && electron-builder"
   },
   "build": {
     "appId": "com.mezzotimer.mezzo",

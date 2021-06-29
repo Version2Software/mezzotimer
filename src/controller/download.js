@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Version 2 Software, LLC. All rights reserved.
  */
 
-downloadComponent = Vue.component("download-component", {
+const downloadComponent = {
     template: `
         <div id="download">
             Mandatory update available. Please download and install.<br>
@@ -18,4 +18,4 @@ downloadComponent = Vue.component("download-component", {
                 .then(_ => ipcRenderer.send("exit"));
         }
     }
-});
+}

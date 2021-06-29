@@ -12,7 +12,7 @@ const defaultNotification = "true";
 const defaultTimerColor = "green";
 const defaultGongStyle = "progressive";
 
-optionsComponent = Vue.component("options-component", {
+const optionsComponent = {
     template: `
         <div id="options">
             Color:
@@ -121,4 +121,4 @@ optionsComponent = Vue.component("options-component", {
             this.gongStyle = localStorage["gongstyle"] = defaultGongStyle;
         }
     }
-});
+}
