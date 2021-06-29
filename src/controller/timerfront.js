@@ -18,28 +18,35 @@ const props = {};
 let taskDescription = null;
 let needGong = true;
 let vol = 1.0;
-    
-timerFrontComponent = Vue.component("mezzora-timer", {
+
+const timerFrontComponent = {
     template: `
         <div>
             <div>
                 <div id="completed-counter" title="Completed"></div>
             </div>
-            
+
             <div id="mezzora">
                 <div id="clock">
                     <canvas id="triangle"></canvas>
                     <canvas id="mezzcanvas"></canvas>
                 </div>
                 <div id="middle-buttons">
-                    <div id="start-stop" class="center"><img id="play-button" src="../images/play-pause-gray.png" class="play-pause" @click="startPauseResume" @mouseenter="buttonIn('start')" @mouseleave="buttonOut('start')" title="Start/Pause"/></div>
+                    <div id="start-stop" class="center"><img id="play-button" src="../images/play-pause-gray.png"
+                                                             class="play-pause" @click="startPauseResume"
+                                                             @mouseenter="buttonIn('start')"
+                                                             @mouseleave="buttonOut('start')" title="Start/Pause"/>
+                    </div>
                     <div id="short-break" @click="startShortBreak" title="Short Break"></div>
                     <div id="long-break" @click="startLongBreak" title="Long Break"></div>
-                    <div id="pause-resume" class="center"><img id="stop-button" src="../images/stop-gray.png" class="play-pause" @click="stop" @mouseenter="buttonIn('stop')" @mouseleave="buttonOut('stop')" title="Stop"/></div>
-                </div>             
-             </div>
-            
-             <div>
+                    <div id="pause-resume" class="center"><img id="stop-button" src="../images/stop-gray.png"
+                                                               class="play-pause" @click="stop"
+                                                               @mouseenter="buttonIn('stop')"
+                                                               @mouseleave="buttonOut('stop')" title="Stop"/></div>
+                </div>
+            </div>
+
+            <div>
                 <canvas id="volume-control" @click="stepVolume" width=200 height=200 title="Volume"></canvas>
                 <div id="log-button" @click="viewLog"><img src="../images/log.png" title="Records"></div>
                 <div id="refresh-button" @click="refreshTimerCount"><img src="../images/reset.png" title="Refresh"></div>
@@ -102,7 +109,7 @@ timerFrontComponent = Vue.component("mezzora-timer", {
                 });
             } else if (realState === states.RUNNING) {
                 this.processEvent(events.START);
-                
+
             } else if (realState === states.PAUSED) {
                 this.processEvent(events.START);
             }
@@ -528,4 +535,4 @@ timerFrontComponent = Vue.component("mezzora-timer", {
             bus.$emit("currentView", "timerMenuComponent");
         }
     }
-});
+}
