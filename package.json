@@ -2,17 +2,17 @@
   "name": "Mezzo",
   "version": "2.0.0",
   "description": "Mezzo",
-  "main": "staging/app.js",
+  "main": "staging/main.js",
   "repository": {
     "type": "git",
     "url": ".git"
   },
   "scripts": {
     "clean": "rm -rf dist coverage staging",
-    "copy-files": "mkdir -p staging && cp -R electron/ staging/ && cp -R src/ staging/",
-    "stage": "npm run clean && npm run copy-files",
+    "copy-files": "mkdir -p staging && cp -R electron/ staging/",
+    "stage": "npm run clean && vue-cli-service build && npm run copy-files",
     "test": "jest --coverage",
-    "start": "npm run stage && electron staging/app.js",
+    "start": "npm run stage && electron staging/main.js",
     "dist": "npm run stage && electron-builder"
   },
   "build": {
@@ -53,9 +53,11 @@
     "minimal-request-promise": "1.5.0",
     "node-cron": "3.0.0",
     "sqlite3": "5.0.2",
-    "uuid": "8.3.2"
+    "uuid": "8.3.2",
+    "vue": "^2.6.14"
   },
   "devDependencies": {
+    "@vue/cli-service": "~4.5.0",
     "electron": "13.1.2",
     "electron-builder": "22.11.7",
     "electron-installer-dmg": "3.0.0",

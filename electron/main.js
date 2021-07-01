@@ -19,23 +19,27 @@ const size = os.platform() === 'darwin' ? 250 : 270;
 let winTimer, winEvents, winPrint, winError, winAbout, winPrivacy, winPrivacyReadOnly;
 let cachedPeriod = null;
 
-const DEBUG = false;
+const DEBUG = true;
+
+// const winPrefs = {
+//     nodeIntegration: true,
+//     contextIsolation: false,
+//     enableRemoteModule: true
+// };
 
 const winPrefs = {
     nodeIntegration: true,
-    contextIsolation: false,
-    enableRemoteModule: true
+    contextIsolation: true,
+    preload: path.join(__dirname, 'preload.js')
 };
 
 function createPrivacyWindow() {
 
     winPrivacy = new BrowserWindow({x: 20, y: 20, width: 800, height: 488, webPreferences: winPrefs});
 
-    winPrivacy.loadURL(url.format({
-        pathname: path.join(__dirname, "html/privacy.html"),
-        protocol: "file:",
-        slashes: true
-    }));
+    winPrivacy.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+        winPrivacy.webContents.send("page", "privacy")
+    })
 
     winPrivacy.setMenu(null);
     winPrivacy.on("closed", () => winPrivacy = null);
@@ -46,11 +50,9 @@ function createPrivacyWindowReadOnly() {
 
     winPrivacyReadOnly = new BrowserWindow({x: 20, y: 20, width: 800, height: 488, webPreferences: winPrefs});
 
-    winPrivacyReadOnly.loadURL(url.format({
-        pathname: path.join(__dirname, "html/privacy-read-only.html"),
-        protocol: "file:",
-        slashes: true
-    }));
+    winPrivacyReadOnly.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+        winPrivacyReadOnly.webContents.send("page", "privacy-readonly")
+    })
 
     winPrivacyReadOnly.setMenu(null);
     winPrivacyReadOnly.on("closed", () => winPrivacy = null);
@@ -64,11 +66,9 @@ function createTimerWindow(left) {
         winTimer = new BrowserWindow({x: left, y: 40, width: size, height: size, show: false, webPreferences: winPrefs});
     }
 
-    winTimer.loadURL(url.format({
-        pathname: path.join(__dirname, "html/index.html"),
-        protocol: "file:",
-        slashes: true
-    }));
+    winTimer.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+        winTimer.webContents.send("page", "timer")
+    })
 
     if (DEBUG) {
         winTimer.webContents.openDevTools();
@@ -95,11 +95,9 @@ function createEventsWindow() {
     }
 
     winEvents.setMenu(null);
-    winEvents.loadURL(url.format({
-        pathname: path.join(__dirname, "html/events.html"),
-        protocol: "file:",
-        slashes: true
-    }));
+    winEvents.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+        winEvents.webContents.send("page", "events")
+    })
 
     if (DEBUG) {
         winEvents.webContents.openDevTools();
@@ -121,11 +119,10 @@ function createPrintWindow() {
     }
 
     winPrint.setMenu(null);
-    winPrint.loadURL(url.format({
-        pathname: path.join(__dirname, "html/print.html"),
-        protocol: "file:",
-        slashes: true
-    }));
+
+    winPrint.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+        winPrint.webContents.send("page", "print")
+    })
 
     if (DEBUG) {
         winPrint.webContents.openDevTools();
@@ -152,11 +149,7 @@ function createErrorWindow() {
     }
 
     winError.setMenu(null);
-    winError.loadURL(url.format({
-        pathname: path.join(__dirname, "html/error.html"),
-        protocol: "file:",
-        slashes: true
-    }));
+    winError.loadURL(path.join("file://", __dirname, "index.html"));
 
     if (DEBUG) {
         winError.webContents.openDevTools();
@@ -182,11 +175,9 @@ function createAboutWindow() {
     }
 
     winAbout.setMenu(null);
-    winAbout.loadURL(url.format({
-        pathname: path.join(__dirname, "html/about.html"),
-        protocol: "file:",
-        slashes: true
-    }));
+    winAbout.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+        winAbout.webContents.send("page", "about")
+    })
 
     if (DEBUG) {
         winAbout.webContents.openDevTools();
