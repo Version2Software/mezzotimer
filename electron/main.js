@@ -32,6 +32,7 @@ const DEBUG = false;
 const winPrefs = {
     nodeIntegration: true,
     contextIsolation: true,
+    enableRemoteModule: true,
     preload: path.join(__dirname, 'preload.js')
 };
 
@@ -210,6 +211,7 @@ function initEventListeners() {
 
     ipcMain.handle("promptDescription" , async (event, taskDescription) => {
         let result = await prompt({
+            width: size - 20,
             title: "Task",
             label: "Task description:",
             value: taskDescription,
@@ -224,6 +226,7 @@ function initEventListeners() {
 
     ipcMain.handle("changeDescription" , async (event, taskDescription) => {
         let result = await prompt({
+            width: size - 20,
             title: "Task",
             label: "Task description:",
             value: taskDescription,
