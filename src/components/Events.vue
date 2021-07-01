@@ -50,39 +50,9 @@
 
 <script>
 
-    const {summary, getPeriod} = require("../util/util");
-    const _ = require("lodash");
-    const $ = require("../lib/jquery.min")
-
-    const deleteEvent = async (e) => {
-        // remote.dialog.showMessageBox(
-        //     await remote.getCurrentWindow(),
-        //     {
-        //         type: "question",
-        //         buttons: ["Yes", "No"],
-        //         title: "Confirm",
-        //         message: "Delete " + e.description + "?"
-        //     })
-        //     .then(result => {
-        //         // 0 means Yes
-        //         if (result.response === 0) {
-        //             ipcRenderer.invoke("delete", e.rowid)
-        //                 .then(_ => refreshLog())
-        //                 .catch(err => ipcRenderer.send("error", err));
-        //         }
-        //     });
-    };
-
-    const editEvent = (e) => {
-        // return jPrompt("Task description:", e.description, "Prompt Dialog", function (desc) {
-        //     if (desc) {
-        //         e.description = desc;
-        //         ipcRenderer.invoke("update", e)
-        //             .then(_ => refreshLog())
-        //             .catch(err => ipcRenderer.send("error", err));
-        //     }
-        // });
-    };
+const _ = require("lodash");
+const $ = require("jquery")
+const {summary, getPeriod} = require("../util/util");
 
 export default {
     data() {
@@ -110,11 +80,17 @@ export default {
         textColor: function(e) {
             return (e.eventType === "COMPLETE") ? "red" : "black";
         },
-        deleteEvent: function(e) {
-            deleteEvent(e);
+        deleteEvent: async function(e) {
+            if (await window.api.delete(e)) {
+                this.refreshLog();
+            }
         },
-        editEvent: function(e) {
-            editEvent(e);
+        editEvent: async function(e) {
+            let desc = await window.api.changeDescription(e.description);
+            if (desc) {
+                e.description = desc;
+                window.api.update(e);
+            }
         },
         refreshLog: function() {
             const timePeriod = $("#time-period").val();

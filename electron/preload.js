@@ -1,10 +1,40 @@
 'use strict'
 
-const { contextBridge, ipcRenderer, shell } = require('electron');
+const {contextBridge, ipcRenderer, shell} = require('electron');
+const remote = require('@electron/remote')
 
-// In this file we want to expose protected methods that allow the renderer
-// process to use the ipcRenderer without exposing the entire object.
 contextBridge.exposeInMainWorld("api", {
+
+    'promptDescription': async (taskDescription) => {
+        return ipcRenderer.invoke('promptDescription', taskDescription);
+    },
+    'changeDescription': async (taskDescription) => {
+        return ipcRenderer.invoke('changeDescription', taskDescription);
+    },
+    'delete': async (e) => {
+        let w = await remote.getCurrentWindow();
+        let result = await remote.dialog.showMessageBox(w, {
+            type: "question",
+            buttons: ["Delete", "Cancel"],
+            title: "Confirm",
+            message: "Delete " + e.description + "?"
+        });
+        // 0 means Yes
+        if (result.response === 0) {
+            return await ipcRenderer.invoke("delete", e.rowid);
+        }
+    },
+    'confirmCancel': async () => {
+        let w = await remote.getCurrentWindow();
+        let result = await remote.dialog.showMessageBox(w, {
+            type: "question",
+            buttons: ["Yes", "No"],
+            title: "Confirm Cancel",
+            message: "Are you sure you want to cancel?"
+        });
+        // 0 means Yes
+        return (result.response === 0)
+    },
     'download': () => {
         shell.openExternal("https://mezzotimer.com")
             .then(_ => ipcRenderer.send("exit"))
@@ -14,6 +44,9 @@ contextBridge.exposeInMainWorld("api", {
     },
     'save': (me) => {
         ipcRenderer.send("save", me)
+    },
+    'update': (me) => {
+        ipcRenderer.send("update", me)
     },
     'viewLog': () => {
         ipcRenderer.send("viewLog");

@@ -9,11 +9,11 @@
         <audio id="audio-extra-gong" src="../ogg/extra-gong.ogg"></audio>
         <audio id="audio-alarm" src="../ogg/low-gong.ogg"></audio>
 
-        <!-- This enables jquery to work -->
-        <script>if (typeof module === 'object') {
-            window.module = module;
-            module = undefined;
-        }</script>
+<!--        &lt;!&ndash; This enables jquery to work &ndash;&gt;-->
+<!--        <script>if (typeof module === 'object') {-->
+<!--            window.module = module;-->
+<!--            module = undefined;-->
+<!--        }</script>-->
 
         <div>
             <div id="completed-counter" title="Completed"></div>
@@ -25,7 +25,7 @@
                 <canvas id="mezzcanvas"></canvas>
             </div>
             <div id="middle-buttons">
-                <div id="start-stop" class="center"><img id="play-button" src="../images/play-pause-gray.png"
+                <div id="start-stop" v-prompt="" class="center"><img id="play-button" src="../images/play-pause-gray.png"
                                                          class="play-pause" @click="startPauseResume"
                                                          @mouseenter="buttonIn('start')"
                                                          @mouseleave="buttonOut('start')" title="Start/Pause"/>
@@ -49,13 +49,11 @@
 </template>
 
 <script>
+    const $ = require("jquery")
     import { EventBus } from '@/event-bus';
     const timerutil = require("../util/timerutil");
     const {MezzoraEvent} = require("../domain/mezzoraevent");
     const {events, states, defaults} = require("../util/mzConstants");
-    const $ = require("../lib/jquery.min")
-    // const jQuery = $
-    // const {jPrompt} = require("../lib/jquery.alerts-1.1/jquery.alerts")
 
     let globalState = "IDLE";
 
@@ -116,15 +114,14 @@
             }
         },
         methods: {
-            startPauseResume() {
+            async startPauseResume() {
                 const self = this;
                 if (realState === states.IDLE) {
-                    // return jPrompt("Task description:", taskDescription, "Prompt Dialog", function (desc) {
-                    //     if (desc) {
-                            taskDescription = "42";
-                            self.processEvent(events.START);
-                        // }
-                    // });
+                    let desc = await window.api.promptDescription(taskDescription);
+                    if (desc) {
+                        taskDescription = desc;
+                        self.processEvent(events.START);
+                    }
                 } else if (realState === states.RUNNING) {
                     this.processEvent(events.START);
 
@@ -133,15 +130,12 @@
                 }
             },
 
-            stop() {
+            async stop() {
                 const self = this;
                 if (realState === states.RUNNING || realState === states.PAUSED) {
-                    return jConfirm("Are you sure you want to cancel?", "Confirm Cancel", function (result) {
-                        self.error("confirm=" + result);
-                        if (result) {
-                            self.processEvent(events.STOP);
-                        }
-                    });
+                    if (await window.api.confirmCancel()) {
+                        self.processEvent(events.STOP);
+                    }
                 } else if (realState === states.SHORT_BREAK_RUNNING) {
                     this.processEvent(events.STOP);
 

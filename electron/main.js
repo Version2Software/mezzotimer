@@ -4,10 +4,12 @@
 
 const os = require("os");
 const path = require("path");
-const url = require("url");
 const fs = require('fs');
 
 const {app, BrowserWindow, ipcMain, Menu, screen} = require("electron");
+require('@electron/remote/main').initialize()
+const prompt = require('electron-prompt');
+
 const Store = require('electron-store');
 
 const remoteService = require("./service/remoteService")
@@ -206,6 +208,33 @@ function initEventListeners() {
         return cachedPeriod;
     });
 
+    ipcMain.handle("promptDescription" , async (event, taskDescription) => {
+        let result = await prompt({
+            title: "Task",
+            label: "Task description:",
+            value: taskDescription,
+            inputAttrs: {
+                type: 'text'
+            },
+            type: 'input'
+        }, winTimer);
+
+        return result;
+    });
+
+    ipcMain.handle("changeDescription" , async (event, taskDescription) => {
+        let result = await prompt({
+            title: "Task",
+            label: "Task description:",
+            value: taskDescription,
+            inputAttrs: {
+                type: 'text'
+            },
+            type: 'input'
+        }, winEvents);
+
+        return result;
+    });
     ipcMain.on("about", () => {
         createAboutWindow();
     });
