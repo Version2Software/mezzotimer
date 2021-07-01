@@ -47,7 +47,6 @@
   "author": "Version 2 Software, LLC",
   "license": "Apache 2.0",
   "dependencies": {
-    "@electron/remote": "^1.2.0",
     "electron-prompt": "^1.6.2",
     "electron-store": "8.0.0",
     "jquery": "3.6.0",

@@ -81,7 +81,7 @@ export default {
             return (e.eventType === "COMPLETE") ? "red" : "black";
         },
         deleteEvent: async function(e) {
-            if (await window.api.delete(e)) {
+            if (await window.api.deleteTask(e)) {
                 this.refreshLog();
             }
         },

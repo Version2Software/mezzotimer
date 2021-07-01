@@ -6,10 +6,9 @@ const os = require("os");
 const path = require("path");
 const fs = require('fs');
 
-const {app, BrowserWindow, ipcMain, Menu, screen} = require("electron");
-require('@electron/remote/main').initialize()
-const prompt = require('electron-prompt');
+const {app, BrowserWindow, ipcMain, Menu, screen, dialog} = require("electron");
 
+const prompt = require('electron-prompt');
 const Store = require('electron-store');
 
 const remoteService = require("./service/remoteService")
@@ -32,7 +31,6 @@ const DEBUG = false;
 const winPrefs = {
     nodeIntegration: true,
     contextIsolation: true,
-    enableRemoteModule: true,
     preload: path.join(__dirname, 'preload.js')
 };
 
@@ -210,21 +208,14 @@ function initEventListeners() {
     });
 
     ipcMain.handle("promptDescription" , async (event, taskDescription) => {
-        let result = await prompt({
-            width: size - 20,
-            title: "Task",
-            label: "Task description:",
-            value: taskDescription,
-            inputAttrs: {
-                type: 'text'
-            },
-            type: 'input'
-        }, winTimer);
-
-        return result;
+        return descriptionHelper(taskDescription, winTimer);
     });
 
     ipcMain.handle("changeDescription" , async (event, taskDescription) => {
+        return descriptionHelper(taskDescription, winEvents);
+    });
+
+    async function descriptionHelper(taskDescription, currentWin) {
         let result = await prompt({
             width: size - 20,
             title: "Task",
@@ -234,10 +225,37 @@ function initEventListeners() {
                 type: 'text'
             },
             type: 'input'
-        }, winEvents);
+        }, currentWin);
 
         return result;
+    }
+
+    ipcMain.handle("deleteTask" , async (event, e) => {
+        let result = await dialog.showMessageBox(winEvents, {
+            type: "question",
+            buttons: ["Delete", "Cancel"],
+            title: "Confirm",
+            message: "Delete " + e.description + "?"
+        });
+        // 0 means Yes
+        if (result.response === 0) {
+            return await db.delete(e.rowid);
+        } else {
+            return null;
+        }
     });
+
+    ipcMain.handle("confirmCancel" , async (event) => {
+        let result = await dialog.showMessageBox(winTimer, {
+            type: "question",
+            buttons: ["Yes", "No"],
+            title: "Confirm Cancel",
+            message: "Are you sure you want to cancel?"
+        });
+        // 0 means Yes
+        return (result.response === 0)
+    });
+
     ipcMain.on("about", () => {
         createAboutWindow();
     });
@@ -253,10 +271,6 @@ function initEventListeners() {
     ipcMain.on("save", async (event, me) => {
         await db.save(me);
         refresh();
-    });
-
-    ipcMain.handle("delete", async (event, sortTimestamp) => {
-        return await db.delete(sortTimestamp);
     });
 
     ipcMain.handle("update", async (event, item) => {

@@ -1,7 +1,6 @@
 'use strict'
 
 const {contextBridge, ipcRenderer, shell} = require('electron');
-const remote = require('@electron/remote')
 
 contextBridge.exposeInMainWorld("api", {
 
@@ -11,29 +10,11 @@ contextBridge.exposeInMainWorld("api", {
     'changeDescription': async (taskDescription) => {
         return ipcRenderer.invoke('changeDescription', taskDescription);
     },
-    'delete': async (e) => {
-        let w = await remote.getCurrentWindow();
-        let result = await remote.dialog.showMessageBox(w, {
-            type: "question",
-            buttons: ["Delete", "Cancel"],
-            title: "Confirm",
-            message: "Delete " + e.description + "?"
-        });
-        // 0 means Yes
-        if (result.response === 0) {
-            return await ipcRenderer.invoke("delete", e.rowid);
-        }
+    'deleteTask': async (e) => {
+        return await ipcRenderer.invoke('deleteTask', e);
     },
     'confirmCancel': async () => {
-        let w = await remote.getCurrentWindow();
-        let result = await remote.dialog.showMessageBox(w, {
-            type: "question",
-            buttons: ["Yes", "No"],
-            title: "Confirm Cancel",
-            message: "Are you sure you want to cancel?"
-        });
-        // 0 means Yes
-        return (result.response === 0)
+        return await ipcRenderer.invoke('confirmCancel');
     },
     'download': () => {
         shell.openExternal("https://mezzotimer.com")
