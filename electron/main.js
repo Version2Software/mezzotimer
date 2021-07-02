@@ -238,9 +238,10 @@ function initEventListeners() {
             title: "Confirm",
             message: "Delete " + e.description + "?"
         });
+
         // 0 means Yes
         if (result.response === 0) {
-            return await db.delete(e.rowid);
+            return await db.delete(e.rowId);
         } else {
             return null;
         }

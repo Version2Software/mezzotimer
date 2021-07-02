@@ -15,7 +15,7 @@
         <br>
         <br>
 
-        <div class="center" v-cloak>Mezzos: {{totalCount}}</div>
+        <div class="center" v-cloak>Completed Mezzos: {{totalCount}}</div>
 
         <div id="completed-div">
             <table id="completed-table" v-cloak>
