@@ -11,8 +11,8 @@ const {app, BrowserWindow, ipcMain, Menu, screen, dialog} = require("electron");
 const prompt = require('electron-prompt');
 const Store = require('electron-store');
 
-const remoteService = require("./remoteService")
-const db = new remoteService.RemoteService();
+const {DatabaseService} = require("./databaseService")
+const db = new DatabaseService();
 
 const store = new Store();
 const size = os.platform() === 'darwin' ? 250 : 270;

@@ -4,7 +4,7 @@
 
 const sqlite3 = require('sqlite3');
 
-class RemoteService {
+class DatabaseService {
 
     logError(err) {
         ipcRenderer.send("error", err);
@@ -29,7 +29,7 @@ class RemoteService {
     }
 
     shutdown() {
-        console.log('RemoteService shutdown')
+        console.log('DatabaseService shutdown')
         this.db.close();
     }
 
@@ -97,4 +97,4 @@ class RemoteService {
     }
 }
 
-module.exports.RemoteService = RemoteService;
+module.exports.DatabaseService = DatabaseService;
