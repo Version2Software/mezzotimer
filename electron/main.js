@@ -39,6 +39,7 @@ function createPrivacyWindow() {
     winPrivacy = new BrowserWindow({x: 20, y: 20, width: 800, height: 488, webPreferences: winPrefs});
 
     winPrivacy.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+        winPrivacy.setTitle("Privacy Policy")
         winPrivacy.webContents.send("page", "privacy")
     })
 
@@ -52,6 +53,7 @@ function createPrivacyWindowReadOnly() {
     winPrivacyReadOnly = new BrowserWindow({x: 20, y: 20, width: 800, height: 488, webPreferences: winPrefs});
 
     winPrivacyReadOnly.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+        winPrivacyReadOnly.setTitle("Privacy Policy")
         winPrivacyReadOnly.webContents.send("page", "privacy-readonly")
     })
 
@@ -98,6 +100,7 @@ function createEventsWindow() {
 
     winEvents.setMenu(null);
     winEvents.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+        winEvents.setTitle("Mezzo Events")
         winEvents.webContents.send("page", "events")
     })
 
@@ -123,6 +126,7 @@ function createPrintWindow() {
     winPrint.setMenu(null);
 
     winPrint.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+        winPrint.setTitle("Print")
         winPrint.webContents.send("page", "print")
     })
 
@@ -178,6 +182,7 @@ function createAboutWindow() {
 
     winAbout.setMenu(null);
     winAbout.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+        winAbout.setTitle("About")
         winAbout.webContents.send("page", "about")
     })
 
