@@ -11,7 +11,7 @@
     import timerMenuComponent from './TimerMenu.vue';
     import optionsComponent from './Options.vue';
 
-    import { EventBus } from '@/event-bus';
+    import { EventBus } from '@/eventbus';
 
     export default {
         data() {

@@ -10,7 +10,7 @@
         <br>
         Period: {{periodFrom}} - {{periodTo}}
         <br><br>
-        <div class="center">Completed: {{totalCount}}</div>
+        <div class="center">Completed Mezzos: {{totalCount}}</div>
         <div>
             <table>
                 <tr v-for="sr in summaryRows">

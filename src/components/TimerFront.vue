@@ -50,7 +50,7 @@
 
 <script>
     const $ = require("jquery")
-    import { EventBus } from '@/event-bus';
+    import { EventBus } from '@/eventbus';
     const timerutil = require("../util/timerutil");
     const {events, states, defaults} = require("../util/mzConstants");
 
