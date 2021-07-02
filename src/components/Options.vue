@@ -32,13 +32,13 @@
 
         <br>
 
-        <input type="checkbox" v-model="tick" true-value="true" false-value="false">Tick-tock</input>
-        <input type="checkbox" v-model="alarm" true-value="true" false-value="false">Final Alarm</input>
-        <input type="checkbox" v-model="notification">Notification</input>
+        <input type="checkbox" v-model="tick" true-value="true" false-value="false">Tick-tock
+        <input type="checkbox" v-model="alarm" true-value="true" false-value="false">Final Alarm
+        <input type="checkbox" v-model="notification">Notification
         <br><br>
-        <input type="checkbox" v-model="gong" true-value="true" false-value="false">Gong</input>
-        <input type="radio" name="gong-style" value="progressive" v-model="gongStyle">Progressive</input>
-        <input type="radio" name="gong-style" value="single" v-model="gongStyle">Single</input><br>
+        <input type="checkbox" v-model="gong" true-value="true" false-value="false">Gong
+        <input type="radio" name="gong-style" value="progressive" v-model="gongStyle">Progressive
+        <input type="radio" name="gong-style" value="single" v-model="gongStyle">Single<br>
 
         <div class="center">
             <button class="button" @click="defautOptions">Defaults</button>
@@ -48,7 +48,8 @@
 </template>
 
 <script>
-    import {EventBus} from '@/event-bus';
+    import mitt from 'mitt'
+    window.mitt = window.mitt || new mitt()
 
     const defaultMinutes = "30";
     const defaultLongBreak = "15";
@@ -108,7 +109,7 @@
         },
         methods: {
             done() {
-                EventBus.$emit("currentView", "timerMenuComponent");
+                window.mitt.emit('currentView', { view: 'timerMenuComponent' })
             },
             defautOptions() {
                 this.minutes = localStorage["minutes"] = defaultMinutes;

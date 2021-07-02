@@ -50,7 +50,10 @@
 
 <script>
     const $ = require("jquery")
-    import { EventBus } from '@/event-bus';
+
+    import mitt from 'mitt'
+    window.mitt = window.mitt || new mitt()
+
     const timerutil = require("../util/timer-util");
     const {events, states, defaults} = require("../util/mezzo-constants");
 
@@ -550,7 +553,7 @@
             },
 
             menu: function () {
-                EventBus.$emit("currentView", "timerMenuComponent");
+                window.mitt.emit('currentView', { view: 'timerMenuComponent' })
             }
         }
     }

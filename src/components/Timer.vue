@@ -11,7 +11,8 @@
     import timerMenuComponent from './TimerMenu.vue';
     import optionsComponent from './Options.vue';
 
-    import { EventBus } from '@/event-bus';
+    import mitt from 'mitt'
+    window.mitt = window.mitt || new mitt()
 
     export default {
         data() {
@@ -20,7 +21,10 @@
             };
         },
         mounted: function () {
-            EventBus.$on("currentView", (view) => this.currentView = view);
+            window.mitt.on('currentView', (e) => {
+                this.currentView = e.view
+            } )
+
         },
         components: {
             downloadComponent,

@@ -17,16 +17,16 @@
 </template>
 
 <script>
-    import {EventBus} from '@/event-bus';
+    import mitt from 'mitt'
+    window.mitt = window.mitt || new mitt()
 
     export default {
-
         methods: {
             done: function () {
-                EventBus.$emit("currentView", "timerFrontComponent");
+                window.mitt.emit('currentView', { view: 'timerFrontComponent' })
             },
             options: function () {
-                EventBus.$emit("currentView", "optionsComponent");
+                window.mitt.emit('currentView', { view: 'optionsComponent' })
             },
             info: function () {
                 window.api.info()
