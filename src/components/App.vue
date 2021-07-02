@@ -1,5 +1,5 @@
 <template>
-    <component v-bind:is="currentView"></component>
+    <component v-bind:is="currentView" :readonly="readonly"></component>
 </template>
 
 <script>
@@ -26,8 +26,10 @@
                 } else if (data === 'print') {
                     this.currentView = printComponent
                 } else if (data === 'privacy') {
+                    this.readonly = false
                     this.currentView = privacyComponent
-                } else if (data === 'privacy-readonly') { // todo v-if readonly in Privacy.vue
+                } else if (data === 'privacy-readonly') {
+                    this.readonly = true
                     this.currentView = privacyComponent
                 }
             })

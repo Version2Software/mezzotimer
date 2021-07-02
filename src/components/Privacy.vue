@@ -18,7 +18,7 @@
             E-Mail: mezzotimer@version2software.com<br>
         </p>
 
-        <div v-if="true">
+        <div v-if="!readonly">
             <input type="checkbox" id="checkbox" v-model="checked">I accept this privacy policy
             <button type="button"  :disabled="!checked" :class="[checked ? activeClass : disabledClass]" @click="accepted">Accept</button>
             <button type="button" class="secondary-button" @click="declined">Decline</button>
@@ -31,6 +31,9 @@
 <script>
 
     export default {
+        props: {
+            readonly: false
+        },
         data() {
             return {
                 checked: false,
