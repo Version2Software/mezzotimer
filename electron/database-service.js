@@ -29,7 +29,7 @@ class DatabaseService {
     }
 
     shutdown() {
-        console.log('DatabaseService shutdown')
+        console.log('Dbservice shutdown')
         this.db.close();
     }
 

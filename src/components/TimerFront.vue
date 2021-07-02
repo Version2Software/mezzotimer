@@ -50,9 +50,9 @@
 
 <script>
     const $ = require("jquery")
-    import { EventBus } from '@/eventbus';
-    const timerutil = require("../util/timerutil");
-    const {events, states, defaults} = require("../util/mzConstants");
+    import { EventBus } from '@/event-bus';
+    const timerutil = require("../util/timer-util");
+    const {events, states, defaults} = require("../util/mezzo-constants");
 
     let globalState = "IDLE";
 

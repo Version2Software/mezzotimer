@@ -48,7 +48,7 @@
 </template>
 
 <script>
-    import {EventBus} from '@/eventbus';
+    import {EventBus} from '@/event-bus';
 
     const defaultMinutes = "30";
     const defaultLongBreak = "15";

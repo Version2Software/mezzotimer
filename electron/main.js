@@ -11,7 +11,7 @@ const {app, BrowserWindow, ipcMain, Menu, screen, dialog} = require("electron");
 const prompt = require('electron-prompt');
 const Store = require('electron-store');
 
-const {DatabaseService} = require("./databaseService")
+const {DatabaseService} = require("./database-service")
 const db = new DatabaseService();
 
 const store = new Store();
