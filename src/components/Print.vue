@@ -24,8 +24,7 @@
         <div>
             <table>
                 <tr v-for="d in docs">
-<!--                    <td width="30%">{{dateFormat(new Date(d.eventTimestamp), "yyyy-mm-dd h:MM TT")}}</td>-->
-                    <td width="30%">{{new Date(d.eventTimestamp).toLocaleString()}}</td>
+                    <td width="30%">{{dateFormat(d.eventTimestamp)}}</td>
                     <td width="45%">{{d.description}}</td>
                     <td width="20%">{{d.eventType}}</td>
                 </tr>
@@ -44,6 +43,9 @@
                 period: {startkey: 0, endkey: 0},
                 docs: []
             }
+        },
+        methods: {
+            dateFormat: (ts) => util.dateFormat(ts)
         },
         computed: {
             periodFrom: function () {

@@ -92,5 +92,18 @@ const getPeriod = (timePeriod, today) => {
     return {startkey: start.getTime(), endkey: end.getTime()};
 };
 
+const dateFormat = (ts) => {
+    let dt = new Date(ts)
+
+    let d = dt.getFullYear() + "-" +
+        (""+(dt.getMonth() + 1)).padStart(2, '0') + "-" +
+        (""+dt.getDay()).padStart(2, '0')
+
+    let t = dt.toLocaleTimeString()
+
+    return d + " " + t
+}
+
+module.exports.dateFormat = dateFormat;
 module.exports.summary = summary;
 module.exports.getPeriod = getPeriod;

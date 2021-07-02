@@ -33,7 +33,7 @@
                 <tr v-for="d in docs">
 <!--                    <td width="30%">{{dateFormat(new Date(d.eventTimestamp), "yyyy-mm-dd h:MM TT")}}</td>-->
 <!--                    <td width="30%">{{new Date(d.eventTimestamp)}}</td>-->
-                    <td width="30%">{{new Date(d.eventTimestamp).toLocaleString()}}</td>
+                    <td width="30%">{{dateFormat(d.eventTimestamp)}}</td>
                     <td width="45%">{{d.description}}</td>
                     <td width="20%" :style="{ color: textColor(d) }" >{{d.eventType}}</td>
                     <td width="5%"><button @click="editEvent(d)">edit</button></td>
@@ -52,7 +52,7 @@
 
 const _ = require("lodash");
 const $ = require("jquery")
-const {summary, getPeriod} = require("../util/util");
+const util = require("../util/util");
 
 export default {
     data() {
@@ -62,7 +62,7 @@ export default {
     },
     computed: {
         summaryRows: function() {
-            return summary(this.docs);
+            return util.summary(this.docs);
         },
         totalCount: function() {
             return _.filter(this.docs, e => e.eventType === "COMPLETE").length;
@@ -71,7 +71,7 @@ export default {
     methods: {
         print: function() {
             const timePeriod = $("#time-period").val();
-            const period = getPeriod(timePeriod, new Date());
+            const period = util.getPeriod(timePeriod, new Date());
             window.api.print(period);
         },
         selectPeriod: function() {
@@ -94,7 +94,7 @@ export default {
         },
         refreshLog: function() {
             const timePeriod = $("#time-period").val();
-            const period = getPeriod(timePeriod, new Date());
+            const period = util.getPeriod(timePeriod, new Date());
 
             window.api.findAll(period)
                 .then(items => {
@@ -103,7 +103,8 @@ export default {
                 .catch(err => {
                     window.api.error(err)
                 });
-        }
+        },
+        dateFormat: (ts) => util.dateFormat(ts)
     },
     mounted() {
         this.refreshLog();
