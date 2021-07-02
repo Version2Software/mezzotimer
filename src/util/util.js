@@ -101,7 +101,10 @@ const dateFormat = (ts) => {
 
     let t = dt.toLocaleTimeString()
 
-    return d + " " + t
+    let lastColon = t.lastIndexOf(":")
+    let lastSpace = t.lastIndexOf(" ")
+
+    return d + " " + t.slice(0, lastColon) + " " + t.slice(lastSpace + 1)
 }
 
 module.exports.dateFormat = dateFormat;
