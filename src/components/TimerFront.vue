@@ -52,7 +52,6 @@
     const $ = require("jquery")
     import { EventBus } from '@/event-bus';
     const timerutil = require("../util/timerutil");
-    const {MezzoraEvent} = require("../domain/mezzoraevent");
     const {events, states, defaults} = require("../util/mzConstants");
 
     let globalState = "IDLE";
@@ -369,7 +368,12 @@
 
             addLogEvent(eventType, desc) {
                 try {
-                    let me = new MezzoraEvent(0, new Date().getTime(), desc, eventType);
+                    let me = {
+                        rowid: 0,
+                        eventTimestamp: new Date().getTime(),
+                        description: desc,
+                        eventType: eventType
+                    }
                     window.api.save(me)
                 } catch (ex) {
                     this.error(ex);

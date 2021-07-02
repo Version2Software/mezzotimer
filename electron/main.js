@@ -11,7 +11,7 @@ const {app, BrowserWindow, ipcMain, Menu, screen, dialog} = require("electron");
 const prompt = require('electron-prompt');
 const Store = require('electron-store');
 
-const remoteService = require("./service/remoteService")
+const remoteService = require("./remoteService")
 const db = new remoteService.RemoteService();
 
 const store = new Store();
@@ -68,6 +68,7 @@ function createTimerWindow(left) {
     }
 
     winTimer.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+        winTimer.setTitle("Mezzo")
         winTimer.webContents.send("page", "timer")
     })
 

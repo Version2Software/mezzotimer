@@ -15,7 +15,7 @@
         <br>
         <br>
 
-        <div class="center" v-cloak>Completed: {{totalCount}}</div>
+        <div class="center" v-cloak>Mezzos: {{totalCount}}</div>
 
         <div id="completed-div">
             <table id="completed-table" v-cloak>
@@ -119,7 +119,8 @@ export default {
 
     #events {
         /*height: 100%;*/
-
+        font-family: Helvetica;
+        font-size: 10pt;
         width: 90%;
         height: 90%;
         margin-left: auto;

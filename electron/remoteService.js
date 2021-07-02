@@ -4,8 +4,6 @@
 
 const sqlite3 = require('sqlite3');
 
-const {MezzoraEvent} = require("../domain/mezzoraevent");
-
 class RemoteService {
 
     logError(err) {
@@ -46,8 +44,14 @@ class RemoteService {
             try {
                 let sql = "select rowid, * from mz_event where event_ts >= ? and event_ts <= ?"
                 this.db.all(sql, [startkey, endkey], function(err, arr) {
-                    resolve(arr.map(row =>
-                        new MezzoraEvent(row.rowid, row.event_ts, row.description, row.event_type)))
+                    resolve(arr.map(row => {
+                            return {
+                                rowId: row.rowid,
+                                eventTimestamp: row.event_ts,
+                                description: row.description,
+                                eventType: row.event_type
+                            }
+                        }))
                 });
             } catch (err) {
                 reject("remoteService.findAll, " + err);

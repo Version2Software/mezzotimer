@@ -133,9 +133,7 @@
         width: 94%;
         background-color: black;
         color: white;
-    }
-
-    #options {
+        margin: 1em;
         font-size: 8pt;
         line-height: 1.5em;
     }
