@@ -20,7 +20,7 @@ const size = os.platform() === 'darwin' ? 250 : 270;
 let winTimer, winEvents, winPrint, winError, winAbout, winPrivacy, winPrivacyReadOnly;
 let cachedPeriod = null;
 
-const DEBUG = true;
+const DEBUG = false;
 
 const winPrefs = {
     nodeIntegration: true,
