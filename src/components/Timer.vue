@@ -11,9 +11,6 @@
     import timerMenuComponent from './TimerMenu.vue';
     import optionsComponent from './Options.vue';
 
-    import mitt from 'mitt'
-    window.mitt = window.mitt || new mitt()
-
     export default {
         data() {
             return {
@@ -21,10 +18,7 @@
             };
         },
         mounted: function () {
-            window.mitt.on('currentView', (e) => {
-                this.currentView = e.view
-            } )
-
+            this.emitter.on('currentView', (e) => this.currentView = e.view)
         },
         components: {
             downloadComponent,

@@ -4,7 +4,7 @@
 
 <template>
     <div id="report">
-        <p><a href="" @click="print()">Print</a></p>
+        <p><a href="#" @click="printPage()">Print</a></p>
         <br><br>
         Report Date: {{reportDate}}
         <br>
@@ -45,7 +45,10 @@
             }
         },
         methods: {
-            dateFormat: (ts) => util.dateFormat(ts)
+            dateFormat: (ts) => util.dateFormat(ts),
+            printPage: function() {
+                window.api.printPage();
+            }
         },
         computed: {
             periodFrom: function () {

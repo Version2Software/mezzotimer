@@ -3,11 +3,11 @@
 */
 
 <template>
-    <div>
-        <audio id="audio-tick" src="../ogg/ticktock.ogg"></audio>
-        <audio id="audio-gong" src="../ogg/gong.ogg"></audio>
-        <audio id="audio-extra-gong" src="../ogg/extra-gong.ogg"></audio>
-        <audio id="audio-alarm" src="../ogg/low-gong.ogg"></audio>
+    <div id="timer-front">
+        <audio id="audio-tick" src="./ogg/ticktock.ogg"></audio>
+        <audio id="audio-gong" src="./ogg/gong.ogg"></audio>
+        <audio id="audio-extra-gong" src="./ogg/extra-gong.ogg"></audio>
+        <audio id="audio-alarm" src="./ogg/low-gong.ogg"></audio>
 
 <!--        &lt;!&ndash; This enables jquery to work &ndash;&gt;-->
 <!--        <script>if (typeof module === 'object') {-->
@@ -25,7 +25,7 @@
                 <canvas id="mezzcanvas"></canvas>
             </div>
             <div id="middle-buttons">
-                <div id="start-stop" v-prompt="" class="center"><img id="play-button" src="../images/play-pause-gray.png"
+                <div id="start-stop" class="center"><img id="play-button" src="../images/play-pause-gray.png"
                                                          class="play-pause" @click="startPauseResume"
                                                          @mouseenter="buttonIn('start')"
                                                          @mouseleave="buttonOut('start')" title="Start/Pause"/>
@@ -50,9 +50,6 @@
 
 <script>
     const $ = require("jquery")
-
-    import mitt from 'mitt'
-    window.mitt = window.mitt || new mitt()
 
     const timerutil = require("../util/timer-util");
     const {events, states, defaults} = require("../util/mezzo-constants");
@@ -553,13 +550,19 @@
             },
 
             menu: function () {
-                window.mitt.emit('currentView', { view: 'timerMenuComponent' })
+                this.emitter.emit('currentView', { view: 'timerMenuComponent' })
             }
         }
     }
 </script>
 
 <style scoped>
+    #timer-front {
+        background-color: black;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
     #mezzora {
         position: absolute;
         left: 10%;

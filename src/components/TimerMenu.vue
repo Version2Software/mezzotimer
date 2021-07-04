@@ -17,16 +17,13 @@
 </template>
 
 <script>
-    import mitt from 'mitt'
-    window.mitt = window.mitt || new mitt()
-
     export default {
         methods: {
             done: function () {
-                window.mitt.emit('currentView', { view: 'timerFrontComponent' })
+                this.emitter.emit('currentView', { view: 'timerFrontComponent' })
             },
             options: function () {
-                window.mitt.emit('currentView', { view: 'optionsComponent' })
+                this.emitter.emit('currentView', { view: 'optionsComponent' })
             },
             info: function () {
                 window.api.info()
@@ -41,10 +38,13 @@
     #timer-menu {
         position: absolute;
         /*display: none;*/
-        height: 94%;
-        width: 94%;
+        height: 100%;
+        width: 100%;
         background-color: black;
         color: white;
+    }
+
+    table {
         margin: 1em;
     }
 
@@ -62,8 +62,8 @@
 
     .done-button {
         position: absolute;
-        bottom: 0px;
-        left: 0px;
+        bottom: 7px;
+        left: 5px;
     }
 
     .done-button img {

@@ -31,8 +31,6 @@
         <div id="log-div">
             <table id="log-table" v-cloak>
                 <tr v-for="d in docs">
-<!--                    <td width="30%">{{dateFormat(new Date(d.eventTimestamp), "yyyy-mm-dd h:MM TT")}}</td>-->
-<!--                    <td width="30%">{{new Date(d.eventTimestamp)}}</td>-->
                     <td width="30%">{{dateFormat(d.eventTimestamp)}}</td>
                     <td width="45%">{{d.description}}</td>
                     <td width="20%" :style="{ color: textColor(d) }" >{{d.eventType}}</td>
@@ -81,7 +79,7 @@ export default {
             return (e.eventType === "COMPLETE") ? "red" : "black";
         },
         deleteEvent: async function(e) {
-            if (await window.api.deleteTask(e)) {
+            if (await window.api.deleteTask(e.rowId, e.description)) {
                 this.refreshLog();
             }
         },
@@ -99,6 +97,7 @@ export default {
             window.api.findAll(period)
                 .then(items => {
                     this.docs = items
+                    console.log('items', items)
                 })
                 .catch(err => {
                     window.api.error(err)

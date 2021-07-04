@@ -4,7 +4,7 @@
         <h2>What can <span class="you">you</span> do in thirty minutes?</h2>
         <br>
         <p>Version {{version}}</p>
-        <p v-if="version !== 5" class="you">New Version Available: {{availableVersion}}<br><br>
+        <p v-if="version !== availableVersion" class="you">New Version Available: {{availableVersion}}<br><br>
             <button @click="download()">Go to download site</button>
         </p>
 
@@ -20,7 +20,7 @@
     export default {
         data() {
             return {
-                version: "2.0.0",
+                version: "3.0.0",
                 availableVersion: null
             }
         },

@@ -10,8 +10,8 @@ contextBridge.exposeInMainWorld("api", {
     'changeDescription': async (taskDescription) => {
         return ipcRenderer.invoke('changeDescription', taskDescription);
     },
-    'deleteTask': async (e) => {
-        return await ipcRenderer.invoke('deleteTask', e);
+    'deleteTask': async (rowId, description) => {
+        return await ipcRenderer.invoke('deleteTask', rowId, description);
     },
     'confirmCancel': async () => {
         return await ipcRenderer.invoke('confirmCancel');
@@ -19,6 +19,9 @@ contextBridge.exposeInMainWorld("api", {
     'download': () => {
         shell.openExternal("https://mezzotimer.com")
             .then(_ => ipcRenderer.send("exit"))
+    },
+    'printPage': () => {
+        ipcRenderer.send("printPage");
     },
     'error': (doc) => {
         ipcRenderer.send("error", doc);

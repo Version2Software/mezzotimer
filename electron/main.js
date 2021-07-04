@@ -20,13 +20,7 @@ const size = os.platform() === 'darwin' ? 250 : 270;
 let winTimer, winEvents, winPrint, winError, winAbout, winPrivacy, winPrivacyReadOnly;
 let cachedPeriod = null;
 
-const DEBUG = false;
-
-// const winPrefs = {
-//     nodeIntegration: true,
-//     contextIsolation: false,
-//     enableRemoteModule: true
-// };
+const DEBUG = true;
 
 const winPrefs = {
     nodeIntegration: true,
@@ -236,17 +230,17 @@ function initEventListeners() {
         return result;
     }
 
-    ipcMain.handle("deleteTask" , async (event, e) => {
+    ipcMain.handle("deleteTask" , async (event, rowId, description) => {
         let result = await dialog.showMessageBox(winEvents, {
             type: "question",
             buttons: ["Delete", "Cancel"],
             title: "Confirm",
-            message: "Delete " + e.description + "?"
+            message: "Delete " + description + "?"
         });
 
         // 0 means Yes
         if (result.response === 0) {
-            return await db.delete(e.rowId);
+            return await db.delete(rowId);
         } else {
             return null;
         }
@@ -298,6 +292,10 @@ function initEventListeners() {
 
     ipcMain.on("cancelTask", () => {
         winTimer.webContents.send("cancelTask");
+    });
+
+    ipcMain.on("printPage", () => {
+        winPrint.webContents.print({silent: false});
     });
 
     ipcMain.on("exit", () => {

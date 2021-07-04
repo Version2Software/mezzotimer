@@ -1,5 +1,6 @@
 <template>
     <div id="options">
+        <div id="options-body">
         Color:
         <select v-model="timerColor">
             <option value="green">Green</option>
@@ -43,14 +44,12 @@
         <div class="center">
             <button class="button" @click="defautOptions">Defaults</button>
         </div>
+        </div>
         <div class="done-button" @click="done"><img src="../images/arrow_left.png" title="Back"/></div>
     </div>
 </template>
 
 <script>
-    import mitt from 'mitt'
-    window.mitt = window.mitt || new mitt()
-
     const defaultMinutes = "30";
     const defaultLongBreak = "15";
     const defaultShortBreak = "5";
@@ -109,7 +108,7 @@
         },
         methods: {
             done() {
-                window.mitt.emit('currentView', { view: 'timerMenuComponent' })
+                this.emitter.emit('currentView', { view: 'timerMenuComponent' })
             },
             defautOptions() {
                 this.minutes = localStorage["minutes"] = defaultMinutes;
@@ -130,19 +129,21 @@
     #options {
         position: absolute;
         /*display: none;*/
-        height: 94%;
-        width: 94%;
+        height: 100%;
+        width: 100%;
         background-color: black;
         color: white;
-        margin: 1em;
         font-size: 8pt;
         line-height: 1.5em;
+    }
+    #options-body {
+        margin: 1em;
     }
 
     .done-button {
         position: absolute;
-        bottom: 0px;
-        left: 0px;
+        bottom: 7px;
+        left: 5px;
     }
 
     .done-button img {
