@@ -233,7 +233,7 @@ function initEventListeners() {
     ipcMain.handle("deleteTask" , async (event, rowId, description) => {
         let result = await dialog.showMessageBox(winEvents, {
             type: "question",
-            buttons: ["Delete", "Cancel"],
+            buttons: ["Yes", "No"],
             title: "Confirm",
             message: "Delete " + description + "?"
         });

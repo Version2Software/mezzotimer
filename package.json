@@ -13,7 +13,9 @@
     "stage": "npm run clean && vue-cli-service build && npm run copy-files",
     "test": "jest --coverage",
     "start": "npm run stage && electron staging/main.js",
-    "dist": "npm run stage && electron-builder"
+    "dist": "npm run stage && electron-builder",
+    "start-win": "./start-win.bat",
+    "dist-win": "./dist-win.bat"
   },
   "build": {
     "appId": "com.mezzotimer.mezzo",

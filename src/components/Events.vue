@@ -15,10 +15,10 @@
         <br>
         <br>
 
-        <div class="center" v-cloak>Completed Mezzos: {{totalCount}}</div>
+        <div class="center">Completed Mezzos: {{totalCount}}</div>
 
         <div id="completed-div">
-            <table id="completed-table" v-cloak>
+            <table id="completed-table">
                 <tr v-for="sr in summaryRows">
                     <td width="70%">{{sr.taskDescription}}</td>
                     <td width="30%">{{sr.count}}</td>
@@ -29,7 +29,7 @@
         <div class="center">Events</div>
 
         <div id="log-div">
-            <table id="log-table" v-cloak>
+            <table id="log-table">
                 <tr v-for="d in docs">
                     <td width="30%">{{dateFormat(d.eventTimestamp)}}</td>
                     <td width="45%">{{d.description}}</td>
@@ -118,7 +118,6 @@ export default {
 <style>
 
     #events {
-        /*height: 100%;*/
         font-family: Helvetica;
         font-size: 10pt;
         width: 90%;
@@ -127,10 +126,6 @@ export default {
         margin-right: auto;
         margin-top: 1em;
         margin-bottom: 1em;
-    }
-
-    [v-cloak] {
-        display: none;
     }
 
     #completed-div, #log-div {
