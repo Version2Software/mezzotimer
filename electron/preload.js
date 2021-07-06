@@ -18,7 +18,6 @@ contextBridge.exposeInMainWorld("api", {
     },
     'download': () => {
         shell.openExternal("https://mezzotimer.com")
-            .then(_ => ipcRenderer.send("exit"))
     },
     'printPage': () => {
         ipcRenderer.send("printPage");

@@ -1,0 +1,5 @@
+#!/bin/bash
+rm -rf dist coverage staging
+npx vue-cli-service build
+cp electron/* staging
+npx electron staging/main.js
