@@ -42,7 +42,7 @@ class DatabaseService {
     findAll(startkey, endkey) {
         return new Promise((resolve, reject) => {
             try {
-                let sql = "select rowid, * from mz_event where event_ts >= ? and event_ts <= ?"
+                let sql = "select rowid, * from mz_event where event_ts >= ? and event_ts <= ? order by event_ts"
                 this.db.all(sql, [startkey, endkey], function(err, arr) {
                     resolve(arr.map(row => {
                             return {

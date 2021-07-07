@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Version 2 Software, LLC. All rights reserved.
  */
 
-const {getPeriod, summary} = require("../../src/util/util.js");
+const {getPeriod, summary, dateFormat} = require("../../src/util/util.js");
 
 describe("summary", () => {
     test("empty events", () => {
@@ -162,5 +162,24 @@ describe("getPeriod", () => {
 
         expect(period.startkey).toEqual(start.getTime());
         expect(period.endkey).toEqual(end.getTime());
+    });
+});
+
+describe("dateFormat", () => {
+
+    test("1625094927254", () => {
+
+        const ts = 1625094927254;
+        const s = dateFormat(ts);
+
+        expect(s).toEqual("2021-06-30 5:15 PM");
+    });
+
+    test("1625581890487", () => {
+
+        const ts = 1625581890487;
+        const s = dateFormat(ts);
+
+        expect(s).toEqual("2021-07-06 8:31 AM");
     });
 });
