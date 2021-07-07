@@ -2,4 +2,5 @@
 rm -rf dist coverage staging
 npx vue-cli-service build
 cp electron/* staging
-npx electron-builder
+npm run electron-builder
+

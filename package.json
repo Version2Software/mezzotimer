@@ -12,6 +12,7 @@
     "test": "jest --coverage",
     "start-mac": "./start-mac",
     "dist-mac": "./dist-mac",
+    "electron-builder": "electron-builder",
     "start-win": "./start-win.bat",
     "dist-win": "./dist-win.bat"
   },
