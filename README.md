@@ -5,11 +5,11 @@
 ### To Build:  
 
 `npm install`  
-`npm run dist`  
+`npm run dist-mac` or `npm run dist-win`  
 
 ### To Develop:
   
-`npm run start`  
+`npm run start-mac` or  `npm run start-win` 
 
 ### Built using:   
 node 16.0.0  
