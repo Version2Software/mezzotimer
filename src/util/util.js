@@ -2,8 +2,6 @@
  *  Copyright (C) 2021 Version 2 Software, LLC. All rights reserved.
  */
 
-const _ = require("lodash");
-
 const ONE_DAY = 24 * 60 * 60 * 1000;
 
 const summary = function (events) {
@@ -27,7 +25,7 @@ const summary = function (events) {
     });
 
     descArray.forEach(d => {
-        const count = _.filter(events, (e) => {
+        const count = events.filter((e) => {
             if (e.eventType === "COMPLETE" && e.description === d) {
                 return e;
             }

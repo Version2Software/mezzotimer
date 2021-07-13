@@ -48,7 +48,6 @@
 
 <script>
 
-const _ = require("lodash");
 const $ = require("jquery")
 const util = require("../util/util");
 
@@ -63,7 +62,7 @@ export default {
             return util.summary(this.docs);
         },
         totalCount: function() {
-            return _.filter(this.docs, e => e.eventType === "COMPLETE").length;
+            return this.docs.filter(e => e.eventType === "COMPLETE").length;
         }
     },
     methods: {

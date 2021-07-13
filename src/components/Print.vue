@@ -35,7 +35,6 @@
 
 <script>
     const util = require("../util/util");
-    const _ = require("lodash");
 
     export default {
         data() {
@@ -64,7 +63,7 @@
                 return util.summary(this.docs);
             },
             totalCount: function() {
-                return _.filter(this.docs, e => e.eventType === "COMPLETE").length;
+                return this.docs.filter(e => e.eventType === "COMPLETE").length;
             }
         },
         mounted() {
