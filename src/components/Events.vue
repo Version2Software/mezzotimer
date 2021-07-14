@@ -1,7 +1,7 @@
 <template>
     <div id="events">
         Time Period:
-        <select id="time-period" @change="selectPeriod">
+        <select id="time-period" @change="selectPeriod" ref="timePeriod">
             <option value="today">Today</option>
             <option value="week">This Week</option>
             <option value="month">This Month</option>
@@ -40,15 +40,10 @@
             </table>
         </div>
     </div>
-
-<!--    &lt;!&ndash; This enables jquery to work &ndash;&gt;-->
-<!--    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>-->
-
 </template>
 
 <script>
 
-const $ = require("jquery")
 const util = require("../util/util");
 
 export default {
@@ -67,7 +62,7 @@ export default {
     },
     methods: {
         print: function() {
-            const timePeriod = $("#time-period").val();
+            const timePeriod = this.$refs.timePeriod.value;
             const period = util.getPeriod(timePeriod, new Date());
             window.api.print(period);
         },
@@ -90,8 +85,8 @@ export default {
             }
         },
         refreshLog: function() {
-            const timePeriod = $("#time-period").val();
-            const period = util.getPeriod(timePeriod, new Date());
+          const timePeriod = this.$refs.timePeriod.value;
+          const period = util.getPeriod(timePeriod, new Date());
 
             window.api.findAll(period)
                 .then(items => {

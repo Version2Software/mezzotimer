@@ -3,39 +3,29 @@
 */
 
 <template>
-    <div id="timer-front">
+    <div id="timer-front" :style="{'font-weight': timerFrontFontWeight}">
         <audio id="audio-tick" src="./ogg/ticktock.ogg"></audio>
         <audio id="audio-gong" src="./ogg/gong.ogg"></audio>
         <audio id="audio-extra-gong" src="./ogg/extra-gong.ogg"></audio>
         <audio id="audio-alarm" src="./ogg/low-gong.ogg"></audio>
 
-<!--        &lt;!&ndash; This enables jquery to work &ndash;&gt;-->
-<!--        <script>if (typeof module === 'object') {-->
-<!--            window.module = module;-->
-<!--            module = undefined;-->
-<!--        }</script>-->
-
         <div>
-            <div id="completed-counter" title="Completed"></div>
+            <div id="completed-counter" title="Completed" v-show="completedCount > 0">{{completedCount}}</div>
         </div>
 
         <div id="mezzora">
-            <div id="clock">
-                <canvas id="triangle"></canvas>
-                <canvas id="mezzcanvas"></canvas>
+            <div id="clock" :style="clockStyles">
+                <canvas id="triangle" :style="{'opacity': triangleOpacity}"></canvas>
+                <canvas id="mezzcanvas" :style="{'background-color': mezzcanvasBackground}"></canvas>
             </div>
             <div id="middle-buttons">
                 <div id="start-stop" class="center"><img id="play-button" src="../images/play-pause-gray.png"
-                                                         class="play-pause" @click="startPauseResume"
-                                                         @mouseenter="buttonIn('start')"
-                                                         @mouseleave="buttonOut('start')" title="Start/Pause"/>
+                                                         class="play-pause" @click="startPauseResume" title="Start/Pause"/>
                 </div>
                 <div id="short-break" @click="startShortBreak" title="Short Break"></div>
                 <div id="long-break" @click="startLongBreak" title="Long Break"></div>
                 <div id="pause-resume" class="center"><img id="stop-button" src="../images/stop-gray.png"
-                                                           class="play-pause" @click="stop"
-                                                           @mouseenter="buttonIn('stop')"
-                                                           @mouseleave="buttonOut('stop')" title="Stop"/></div>
+                                                           class="play-pause" @click="stop" title="Stop"/></div>
             </div>
         </div>
 
@@ -49,8 +39,6 @@
 </template>
 
 <script>
-    const $ = require("jquery")
-
     const timerutil = require("../util/timer-util");
     const {events, states, defaults} = require("../util/mezzo-constants");
 
@@ -75,7 +63,16 @@
                 audioGong: null,
                 audioExtraGong: null,
                 audioAlarm: null,
-                triangle: null
+                triangle: null,
+                triangleOpacity: null,
+                mezzcanvasBackground: null,
+                completedCount: 0,
+                timerFrontFontWeight: "",
+                clockStyles: {
+                  'background-color': 'red',
+                  'font-weight': 'normal',
+                  'text-shadow': 'initial'
+                }
             };
         },
         mounted: function () {
@@ -91,13 +88,17 @@
 
                 this.triangle = document.getElementById("triangle");
 
-                this.setThemeColor();
+                this.mezzcanvasBackground = props.timerColor
+                this.setClockColor(props.timerColor);
+
                 this.paintTriangle(1.0);
                 this.paintVolume();
 
+                // TODO - verify if this code is still needed
                 if (this.isWindows()) {
-                    $("body").css("font-weight", "bold");
-                    $("#clock").css("font-weight", "bold").css("text-shadow", "0px 1px 1px white");
+                    this.timerFrontFontWeight = "bold"
+                    this.clockStyles["font-weight"] = "bold"
+                    this.clockStyles["text-shadow"] = "0px 1px 1px white"
                 }
                 this.updateGUI(this.minutes());
                 this.audioTick.load();
@@ -166,7 +167,7 @@
                 contextTriangle.lineTo(0, 0);
                 contextTriangle.closePath();
                 contextTriangle.fill();
-                $("#triangle").css("opacity", opacity);
+                this.triangleOpacity = opacity;
             },
 
             error(doc) {
@@ -222,7 +223,6 @@
                     if ("true" === props.alarm) {
                         this.audioAlarm.play();
                     }
-                    this.setInfoColor("white");
                 } else {
                     setTimeout(this.updateClock, timerutil.nextTimeout(ellapsed));
                 }
@@ -335,7 +335,6 @@
                     setTimeout(this.updateClock, 1000);
 
                     this.setClockColor(props.timerColor);
-                    this.setInfoColor("white");
                 } catch (ex) {
                     this.error(ex);
                 }
@@ -432,11 +431,7 @@
             },
 
             setClockColor(c) {
-                $("#clock").css("background-color", c);
-            },
-
-            setInfoColor(c) {
-                $("#info-button").css("color", c);
+              this.clockStyles["background-color"] = c
             },
 
             stepVolume() {
@@ -473,33 +468,6 @@
                 contextVolume.stroke();
             },
 
-            setThemeColor() {
-                this.setClockColor(props.timerColor);
-                $("#mezzcanvas").css("background-color", props.timerColor);
-            },
-
-            buttonIn(btn) {
-                if (btn === "start") {
-                    this.moveButton("#play-button", 1);
-                } else {
-                    this.moveButton("#stop-button", 1);
-                }
-            },
-
-            buttonOut(btn) {
-                if (btn === "start") {
-                    this.moveButton("#play-button", -1);
-                } else {
-                    this.moveButton("#stop-button", -1);
-                }
-            },
-
-            moveButton(target, pix) {
-                const offset = $(target).offset();
-                offset.top = offset.top + pix;
-                $(target).offset(offset);
-            },
-
             minutes() {
                 if (realState === states.IDLE) {
                     return 0;
@@ -534,8 +502,7 @@
                     let period = {startkey: start.getTime(), endkey: end.getTime()};
                     window.api.findAll(period)
                         .then((items) => {
-                            const c = items.filter(e => e.eventType === "COMPLETE").length;
-                            $("#completed-counter").text(c === 0 ? "" : c);
+                            this.completedCount = items.filter(e => e.eventType === "COMPLETE").length;
                         })
                         .catch(err => {
                             this.error(err)
@@ -579,6 +546,7 @@
         border-top-left-radius: 200px;
         border-top-right-radius: 200px;
     }
+
     #triangle {
         position: absolute;
         bottom: 32%;
@@ -619,6 +587,11 @@
         right: 0px;
         width: 44.5%;
         border-bottom-right-radius: 20px;
+    }
+
+    #play-button:hover, #stop-button:hover {
+      padding-top: 1px;
+      padding-left: 1px;
     }
 
     .play-pause {
@@ -698,4 +671,5 @@
     .center {
         text-align: center;
     }
+
 </style>
