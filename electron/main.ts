@@ -27,7 +27,7 @@ let winPrivacyReadOnly:BrowserWindow;
 
 let cachedPeriod:{startkey: number, endkey: number};
 
-const DEBUG = true;
+const DEBUG = false;
 
 const winPrefs = {
     nodeIntegration: true,
