@@ -16,8 +16,10 @@
     </div>
 </template>
 
-<script>
-    export default {
+<script lang="ts">
+    import {defineComponent} from 'vue';
+
+    export default defineComponent({
         methods: {
             done: function () {
                 this.emitter.emit('currentView', { view: 'timerFrontComponent' })
@@ -32,7 +34,7 @@
                 window.api.about()
             }
         }
-    }
+    });
 </script>
 <style scoped>
     #timer-menu {
