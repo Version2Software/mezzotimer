@@ -1,7 +1,7 @@
 <template>
     <div id="events">
         Time Period:
-        <select id="time-period" @change="selectPeriod" ref="timePeriod">
+        <select id="time-period" @change="selectPeriod" v-model="timePeriod">
             <option value="today">Today</option>
             <option value="week">This Week</option>
             <option value="month">This Month</option>
@@ -42,42 +42,45 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 
 const util = require("../util/util");
+import {defineComponent} from 'vue'
 
-export default {
+const mezzoEvents: MezzoEvent[] = [];
+
+export default defineComponent({
     data() {
         return {
-            docs: []
+            docs: mezzoEvents,
+            timePeriod: "today"
         }
     },
     computed: {
-        summaryRows: function() {
+        summaryRows: function():MezzoEvent[] {
             return util.summary(this.docs);
         },
-        totalCount: function() {
-            return this.docs.filter(e => e.eventType === "COMPLETE").length;
+        totalCount: function():number {
+            return this.docs.filter((e:MezzoEvent) => e.eventType === "COMPLETE").length;
         }
     },
     methods: {
-        print: function() {
-            const timePeriod = this.$refs.timePeriod.value;
-            const period = util.getPeriod(timePeriod, new Date());
+        print: function():void {
+            const period = util.getPeriod(this.timePeriod, new Date());
             window.api.print(period);
         },
         selectPeriod: function() {
             this.refreshLog();
         },
-        textColor: function(e) {
+        textColor: function(e:MezzoEvent):string {
             return (e.eventType === "COMPLETE") ? "red" : "black";
         },
-        deleteEvent: async function(e) {
+        deleteEvent: async function(e:MezzoEvent) {
             if (await window.api.deleteTask(e.rowId, e.description)) {
                 this.refreshLog();
             }
         },
-        editEvent: async function(e) {
+        editEvent: async function(e:MezzoEvent) {
             let desc = await window.api.changeDescription(e.description);
             if (desc) {
                 e.description = desc;
@@ -85,19 +88,18 @@ export default {
             }
         },
         refreshLog: function() {
-          const timePeriod = this.$refs.timePeriod.value;
-          const period = util.getPeriod(timePeriod, new Date());
+            const period = util.getPeriod(this.timePeriod, new Date());
 
             window.api.findAll(period)
-                .then(items => {
+                .then((items:[MezzoEvent]) => {
                     this.docs = items
                     console.log('items', items)
                 })
-                .catch(err => {
+                .catch((err:any) => {
                     window.api.error(err)
                 });
         },
-        dateFormat: (ts) => util.dateFormat(ts)
+        dateFormat: (ts:number) => util.dateFormat(ts)
     },
     mounted() {
         this.refreshLog();
@@ -106,7 +108,7 @@ export default {
             this.refreshLog();
         });
     }
-}
+});
 </script>
 
 <style>

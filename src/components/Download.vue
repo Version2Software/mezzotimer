@@ -13,13 +13,15 @@
 </template>
 
 <script>
-    export default {
+    import {defineComponent} from 'vue';
+
+    export default defineComponent({
         methods: {
             download() {
                 window.api.download();
             }
         }
-    }
+    });
 </script>
 
 <style>
