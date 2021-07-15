@@ -6,10 +6,6 @@ const sqlite3 = require('sqlite3');
 
 class DatabaseService {
 
-    logError(err) {
-        ipcRenderer.send("error", err);
-    }
-
     init(dbfilename) {
         this.db = new sqlite3.Database(dbfilename);
 

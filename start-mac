@@ -1,5 +1,5 @@
 #!/bin/bash
 rm -rf dist coverage staging
 npx vue-cli-service build
-cp electron/* staging
+tsc --build tsconfig-electron.json
 npx electron staging/main.js

@@ -18,7 +18,7 @@
             E-Mail: mezzotimer@version2software.com<br>
         </p>
 
-        <div v-if="!readonly">
+        <div v-if="!readOnly">
             <input type="checkbox" id="checkbox" v-model="checked">I accept this privacy policy
             <button type="button"  :disabled="!checked" :class="[checked ? activeClass : disabledClass]" @click="accepted">Accept</button>
             <button type="button" class="secondary-button" @click="declined">Decline</button>
@@ -28,11 +28,12 @@
 </div>
 </template>
 
-<script>
+<script lang="ts">
+    import { defineComponent } from 'vue'
 
-    export default {
+    export default defineComponent({
         props: {
-            readonly: false
+          readOnly: Boolean
         },
         data() {
             return {
@@ -44,14 +45,12 @@
         methods: {
             accepted: function () {
                 window.api.accepted()
-                // ipcRenderer.send("accepted");
             },
             declined: function () {
                 window.api.exit()
-                // ipcRenderer.send("exit");
             }
         }
-    }
+    });
 </script>
 
 <style>

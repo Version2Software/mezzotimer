@@ -2,25 +2,32 @@
  *  Copyright (C) 2021 Version 2 Software, LLC. All rights reserved.
  */
 
-const os = require("os");
-const path = require("path");
-const fs = require('fs');
+import os from "os";
+import path from "path";
+import fs from "fs";
 
-const {app, BrowserWindow, ipcMain, Menu, screen, dialog} = require("electron");
+import {app, BrowserWindow, ipcMain, Menu, screen, dialog} from "electron";
 
-const prompt = require('electron-prompt');
-const Store = require('electron-store');
+import prompt from "electron-prompt";
+import Store from "electron-store";
 
-const {DatabaseService} = require("./database-service")
+import {DatabaseService} from "./database-service";
 const db = new DatabaseService();
 
 const store = new Store();
 const size = os.platform() === 'darwin' ? 250 : 270;
 
-let winTimer, winEvents, winPrint, winError, winAbout, winPrivacy, winPrivacyReadOnly;
-let cachedPeriod = null;
+let winTimer:BrowserWindow;
+let winEvents:BrowserWindow;
+let winPrint:BrowserWindow;
+let winError:BrowserWindow;
+let winAbout:BrowserWindow;
+let winPrivacy:BrowserWindow;
+let winPrivacyReadOnly:BrowserWindow;
 
-const DEBUG = false;
+let cachedPeriod:{startkey: number, endkey: number};
+
+const DEBUG = true;
 
 const winPrefs = {
     nodeIntegration: true,
@@ -32,7 +39,7 @@ function createPrivacyWindow() {
 
     winPrivacy = new BrowserWindow({x: 20, y: 20, width: 800, height: 488, webPreferences: winPrefs});
 
-    winPrivacy.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+    winPrivacy.loadURL(path.join("file://", __dirname, "index.html")).then(_ => {
         winPrivacy.setTitle("Privacy Policy")
         winPrivacy.webContents.send("page", "privacy")
     })
@@ -46,7 +53,7 @@ function createPrivacyWindowReadOnly() {
 
     winPrivacyReadOnly = new BrowserWindow({x: 20, y: 20, width: 800, height: 488, webPreferences: winPrefs});
 
-    winPrivacyReadOnly.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+    winPrivacyReadOnly.loadURL(path.join("file://", __dirname, "index.html")).then(_ => {
         winPrivacyReadOnly.setTitle("Privacy Policy")
         winPrivacyReadOnly.webContents.send("page", "privacy-readonly")
     })
@@ -54,16 +61,20 @@ function createPrivacyWindowReadOnly() {
     winPrivacyReadOnly.setMenu(null);
     winPrivacyReadOnly.on("closed", () => winPrivacy = null);
     winPrivacyReadOnly.focus();
+
+    if (DEBUG) {
+        winPrivacyReadOnly.webContents.openDevTools();
+    }
 }
 
-function createTimerWindow(left) {
+function createTimerWindow(left:number) {
     if (DEBUG) {
         winTimer = new BrowserWindow({x: 0, y: 0, width: 2000, height: 400, webPreferences: winPrefs});
     } else {
         winTimer = new BrowserWindow({x: left, y: 40, width: size, height: size, show: false, webPreferences: winPrefs});
     }
 
-    winTimer.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+    winTimer.loadURL(path.join("file://", __dirname, "index.html")).then(_ => {
         winTimer.setTitle("Mezzo")
         winTimer.webContents.send("page", "timer")
     })
@@ -93,7 +104,7 @@ function createEventsWindow() {
     }
 
     winEvents.setMenu(null);
-    winEvents.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+    winEvents.loadURL(path.join("file://", __dirname, "index.html")).then(_ => {
         winEvents.setTitle("Mezzo Events")
         winEvents.webContents.send("page", "events")
     })
@@ -119,7 +130,7 @@ function createPrintWindow() {
 
     winPrint.setMenu(null);
 
-    winPrint.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+    winPrint.loadURL(path.join("file://", __dirname, "index.html")).then(_ => {
         winPrint.setTitle("Print")
         winPrint.webContents.send("page", "print")
     })
@@ -175,7 +186,7 @@ function createAboutWindow() {
     }
 
     winAbout.setMenu(null);
-    winAbout.loadURL(path.join("file://", __dirname, "index.html")).then(result => {
+    winAbout.loadURL(path.join("file://", __dirname, "index.html")).then(_ => {
         winAbout.setTitle("About")
         winAbout.webContents.send("page", "about")
     })
@@ -215,8 +226,8 @@ function initEventListeners() {
         return descriptionHelper(taskDescription, winEvents);
     });
 
-    async function descriptionHelper(taskDescription, currentWin) {
-        let result = await prompt({
+    async function descriptionHelper(taskDescription:string, currentWin:BrowserWindow) {
+        return await prompt({
             width: size - 20,
             title: "Task",
             label: "Task description:",
@@ -226,8 +237,6 @@ function initEventListeners() {
             },
             type: 'input'
         }, currentWin);
-
-        return result;
     }
 
     ipcMain.handle("deleteTask" , async (event, rowId, description) => {
@@ -246,7 +255,7 @@ function initEventListeners() {
         }
     });
 
-    ipcMain.handle("confirmCancel" , async (event) => {
+    ipcMain.handle("confirmCancel" , async (_) => {
         let result = await dialog.showMessageBox(winTimer, {
             type: "question",
             buttons: ["Yes", "No"],
@@ -388,6 +397,7 @@ function createMenu() {
                 ]
             }
         ];
+        // @ts-ignore
         Menu.setApplicationMenu(Menu.buildFromTemplate(template));
     }
 }

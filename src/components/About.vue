@@ -14,14 +14,16 @@
         </footer>
     </div>
 </template>
-<script>
+<script lang="ts">
     const mrp = require("minimal-request-promise");
 
-    export default {
+    import { defineComponent } from 'vue'
+
+    export default defineComponent({
         data() {
             return {
                 version: "3.0.0",
-                availableVersion: null
+                availableVersion: null as string | null
             }
         },
         methods: {
@@ -30,15 +32,16 @@
             }
         },
         mounted() {
-            mrp.get("https://mezzotimer.com/version.json", {}).then(response => {
+            mrp.get("https://mezzotimer.com/version.json", {}).then((response:any) => {
                 let body = JSON.parse(response.body);
                 this.availableVersion = body.version;
-            }).catch(err => {
+            }).catch((err:any) => {
                 console.error(err);
                 this.availableVersion = "Could not check for available version.";
-            })
+            });
         }
-    }
+    });
+
 
 </script>
 

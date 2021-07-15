@@ -1,5 +1,5 @@
 <template>
-    <component v-bind:is="currentView" :readonly="readonly"></component>
+    <component v-bind:is="currentView" :readOnly="readOnly"></component>
 </template>
 
 <script>
@@ -26,10 +26,10 @@
                 } else if (data === 'print') {
                     this.currentView = printComponent
                 } else if (data === 'privacy') {
-                    this.readonly = false
+                    this.readOnly = false
                     this.currentView = privacyComponent
                 } else if (data === 'privacy-readonly') {
-                    this.readonly = true
+                    this.readOnly = true
                     this.currentView = privacyComponent
                 }
             })
