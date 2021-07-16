@@ -47,12 +47,10 @@
 const util = require("../util/util");
 import {defineComponent} from 'vue'
 
-const mezzoEvents: MezzoEvent[] = [];
-
 export default defineComponent({
     data() {
         return {
-            docs: mezzoEvents,
+            docs: [] as MezzoEvent[],
             timePeriod: "today"
         }
     },

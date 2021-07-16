@@ -49,7 +49,9 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
+    import {defineComponent} from 'vue';
+
     const defaultMinutes = "30";
     const defaultLongBreak = "15";
     const defaultShortBreak = "5";
@@ -60,7 +62,7 @@
     const defaultTimerColor = "green";
     const defaultGongStyle = "progressive";
 
-    export default {
+    export default defineComponent({
 
         data() {
             return {
@@ -74,7 +76,6 @@
                 notification: localStorage["notification"] !== undefined ? localStorage["notification"] : defaultNotification,
                 timerColor: localStorage["timercolor"] !== undefined ? localStorage["timercolor"] : defaultTimerColor,
                 gongStyle: localStorage["gongstyle"] !== undefined ? localStorage["gongstyle"] : defaultGongStyle
-
             };
         },
         watch: {
@@ -122,7 +123,7 @@
                 this.gongStyle = localStorage["gongstyle"] = defaultGongStyle;
             }
         }
-    }
+    });
 </script>
 
 <style scoped>

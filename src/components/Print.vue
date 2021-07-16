@@ -33,50 +33,51 @@
     </div>
 </template>
 
-<script>
-    const util = require("../util/util");
+<script lang="ts">
+    import {defineComponent} from 'vue';
+    import util from "../util/util";
 
-    export default {
+    export default defineComponent({
         data() {
             return {
-                period: {startkey: 0, endkey: 0},
-                docs: []
+                period: {startkey: 0, endkey: 0} as Period,
+                docs: [] as MezzoEvent[]
             }
         },
         methods: {
-            dateFormat: (ts) => util.dateFormat(ts),
+            dateFormat: (ts:number) => util.dateFormat(ts),
             printPage: function() {
                 window.api.printPage();
             }
         },
         computed: {
-            periodFrom: function () {
+            periodFrom: function (this: any) {
                 return new Date(this.period.startkey).toLocaleDateString();
             },
-            periodTo: function () {
+            periodTo: function (this: any) {
                 return new Date(this.period.endkey).toLocaleDateString();
             },
             reportDate: function () {
                 return new Date().toLocaleDateString();
             },
-            summaryRows: function() {
+            summaryRows: function(this: any) {
                 return util.summary(this.docs);
             },
-            totalCount: function() {
-                return this.docs.filter(e => e.eventType === "COMPLETE").length;
+            totalCount: function(this: any) {
+                return this.docs.filter((e:MezzoEvent) => e.eventType === "COMPLETE").length;
             }
         },
         mounted() {
             window.api.getCachedPeriod()
-                .then(period => {
+                .then((period:Period) => {
                     this.period = period;
                     window.api.findAll(period)
-                        .then(items => this.docs = items)
-                        .catch(err => console.error(err));
+                        .then((items:MezzoEvent[]) => this.docs = items)
+                        .catch((err:any) => console.error(err));
                 })
-                .catch(err => console.error(err));
+                .catch((err:any) => console.error(err));
         }
-    }
+    });
 </script>
 
 <style scoped>
