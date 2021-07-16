@@ -17,13 +17,13 @@ const db = new DatabaseService();
 const store = new Store();
 const size = os.platform() === 'darwin' ? 250 : 270;
 
-let winTimer:BrowserWindow;
-let winEvents:BrowserWindow;
-let winPrint:BrowserWindow;
-let winError:BrowserWindow;
-let winAbout:BrowserWindow;
-let winPrivacy:BrowserWindow;
-let winPrivacyReadOnly:BrowserWindow;
+let winTimer:BrowserWindow | null;
+let winEvents:BrowserWindow | null;
+let winPrint:BrowserWindow | null;
+let winError:BrowserWindow | null;
+let winAbout:BrowserWindow | null;
+let winPrivacy:BrowserWindow | null;
+let winPrivacyReadOnly:BrowserWindow | null;
 
 let cachedPeriod:{startkey: number, endkey: number};
 
@@ -35,31 +35,27 @@ const winPrefs = {
     preload: path.join(__dirname, 'preload.js')
 };
 
-function createPrivacyWindow() {
+async function createPrivacyWindow() {
 
     winPrivacy = new BrowserWindow({x: 20, y: 20, width: 800, height: 488, webPreferences: winPrefs});
 
-    winPrivacy.loadURL(path.join("file://", __dirname, "index.html")).then(_ => {
-        winPrivacy.setTitle("Privacy Policy")
-        winPrivacy.webContents.send("page", "privacy")
-    })
-
+    await winPrivacy.loadURL(path.join("file://", __dirname, "index.html"));
     winPrivacy.setMenu(null);
+    winPrivacy.setTitle("Privacy Policy")
+    winPrivacy.webContents.send("page", "privacy")
     winPrivacy.on("closed", () => winPrivacy = null);
     winPrivacy.focus();
 }
 
-function createPrivacyWindowReadOnly() {
+async function createPrivacyWindowReadOnly() {
 
     winPrivacyReadOnly = new BrowserWindow({x: 20, y: 20, width: 800, height: 488, webPreferences: winPrefs});
 
-    winPrivacyReadOnly.loadURL(path.join("file://", __dirname, "index.html")).then(_ => {
-        winPrivacyReadOnly.setTitle("Privacy Policy")
-        winPrivacyReadOnly.webContents.send("page", "privacy-readonly")
-    })
-
+    await winPrivacyReadOnly.loadURL(path.join("file://", __dirname, "index.html"));
     winPrivacyReadOnly.setMenu(null);
-    winPrivacyReadOnly.on("closed", () => winPrivacy = null);
+    winPrivacyReadOnly.setTitle("Privacy Policy")
+    winPrivacyReadOnly.webContents.send("page", "privacy-readonly")
+    winPrivacyReadOnly.on("closed", () => winPrivacyReadOnly = null);
     winPrivacyReadOnly.focus();
 
     if (DEBUG) {
@@ -67,27 +63,27 @@ function createPrivacyWindowReadOnly() {
     }
 }
 
-function createTimerWindow(left:number) {
+async function createTimerWindow(left:number) {
     if (DEBUG) {
         winTimer = new BrowserWindow({x: 0, y: 0, width: 2000, height: 400, webPreferences: winPrefs});
     } else {
         winTimer = new BrowserWindow({x: left, y: 40, width: size, height: size, show: false, webPreferences: winPrefs});
     }
 
-    winTimer.loadURL(path.join("file://", __dirname, "index.html")).then(_ => {
-        winTimer.setTitle("Mezzo")
-        winTimer.webContents.send("page", "timer")
-    })
+    await winTimer.loadURL(path.join("file://", __dirname, "index.html"));
+    winTimer.setMenu(null);
+    winTimer.setTitle("Mezzo");
+    winTimer.webContents.send("page", "timer");
 
     if (DEBUG) {
         winTimer.webContents.openDevTools();
     }
-    winTimer.setMenu(null);
-    winTimer.once("ready-to-show", () => winTimer.show());
+
+    winTimer.once("ready-to-show", () => (winTimer as BrowserWindow).show());
     winTimer.on("closed", () => winTimer = null);
 }
 
-function createEventsWindow() {
+async function createEventsWindow() {
     if (winEvents) {
         winEvents.close();
         return;
@@ -103,21 +99,22 @@ function createEventsWindow() {
         winEvents = new BrowserWindow({x: left, y: top, width: 600, height: 600, webPreferences: winPrefs});
     }
 
+    await winEvents.loadURL(path.join("file://", __dirname, "index.html"))
+
     winEvents.setMenu(null);
-    winEvents.loadURL(path.join("file://", __dirname, "index.html")).then(_ => {
-        winEvents.setTitle("Mezzo Events")
-        winEvents.webContents.send("page", "events")
-    })
+    winEvents.setTitle("Mezzo Events")
+    winEvents.webContents.send("page", "events")
 
     if (DEBUG) {
         winEvents.webContents.openDevTools();
     }
 
     winEvents.on("closed", () => winEvents = null);
-    winTimer.focus();
+
+    (winTimer as BrowserWindow).focus();
 }
 
-function createPrintWindow() {
+async function createPrintWindow() {
 
     const left = 10;
     const top = 10;
@@ -128,12 +125,10 @@ function createPrintWindow() {
         winPrint = new BrowserWindow({x: left, y: top, width: 600, height: 600, webPreferences: winPrefs});
     }
 
+    await winPrint.loadURL(path.join("file://", __dirname, "index.html"));
     winPrint.setMenu(null);
-
-    winPrint.loadURL(path.join("file://", __dirname, "index.html")).then(_ => {
-        winPrint.setTitle("Print")
-        winPrint.webContents.send("page", "print")
-    })
+    winPrint.setTitle("Print");
+    winPrint.webContents.send("page", "print");
 
     if (DEBUG) {
         winPrint.webContents.openDevTools();
@@ -142,7 +137,7 @@ function createPrintWindow() {
     winPrint.on("closed", () => winPrint = null);
 }
 
-function createErrorWindow() {
+async function createErrorWindow() {
 
     if (winError) {
         winError.close();
@@ -159,8 +154,8 @@ function createErrorWindow() {
         winError = new BrowserWindow({x: left, y: top, width: 600, height: 250, webPreferences: winPrefs});
     }
 
+    await winError.loadURL(path.join("file://", __dirname, "index.html"));
     winError.setMenu(null);
-    winError.loadURL(path.join("file://", __dirname, "index.html"));
 
     if (DEBUG) {
         winError.webContents.openDevTools();
@@ -169,7 +164,7 @@ function createErrorWindow() {
     winError.on("closed", () => winError = null);
 }
 
-function createAboutWindow() {
+async function createAboutWindow() {
 
     if (winAbout) {
         return;
@@ -185,11 +180,10 @@ function createAboutWindow() {
         winAbout = new BrowserWindow({x: left, y: top, width: 450, height: 350, webPreferences: winPrefs});
     }
 
+    await winAbout.loadURL(path.join("file://", __dirname, "index.html"));
     winAbout.setMenu(null);
-    winAbout.loadURL(path.join("file://", __dirname, "index.html")).then(_ => {
-        winAbout.setTitle("About")
-        winAbout.webContents.send("page", "about")
-    })
+    winAbout.setTitle("About")
+    winAbout.webContents.send("page", "about")
 
     if (DEBUG) {
         winAbout.webContents.openDevTools();
@@ -219,11 +213,11 @@ function initEventListeners() {
     });
 
     ipcMain.handle("promptDescription" , async (event, taskDescription) => {
-        return descriptionHelper(taskDescription, winTimer);
+        return descriptionHelper(taskDescription, winTimer as BrowserWindow);
     });
 
     ipcMain.handle("changeDescription" , async (event, taskDescription) => {
-        return descriptionHelper(taskDescription, winEvents);
+        return descriptionHelper(taskDescription, winEvents as BrowserWindow);
     });
 
     async function descriptionHelper(taskDescription:string, currentWin:BrowserWindow) {
@@ -240,7 +234,7 @@ function initEventListeners() {
     }
 
     ipcMain.handle("deleteTask" , async (event, rowId, description) => {
-        let result = await dialog.showMessageBox(winEvents, {
+        let result = await dialog.showMessageBox(winEvents as BrowserWindow, {
             type: "question",
             buttons: ["Yes", "No"],
             title: "Confirm",
@@ -256,7 +250,7 @@ function initEventListeners() {
     });
 
     ipcMain.handle("confirmCancel" , async (_) => {
-        let result = await dialog.showMessageBox(winTimer, {
+        let result = await dialog.showMessageBox(winTimer as BrowserWindow, {
             type: "question",
             buttons: ["Yes", "No"],
             title: "Confirm Cancel",
@@ -278,17 +272,17 @@ function initEventListeners() {
         return await db.findAll(period.startkey, period.endkey)
     });
 
-    ipcMain.on("save", async (event, me) => {
+    ipcMain.on("save", async (_, me) => {
         await db.save(me);
         refresh();
     });
 
-    ipcMain.handle("update", async (event, item) => {
+    ipcMain.handle("update", async (_, item) => {
         return await db.update(item);
     });
 
-    ipcMain.on("error", (event, doc) => {
-        if (winError) {
+    ipcMain.on("error", (_, doc) => {
+        if (winError && winError.isVisible()) {
             winError.webContents.send("doc", doc);
         }
     });
@@ -300,11 +294,11 @@ function initEventListeners() {
     });
 
     ipcMain.on("cancelTask", () => {
-        winTimer.webContents.send("cancelTask");
+        (winEvents  as BrowserWindow).webContents.send("cancelTask");
     });
 
     ipcMain.on("printPage", () => {
-        winPrint.webContents.print({silent: false});
+        (winPrint  as BrowserWindow).webContents.print({silent: false});
     });
 
     ipcMain.on("exit", () => {
@@ -318,7 +312,7 @@ function initEventListeners() {
         createWindow();
         createMenu();
 
-        winPrivacy.close();
+        (winPrivacy as BrowserWindow).close();
     });
 }
 
@@ -446,10 +440,4 @@ app.on("window-all-closed", () => {
 app.on("will-quit", () => {
     console.log("will-quit")
     // db.shutdown()
-});
-
-app.on("activate", () => {
-    if (winTimer === null) {
-        createWindow();
-    }
 });
