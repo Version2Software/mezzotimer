@@ -5,20 +5,22 @@
 
 </template>
 
-<script>
+<script lang="ts">
+    import {defineComponent} from 'vue';
+
     import downloadComponent from './Download.vue';
     import timerFrontComponent from './TimerFront.vue';
     import timerMenuComponent from './TimerMenu.vue';
     import optionsComponent from './Options.vue';
 
-    export default {
+    export default defineComponent({
         data() {
             return {
                 currentView: timerFrontComponent
             };
         },
         mounted: function () {
-            this.emitter.on('currentView', (e) => this.currentView = e.view)
+            this.emitter.on('currentView', (e:any) => this.currentView = e.view)
         },
         components: {
             downloadComponent,
@@ -26,7 +28,7 @@
             timerMenuComponent,
             optionsComponent
         }
-    }
+    });
 </script>
 
 <style scoped>
