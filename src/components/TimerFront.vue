@@ -38,9 +38,10 @@
     </div>
 </template>
 
-<script>
-    const timerutil = require("../util/timer-util");
-    const {events, states, defaults} = require("../util/mezzo-constants");
+<script lang="ts">
+    import {defineComponent} from 'vue';
+    import timerutil from "../util/timer-util";
+    import {events, states, defaults} from "../util/mezzo-constants";
 
     let globalState = "IDLE";
 
@@ -49,23 +50,32 @@
     let millis = 0;
     let millisAtStart = 0;
     let startPause = 0;
-    let pauses = [];
+    let pauses:number[] = [];
     let elapsedFiveMinutePeriods = 0;
-    const props = {};
-    let taskDescription = null;
+    const props = {
+      minutes: "",
+      longBreak: "",
+      shortBreak: "",
+      tick: "",
+      gong: "",
+      alarm: "",
+      notification: "",
+      timerColor: ""
+    };
+    let taskDescription:any = null;
     let needGong = true;
     let vol = 1.0;
 
-    export default {
+    export default defineComponent({
         data() {
             return {
-                audioTick: null,
-                audioGong: null,
-                audioExtraGong: null,
-                audioAlarm: null,
-                triangle: null,
+                audioTick: null as any,
+                audioGong: null as any,
+                audioExtraGong: null as any,
+                audioAlarm: null as any,
+                triangle: null as any,
                 triangleOpacity: null,
-                mezzcanvasBackground: null,
+                mezzcanvasBackground: null as any,
                 completedCount: 0,
                 timerFrontFontWeight: "",
                 clockStyles: {
@@ -83,12 +93,12 @@
                 this.audioGong = document.getElementById("audio-gong");
                 this.audioExtraGong = document.getElementById("audio-extra-gong");
                 this.audioAlarm = document.getElementById("audio-alarm");
+                this.triangle = document.getElementById("triangle");
+
                 this.audioGong.addEventListener("ended", this.gongEnd, false);
                 this.audioExtraGong.addEventListener("ended", this.extraGongEnd, false);
 
-                this.triangle = document.getElementById("triangle");
-
-                this.mezzcanvasBackground = props.timerColor
+                this.mezzcanvasBackground = props.timerColor as string
                 this.setClockColor(props.timerColor);
 
                 this.paintTriangle(1.0);
@@ -156,7 +166,7 @@
                 }
             },
 
-            paintTriangle(opacity) {
+            paintTriangle(opacity:any) {
 
                 const contextTriangle = this.triangle.getContext("2d");
                 contextTriangle.fillStyle = "white";
@@ -170,7 +180,7 @@
                 this.triangleOpacity = opacity;
             },
 
-            error(doc) {
+            error(doc:any) {
                 console.log(doc);
                 window.api.error(doc)
             },
@@ -228,7 +238,7 @@
                 }
             },
 
-            playGong(extraTimes) {
+            playGong(extraTimes:any) {
                 this.audioExtraGong.times = extraTimes;
                 this.audioGong.play();
             },
@@ -248,7 +258,7 @@
                 this.playExtraGong();
             },
 
-            processEvent(timerEvent) {
+            processEvent(timerEvent:any) {
 
                 console.log("timerEvent", timerEvent, realState);
                 try {
@@ -320,7 +330,7 @@
                 }
             },
 
-            startUp(m) {
+            startUp(m:any) {
                 try {
                     mezzoraMinutes = m;
                     elapsedFiveMinutePeriods = 0;
@@ -365,10 +375,10 @@
                 this.paintTriangle(1.0);
             },
 
-            addLogEvent(eventType, desc) {
+            addLogEvent(eventType:string, desc:string) {
                 try {
-                    let me = {
-                        rowid: 0,
+                    let me:MezzoEvent = {
+                        rowId: 0,
                         eventTimestamp: new Date().getTime(),
                         description: desc,
                         eventType: eventType
@@ -383,9 +393,10 @@
                 this.paintTriangle((millis / 1000) % 2 === 0 ? 1.0 : 0.7);
             },
 
-            notifyComplete(msg) {
+            notifyComplete(msg:string) {
                 if (props.notification) {
-                    if (props.useSpeech) {
+                  // TODO - put useSpeech on options if it works in windows
+                    if (false /*props.useSpeech*/) {
                         window.speechSynthesis.speak(new SpeechSynthesisUtterance(msg));
                     } else {
                         new Notification("Mezzo", {body: msg});
@@ -401,9 +412,9 @@
                 this.audioAlarm.volume = vol;
             },
 
-            updateGUI(mins) {
+            updateGUI(mins:number) {
 
-                const canvas = document.getElementById("mezzcanvas");
+                const canvas = document.getElementById("mezzcanvas") as any;
                 const context = canvas.getContext("2d");
                 canvas.width = canvas.width;
                 context.fillStyle = "black";
@@ -430,7 +441,7 @@
                 context.stroke();
             },
 
-            setClockColor(c) {
+            setClockColor(c:string) {
               this.clockStyles["background-color"] = c
             },
 
@@ -442,7 +453,7 @@
             paintVolume() {
                 const timerColor = props.timerColor;
                 const radius = vol * 60 + 100;
-                const canvasVolume = document.getElementById("volume-control");
+                const canvasVolume = document.getElementById("volume-control") as any;
                 const contextVolume = canvasVolume.getContext("2d");
 
                 // Erase the area
@@ -468,7 +479,7 @@
                 contextVolume.stroke();
             },
 
-            minutes() {
+            minutes():number {
                 if (realState === states.IDLE) {
                     return 0;
                 }
@@ -477,14 +488,14 @@
             },
 
             isWindows() {
-                navigator.appVersion.indexOf("Win") !== -1;
+                return navigator.appVersion.indexOf("Win") !== -1;
             },
 
             initProps() {
                 props.minutes = localStorage["minutes"] !== undefined ? localStorage["minutes"] : defaults.DEFAULT_BLOCK;
                 props.longBreak = localStorage["longbreak"] !== undefined ? localStorage["longbreak"] : defaults.DEFAULT_LONG_BREAK;
                 props.shortBreak = localStorage["shortbreak"] !== undefined ? localStorage["shortbreak"] : defaults.DEFAULT_SHORT_BREAK;
-                props.tick = localStorage["tick"] !== undefined ? localStorage["tick"] : "sdfg";
+                props.tick = localStorage["tick"] !== undefined ? localStorage["tick"] : "true";
                 props.gong = localStorage["gong"] !== undefined ? localStorage["gong"] : "true";
                 props.alarm = localStorage["alarm"] !== undefined ? localStorage["alarm"] : "true";
                 props.notification = localStorage["notification"] !== undefined ? localStorage["notification"] : "true";
@@ -501,10 +512,10 @@
 
                     let period = {startkey: start.getTime(), endkey: end.getTime()};
                     window.api.findAll(period)
-                        .then((items) => {
+                        .then((items:MezzoEvent[]) => {
                             this.completedCount = items.filter(e => e.eventType === "COMPLETE").length;
                         })
-                        .catch(err => {
+                        .catch((err:any) => {
                             this.error(err)
                         });
                 } catch (ex) {
@@ -520,7 +531,7 @@
                 this.emitter.emit('currentView', { view: 'timerMenuComponent' })
             }
         }
-    }
+    });
 </script>
 
 <style scoped>
