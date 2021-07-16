@@ -35,7 +35,7 @@
 
 <script lang="ts">
     import {defineComponent} from 'vue';
-    import util from "../util/util";
+    import {dateFormat, summary} from "../util/util";
 
     export default defineComponent({
         data() {
@@ -45,7 +45,7 @@
             }
         },
         methods: {
-            dateFormat: (ts:number) => util.dateFormat(ts),
+            dateFormat: (ts:number) => dateFormat(ts),
             printPage: function() {
                 window.api.printPage();
             }
@@ -61,7 +61,7 @@
                 return new Date().toLocaleDateString();
             },
             summaryRows: function(this: any) {
-                return util.summary(this.docs);
+                return summary(this.docs);
             },
             totalCount: function(this: any) {
                 return this.docs.filter((e:MezzoEvent) => e.eventType === "COMPLETE").length;

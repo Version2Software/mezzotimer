@@ -1,4 +1,4 @@
-module.exports.states = {
+export const states = {
     RUNNING: "RUNNING",
     SHORT_BREAK_RUNNING: "SHORT_BREAK_RUNNING",
     LONG_BREAK_RUNNING: "LONG_BREAK_RUNNING",
@@ -6,7 +6,7 @@ module.exports.states = {
     PAUSED: "PAUSED"
 };
 
-module.exports.events = {
+export const events = {
     START: "START",
     STOP: "STOP",
     CANCEL: "CANCEL",
@@ -27,7 +27,7 @@ module.exports.events = {
     LONG_BREAK_CANCEL: "LONG_BREAK_CANCEL"
 };
 
-module.exports.defaults = {
+export const defaults = {
     DEFAULT_BLOCK: 30,
     DEFAULT_LONG_BREAK: 15,
     DEFAULT_SHORT_BREAK: 5,

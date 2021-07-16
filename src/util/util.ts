@@ -4,10 +4,10 @@
 
 const ONE_DAY = 24 * 60 * 60 * 1000;
 
-const summary = function (events) {
+export const summary = function (events:MezzoEvent[]) {
 
-    const summaryRows = [];
-    const descArray = [];
+    const summaryRows:{taskDescription:string, count:string}[] = [];
+    const descArray:string[] = [];
 
     events.forEach(e => {
         if (e.eventType === "COMPLETE") {
@@ -40,7 +40,7 @@ const summary = function (events) {
     return summaryRows;
 };
 
-const getPeriod = (timePeriod, today) => {
+export const getPeriod = (timePeriod:string, today:Date) => {
 
     let start = new Date(today);
     start.setHours(0, 0, 0, 0);
@@ -90,7 +90,7 @@ const getPeriod = (timePeriod, today) => {
     return {startkey: start.getTime(), endkey: end.getTime()};
 };
 
-const dateFormat = (ts) => {
+export const dateFormat = (ts:number) => {
     let dt = new Date(ts)
 
     let d = dt.getFullYear() + "-" +
@@ -105,6 +105,3 @@ const dateFormat = (ts) => {
     return d + " " + t.slice(0, lastColon) + " " + t.slice(lastSpace + 1)
 }
 
-module.exports.dateFormat = dateFormat;
-module.exports.summary = summary;
-module.exports.getPeriod = getPeriod;

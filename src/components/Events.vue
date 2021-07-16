@@ -44,7 +44,7 @@
 
 <script lang="ts">
 
-const util = require("../util/util");
+import {dateFormat, summary, getPeriod} from "../util/util";
 import {defineComponent} from 'vue'
 
 export default defineComponent({
@@ -55,8 +55,8 @@ export default defineComponent({
         }
     },
     computed: {
-        summaryRows: function():MezzoEvent[] {
-            return util.summary(this.docs);
+        summaryRows: function():{taskDescription:string, count:string}[] {
+            return summary(this.docs);
         },
         totalCount: function():number {
             return this.docs.filter((e:MezzoEvent) => e.eventType === "COMPLETE").length;
@@ -64,7 +64,7 @@ export default defineComponent({
     },
     methods: {
         print: function():void {
-            const period = util.getPeriod(this.timePeriod, new Date());
+            const period = getPeriod(this.timePeriod, new Date());
             window.api.print(period);
         },
         selectPeriod: function() {
@@ -86,7 +86,7 @@ export default defineComponent({
             }
         },
         refreshLog: function() {
-            const period = util.getPeriod(this.timePeriod, new Date());
+            const period = getPeriod(this.timePeriod, new Date());
 
             window.api.findAll(period)
                 .then((items:[MezzoEvent]) => {
@@ -97,7 +97,7 @@ export default defineComponent({
                     window.api.error(err)
                 });
         },
-        dateFormat: (ts:number) => util.dateFormat(ts)
+        dateFormat: (ts:number) => dateFormat(ts)
     },
     mounted() {
         this.refreshLog();

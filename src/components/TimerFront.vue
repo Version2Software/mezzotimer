@@ -40,7 +40,7 @@
 
 <script lang="ts">
     import {defineComponent} from 'vue';
-    import timerutil from "../util/timer-util";
+    import {lengthOfTickMark, tickTime, nextTimeout, ellapsedTime, pausedTime} from "../util/timer-util";
     import {events, states, defaults} from "../util/mezzo-constants";
 
     let globalState = "IDLE";
@@ -192,7 +192,7 @@
                     return;
                 }
 
-                const ellapsed = timerutil.ellapsedTime(millisAtStart, Date.now(), timerutil.pausedTime(pauses));
+                const ellapsed = ellapsedTime(millisAtStart, Date.now(), pausedTime(pauses));
                 const remaining = Math.round(mezzoraMinutes * 60000 - ellapsed);
                 const remainingSeconds = Math.round(remaining / 1000);
 
@@ -234,7 +234,7 @@
                         this.audioAlarm.play();
                     }
                 } else {
-                    setTimeout(this.updateClock, timerutil.nextTimeout(ellapsed));
+                    setTimeout(this.updateClock, nextTimeout(ellapsed));
                 }
             },
 
@@ -431,10 +431,10 @@
                 const deltax = canvas.width / 20;
 
                 for (let i = 0; i <= 19; i++) {
-                    const len = timerutil.lengthOfTickMark(i, mins);
+                    const len = lengthOfTickMark(i, mins);
                     context.fillRect(i * deltax, 20, 2, len - 5);
                     if (len === 60) {
-                        context.fillText(timerutil.tickTime(i, mins) + "", deltax * i, 125);
+                        context.fillText(tickTime(i, mins) + "", deltax * i, 125);
                     }
                 }
                 context.closePath();
@@ -483,7 +483,7 @@
                 if (realState === states.IDLE) {
                     return 0;
                 }
-                const ellapsed = timerutil.ellapsedTime(millisAtStart, Date.now(), timerutil.pausedTime(pauses));
+                const ellapsed = ellapsedTime(millisAtStart, Date.now(), pausedTime(pauses));
                 return Math.round(mezzoraMinutes - (ellapsed / 60000));
             },
 
