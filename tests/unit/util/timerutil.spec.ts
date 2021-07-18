@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Version 2 Software, LLC. All rights reserved.
  */
 
-const timerutil = require("@/util/timer-util.ts");
+const timerutil = require("../../../src/util/timer-util");
 
 describe("nextTimeout", () => {
     it("should be 1000", () => {

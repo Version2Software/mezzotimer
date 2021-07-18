@@ -2,7 +2,7 @@
  *  Copyright (C) 2021 Version 2 Software, LLC. All rights reserved.
  */
 
-const {getPeriod, summary, dateFormat} = require("@/util/util.ts");
+const {getPeriod, summary, dateFormat} = require("../../../src/util/util");
 
 describe("summary", () => {
     test("empty events", () => {
