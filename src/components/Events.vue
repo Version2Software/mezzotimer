@@ -31,7 +31,7 @@
         <div id="log-div">
             <table id="log-table">
                 <tr v-for="d in docs">
-                    <td width="30%">{{dateFormat(d.eventTimestamp)}}</td>
+                    <td width="30%">{{format(d.eventTimestamp)}}</td>
                     <td width="45%">{{d.description}}</td>
                     <td width="20%" :style="{ color: textColor(d) }" >{{d.eventType}}</td>
                     <td width="5%"><button @click="editEvent(d)">edit</button></td>
@@ -45,66 +45,82 @@
 <script lang="ts">
 
 import {dateFormat, summary, getPeriod} from "../util/util";
-import {defineComponent} from 'vue'
+import {computed, defineComponent, ref, onMounted} from 'vue'
 
 export default defineComponent({
-    data() {
-        return {
-            docs: [] as MezzoEvent[],
-            timePeriod: "today"
-        }
-    },
-    computed: {
-        summaryRows: function():{taskDescription:string, count:string}[] {
-            return summary(this.docs);
-        },
-        totalCount: function():number {
-            return this.docs.filter((e:MezzoEvent) => e.eventType === "COMPLETE").length;
-        }
-    },
-    methods: {
-        print: function():void {
-            const period = getPeriod(this.timePeriod, new Date());
+    setup() {
+        const docs = ref([] as MezzoEvent[]);
+        const timePeriod = ref("today")
+
+        const summaryRows = computed(function (): { taskDescription: string, count: string }[] {
+            return summary(docs.value);
+        });
+
+        const totalCount = computed(function (): number {
+            return docs.value.filter((e: MezzoEvent) => e.eventType === "COMPLETE").length;
+        });
+
+        const print = function (): void {
+            const period = getPeriod(timePeriod.value, new Date());
             window.api.print(period);
-        },
-        selectPeriod: function() {
-            this.refreshLog();
-        },
-        textColor: function(e:MezzoEvent):string {
+        };
+
+        const selectPeriod = () => refreshLog();
+
+        const textColor = function (e: MezzoEvent): string {
             return (e.eventType === "COMPLETE") ? "red" : "black";
-        },
-        deleteEvent: async function(e:MezzoEvent) {
+        };
+
+        const deleteEvent = async function (e: MezzoEvent) {
             if (await window.api.deleteTask(e.rowId, e.description)) {
-                this.refreshLog();
+                refreshLog();
             }
-        },
-        editEvent: async function(e:MezzoEvent) {
+        };
+
+        const editEvent = async function (e: MezzoEvent) {
             let desc = await window.api.changeDescription(e.description);
             if (desc) {
                 e.description = desc;
                 window.api.update(e);
             }
-        },
-        refreshLog: function() {
-            const period = getPeriod(this.timePeriod, new Date());
+        };
+
+        const refreshLog = function () {
+            const period = getPeriod(timePeriod.value, new Date());
 
             window.api.findAll(period)
-                .then((items:[MezzoEvent]) => {
-                    this.docs = items
+                .then((items: [MezzoEvent]) => {
+                    docs.value = items
                     console.log('items', items)
                 })
-                .catch((err:any) => {
+                .catch((err: any) => {
                     window.api.error(err)
                 });
-        },
-        dateFormat: (ts:number) => dateFormat(ts)
-    },
-    mounted() {
-        this.refreshLog();
+        };
 
-        window.api.register("refresh", () => {
-            this.refreshLog();
+        const format = (ts:number) => dateFormat(ts);
+
+        onMounted(() => {
+            refreshLog();
+
+            window.api.register("refresh", () => {
+                refreshLog();
+            });
         });
+
+        return {
+            docs,
+            timePeriod,
+            summaryRows,
+            totalCount,
+            print,
+            selectPeriod,
+            textColor,
+            deleteEvent,
+            editEvent,
+            refreshLog,
+            format
+        }
     }
 });
 </script>
