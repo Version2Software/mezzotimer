@@ -16,9 +16,9 @@
     import {defineComponent} from 'vue';
 
     export default defineComponent({
-        methods: {
-            download() {
-                window.api.download();
+        setup() {
+            return {
+              download: () => window.api.download()
             }
         }
     });

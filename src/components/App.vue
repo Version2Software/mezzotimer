@@ -3,39 +3,43 @@
 </template>
 
 <script lang="ts">
+    import {defineComponent, ref, onMounted} from 'vue'
+    import {Component} from "@vue/runtime-core";
+
     import timerComponent from './Timer.vue';
     import eventsComponent from './Events.vue';
     import printComponent from './Print.vue';
     import aboutComponent from './About.vue';
     import privacyComponent from './Privacy.vue';
-    import {defineComponent} from 'vue'
-    import {Component} from "@vue/runtime-core";
 
     export default defineComponent({
-        data() {
-            return {
-                readOnly: false, // Used by privacy windows
-                currentView: null as Component
-            };
-        },
-        mounted: function () {
-            window.api.register('page', (pageName:string) => {
+        setup() {
+            const readOnly = ref(false);  // Used by privacy windows
+            const currentView = ref(null as Component);
+
+            onMounted(() => {
+              window.api.register('page', (pageName:string) => {
                 if (pageName === 'about') {
-                    this.currentView = aboutComponent
+                  currentView.value = aboutComponent
                 } else if (pageName === 'timer') {
-                    this.currentView = timerComponent
+                  currentView.value = timerComponent
                 } else if (pageName === 'events') {
-                    this.currentView = eventsComponent
+                  currentView.value = eventsComponent
                 } else if (pageName === 'print') {
-                    this.currentView = printComponent
+                  currentView.value = printComponent
                 } else if (pageName === 'privacy') {
-                    this.readOnly = false
-                    this.currentView = privacyComponent
+                  readOnly.value = false
+                  currentView.value = privacyComponent
                 } else if (pageName === 'privacy-readonly') {
-                    this.readOnly = true
-                    this.currentView = privacyComponent
+                  readOnly.value = true
+                  currentView.value = privacyComponent
                 }
+              })
             })
+            return {
+                readOnly,
+                currentView
+            };
         },
         components: {
             timerComponent,
