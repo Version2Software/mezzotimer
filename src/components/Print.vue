@@ -24,7 +24,7 @@
         <div>
             <table>
                 <tr v-for="d in docs">
-                    <td width="30%">{{dateFormat(d.eventTimestamp)}}</td>
+                    <td width="30%">{{format(d.eventTimestamp)}}</td>
                     <td width="45%">{{d.description}}</td>
                     <td width="20%">{{d.eventType}}</td>
                 </tr>
@@ -34,48 +34,47 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent} from 'vue';
+    import {defineComponent, ref, computed, onMounted} from 'vue';
     import {dateFormat, summary} from "../util/util";
 
     export default defineComponent({
-        data() {
-            return {
-                period: {startkey: 0, endkey: 0} as Period,
-                docs: [] as MezzoEvent[]
-            }
-        },
-        methods: {
-            dateFormat: (ts:number) => dateFormat(ts),
-            printPage: function() {
-                window.api.printPage();
-            }
-        },
-        computed: {
-            periodFrom: function (this: any) {
-                return new Date(this.period.startkey).toLocaleDateString();
-            },
-            periodTo: function (this: any) {
-                return new Date(this.period.endkey).toLocaleDateString();
-            },
-            reportDate: function () {
-                return new Date().toLocaleDateString();
-            },
-            summaryRows: function(this: any) {
-                return summary(this.docs);
-            },
-            totalCount: function(this: any) {
-                return this.docs.filter((e:MezzoEvent) => e.eventType === "COMPLETE").length;
-            }
-        },
-        mounted() {
-            window.api.getCachedPeriod()
-                .then((period:Period) => {
-                    this.period = period;
-                    window.api.findAll(period)
-                        .then((items:MezzoEvent[]) => this.docs = items)
+        setup() {
+            const period = ref({startkey: 0, endkey: 0} as Period);
+            const docs =  ref([] as MezzoEvent[]);
+
+            const format = (ts:number) => dateFormat(ts);
+            const printPage = () => window.api.printPage();
+
+            const periodFrom = computed(() => new Date(period.value.startkey).toLocaleDateString());
+            const periodTo = computed(() => new Date(period.value.endkey).toLocaleDateString());
+            const reportDate = computed(() => new Date().toLocaleDateString());
+            const summaryRows = computed(() => summary(docs.value));
+            const totalCount = computed(() => {
+              return docs.value.filter((e: MezzoEvent) => e.eventType === "COMPLETE").length;
+            });
+
+            onMounted(() => {
+              window.api.getCachedPeriod()
+                  .then((per:Period) => {
+                    period.value = per;
+                    window.api.findAll(per)
+                        .then((items:MezzoEvent[]) => docs.value = items)
                         .catch((err:any) => console.error(err));
-                })
-                .catch((err:any) => console.error(err));
+                  })
+                  .catch((err:any) => console.error(err));
+            });
+
+            return {
+                period,
+                docs,
+                format,
+                printPage,
+                periodFrom,
+                periodTo,
+                reportDate,
+                summaryRows,
+                totalCount
+            }
         }
     });
 </script>
