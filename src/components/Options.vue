@@ -42,7 +42,7 @@
         <input type="radio" name="gong-style" value="single" v-model="gongStyle">Single<br>
 
         <div class="center">
-            <button class="button" @click="defautOptions">Defaults</button>
+            <button class="button" @click="defaultOptions">Defaults</button>
         </div>
         </div>
         <div class="done-button" @click="done"><img src="../images/arrow_left.png" title="Back"/></div>
@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, inject} from 'vue';
+    import {defineComponent, inject, ref, watch, onMounted} from 'vue';
     import {Emitter} from "mitt";
 
     const defaultMinutes = "30";
@@ -64,69 +64,57 @@
     const defaultGongStyle = "progressive";
 
     export default defineComponent({
-        data() {
-            return {
-                times: [1, 3, 5, 10, 15, 20, 25, 30, 45, 60],
-                minutes: localStorage["minutes"] !== undefined ? localStorage["minutes"] : defaultMinutes,
-                longBreak: localStorage["longbreak"] !== undefined ? localStorage["longbreak"] : defaultLongBreak,
-                shortBreak: localStorage["shortbreak"] !== undefined ? localStorage["shortbreak"] : defaultShortBreak,
-                tick: localStorage["tick"] !== undefined ? localStorage["tick"] : defaultTick,
-                gong: localStorage["gong"] !== undefined ? localStorage["gong"] : defaultGong,
-                alarm: localStorage["alarm"] !== undefined ? localStorage["alarm"] : defaultAlarm,
-                notification: localStorage["notification"] !== undefined ? localStorage["notification"] : defaultNotification,
-                timerColor: localStorage["timercolor"] !== undefined ? localStorage["timercolor"] : defaultTimerColor,
-                gongStyle: localStorage["gongstyle"] !== undefined ? localStorage["gongstyle"] : defaultGongStyle
-            };
-        },
-        watch: {
-            minutes() {
-                localStorage["minutes"] = this.minutes;
-            },
-            longBreak() {
-                localStorage["longbreak"] = this.longBreak;
-            },
-            shortBreak() {
-                localStorage["shortbreak"] = this.shortBreak;
-            },
-            tick() {
-                localStorage["tick"] = this.tick;
-            },
-            gong() {
-                localStorage["gong"] = this.gong;
-            },
-            alarm() {
-                localStorage["alarm"] = this.alarm;
-            },
-            notification() {
-                localStorage["notification"] = this.notification;
-            },
-            timerColor() {
-                localStorage["timercolor"] = this.timerColor;
-            },
-            gongStyle() {
-                localStorage["gongstyle"] = this.gongStyle;
-            }
-        },
-        methods: {
-
-            defautOptions() {
-                this.minutes = localStorage["minutes"] = defaultMinutes;
-                this.longBreak = localStorage["longbreak"] = defaultLongBreak;
-                this.shortBreak = localStorage["shortbreak"] = defaultShortBreak;
-                this.tick = localStorage["tick"] = defaultTick;
-                this.gong = localStorage["gong"] = defaultGong;
-                this.alarm = localStorage["alarm"] = defaultAlarm;
-                this.notification = localStorage["notification"] = defaultNotification;
-                this.timerColor = localStorage["timercolor"] = defaultTimerColor;
-                this.gongStyle = localStorage["gongstyle"] = defaultGongStyle;
-            }
-        },
         setup() {
+
             const emitter = inject("emitter") as Emitter<any>
 
-            return {
-                done: () => emitter.emit('currentView', { view: 'timerMenuComponent' })
+            const times = ref([1, 3, 5, 10, 15, 20, 25, 30, 45, 60]);
+            const minutes = ref(localStorage["minutes"] !== undefined ? localStorage["minutes"] : defaultMinutes);
+            const longBreak = ref(localStorage["longbreak"] !== undefined ? localStorage["longbreak"] : defaultLongBreak);
+            const shortBreak = ref(localStorage["shortbreak"] !== undefined ? localStorage["shortbreak"] : defaultShortBreak);
+            const tick = ref(localStorage["tick"] !== undefined ? localStorage["tick"] : defaultTick);
+            const gong = ref(localStorage["gong"] !== undefined ? localStorage["gong"] : defaultGong);
+            const alarm = ref(localStorage["alarm"] !== undefined ? localStorage["alarm"] : defaultAlarm);
+            const notification = ref(localStorage["notification"] !== undefined ? localStorage["notification"] : defaultNotification);
+            const timerColor = ref(localStorage["timercolor"] !== undefined ? localStorage["timercolor"] : defaultTimerColor);
+            const gongStyle = ref(localStorage["gongstyle"] !== undefined ? localStorage["gongstyle"] : defaultGongStyle);
+
+            function defaultOptions() {
+                minutes.value = defaultMinutes;
+                longBreak.value = defaultLongBreak;
+                shortBreak.value = defaultShortBreak;
+                tick.value = defaultTick;
+                gong.value = defaultGong;
+                alarm.value = defaultAlarm;
+                notification.value = defaultNotification;
+                timerColor.value = defaultTimerColor;
+                gongStyle.value = defaultGongStyle;
             }
+
+            watch(minutes, (newValue, _) => localStorage["minutes"] = newValue)
+            watch(longBreak, (newValue, _) => localStorage["longbreak"] = newValue)
+            watch(shortBreak, (newValue, _) => localStorage["shortbreak"] = newValue)
+            watch(tick, (newValue, _) => localStorage["tick"] = newValue)
+            watch(gong, (newValue, _) => localStorage["gong"] = newValue)
+            watch(alarm, (newValue, _) => localStorage["alarm"] = newValue)
+            watch(notification, (newValue, _) => localStorage["notification"] = newValue)
+            watch(timerColor, (newValue, _) => localStorage["timercolor"] = newValue)
+            watch(gongStyle, (newValue, _) => localStorage["gongstyle"] = newValue)
+
+            return {
+                times,
+                minutes,
+                longBreak,
+                shortBreak,
+                tick,
+                gong,
+                alarm,
+                notification,
+                timerColor,
+                gongStyle,
+                defaultOptions,
+                done: () => emitter.emit('currentView', { view: 'timerMenuComponent' })
+            };
         }
     });
 </script>
