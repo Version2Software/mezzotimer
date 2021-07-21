@@ -7,8 +7,6 @@
         <p v-if="version !== availableVersion" class="you">New Version Available: {{availableVersion}}<br><br>
             <button @click="download()">Go to download site</button>
         </p>
-
-<!--        <br><br>-->
         <footer>
             Copyright (C) 2021 Version 2 Software, LLC. All rights reserved.
         </footer>
@@ -17,31 +15,30 @@
 <script lang="ts">
     const mrp = require("minimal-request-promise");
 
-    import { defineComponent } from 'vue'
+    import { defineComponent, ref, onMounted } from 'vue'
 
     export default defineComponent({
-        data() {
-            return {
-                version: "3.0.0",
-                availableVersion: null as string | null
-            }
-        },
-        methods: {
-            download() {
-                window.api.download();
-            }
-        },
-        mounted() {
-            mrp.get("https://mezzotimer.com/version.json", {}).then((response:any) => {
-                let body = JSON.parse(response.body);
-                this.availableVersion = body.version;
-            }).catch((err:any) => {
-                console.error(err);
-                this.availableVersion = "Could not check for available version.";
-            });
-        }
-    });
+        setup() {
+            const version = ref("3.0.0");
+            const availableVersion = ref(null as string | null);
 
+            onMounted(() => {
+              mrp.get("https://mezzotimer.com/version.json", {}).then((response:any) => {
+                let body = JSON.parse(response.body);
+                availableVersion.value = body.version;
+              }).catch((err:any) => {
+                console.error(err);
+                availableVersion.value = "Could not check for available version.";
+              });
+            });
+
+            return {
+                version,
+                availableVersion,
+                download: () => window.api.download()
+            }
+      }
+    });
 
 </script>
 
