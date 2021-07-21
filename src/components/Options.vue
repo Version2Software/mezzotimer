@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, inject, ref, watch, onMounted} from 'vue';
+    import {defineComponent, inject, ref, watch} from 'vue';
     import {Emitter} from "mitt";
 
     const defaultMinutes = "30";
