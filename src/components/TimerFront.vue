@@ -39,9 +39,10 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent} from 'vue';
+    import {defineComponent, inject, onMounted} from 'vue';
     import {lengthOfTickMark, tickTime, nextTimeout, ellapsedTime, pausedTime} from "../util/timer-util";
     import {events, states, defaults} from "../util/mezzo-constants";
+    import {Emitter} from "mitt";
 
     let globalState = "IDLE";
 
@@ -525,12 +526,15 @@
 
             viewLog: function () {
                 window.api.viewLog()
-            },
-
-            menu: function () {
-                this.emitter.emit('currentView', { view: 'timerMenuComponent' })
             }
-        }
+        },
+        setup() {
+            const emitter = inject("emitter") as Emitter<any>
+
+            return {
+              menu: () => emitter.emit('currentView', { view: 'timerMenuComponent' })
+            }
+        },
     });
 </script>
 

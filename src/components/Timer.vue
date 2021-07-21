@@ -6,21 +6,25 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent} from 'vue';
-
+    import {defineComponent, ref, inject, onMounted} from 'vue';
     import downloadComponent from './Download.vue';
     import timerFrontComponent from './TimerFront.vue';
     import timerMenuComponent from './TimerMenu.vue';
     import optionsComponent from './Options.vue';
+    import {Emitter} from "mitt";
 
     export default defineComponent({
-        data() {
+        setup() {
+            const emitter = inject("emitter") as Emitter<any>
+            const currentView = ref(timerFrontComponent);
+
+            onMounted(() => {
+              emitter.on('currentView', (e:any) => currentView.value = e.view)
+            });
+
             return {
-                currentView: timerFrontComponent
+                  currentView
             };
-        },
-        mounted: function () {
-            this.emitter.on('currentView', (e:any) => this.currentView = e.view)
         },
         components: {
             downloadComponent,

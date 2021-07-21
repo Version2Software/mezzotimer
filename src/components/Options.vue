@@ -50,7 +50,8 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent} from 'vue';
+    import {defineComponent, inject} from 'vue';
+    import {Emitter} from "mitt";
 
     const defaultMinutes = "30";
     const defaultLongBreak = "15";
@@ -63,7 +64,6 @@
     const defaultGongStyle = "progressive";
 
     export default defineComponent({
-
         data() {
             return {
                 times: [1, 3, 5, 10, 15, 20, 25, 30, 45, 60],
@@ -108,9 +108,7 @@
             }
         },
         methods: {
-            done() {
-                this.emitter.emit('currentView', { view: 'timerMenuComponent' })
-            },
+
             defautOptions() {
                 this.minutes = localStorage["minutes"] = defaultMinutes;
                 this.longBreak = localStorage["longbreak"] = defaultLongBreak;
@@ -121,6 +119,13 @@
                 this.notification = localStorage["notification"] = defaultNotification;
                 this.timerColor = localStorage["timercolor"] = defaultTimerColor;
                 this.gongStyle = localStorage["gongstyle"] = defaultGongStyle;
+            }
+        },
+        setup() {
+            const emitter = inject("emitter") as Emitter<any>
+
+            return {
+                done: () => emitter.emit('currentView', { view: 'timerMenuComponent' })
             }
         }
     });

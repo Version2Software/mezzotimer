@@ -17,22 +17,19 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent} from 'vue';
+    import {defineComponent, inject} from 'vue';
+    import {Emitter} from "mitt";
 
     export default defineComponent({
-        methods: {
-            done: function () {
-                this.emitter.emit('currentView', { view: 'timerFrontComponent' })
-            },
-            options: function () {
-                this.emitter.emit('currentView', { view: 'optionsComponent' })
-            },
-            info: function () {
-                window.api.info()
-            },
-            about: function () {
-                window.api.about()
-            }
+        setup() {
+          const emitter = inject("emitter") as Emitter<any>
+
+          return {
+            done: () => emitter.emit('currentView', { view: 'timerFrontComponent' }),
+            options: () => emitter.emit('currentView', { view: 'optionsComponent' }),
+            info: () => window.api.info(),
+            about: () => window.api.about()
+          }
         }
     });
 </script>
