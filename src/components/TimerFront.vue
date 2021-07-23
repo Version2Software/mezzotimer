@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, inject, onMounted} from 'vue';
+    import {defineComponent, inject, ref, onMounted} from 'vue';
     import {lengthOfTickMark, tickTime, nextTimeout, ellapsedTime, pausedTime} from "../util/timer-util";
     import {events, states, defaults} from "../util/mezzo-constants";
     import {Emitter} from "mitt";
@@ -68,125 +68,122 @@
     let vol = 1.0;
 
     export default defineComponent({
-        data() {
-            return {
-                audioTick: null as any,
-                audioGong: null as any,
-                audioExtraGong: null as any,
-                audioAlarm: null as any,
-                triangle: null as any,
-                triangleOpacity: null,
-                mezzcanvasBackground: null as any,
-                completedCount: 0,
-                timerFrontFontWeight: "",
-                clockStyles: {
-                  'background-color': 'red',
-                  'font-weight': 'normal',
-                  'text-shadow': 'initial'
+        setup() {
+            const emitter = inject("emitter") as Emitter<any>
+
+            const audioTick = ref(null as any);
+            const audioGong = ref(null as any);
+            const audioExtraGong = ref(null as any);
+            const audioAlarm = ref(null as any);
+            const triangle = ref(null as any);
+            const triangleOpacity = ref(null);
+            const mezzcanvasBackground = ref(null as any);
+            const completedCount = ref(0);
+            const timerFrontFontWeight = ref("");
+            const clockStyles = ref({
+                'background-color': 'red',
+                'font-weight': 'normal',
+                'text-shadow': 'initial'
+            });
+
+            onMounted(function () {
+                try {
+                    initProps();
+
+                    audioTick.value = document.getElementById("audio-tick");
+                    audioGong.value = document.getElementById("audio-gong");
+                    audioExtraGong.value = document.getElementById("audio-extra-gong");
+                    audioAlarm.value = document.getElementById("audio-alarm");
+                    triangle.value = document.getElementById("triangle");
+
+                    audioGong.value.addEventListener("ended", gongEnd, false);
+                    audioExtraGong.value.addEventListener("ended", extraGongEnd, false);
+
+                    mezzcanvasBackground.value = props.timerColor as string
+                    setClockColor(props.timerColor);
+
+                    paintTriangle(1.0);
+                    paintVolume();
+
+                    // TODO - verify if  code is still needed
+                    if (isWindows()) {
+                        timerFrontFontWeight.value = "bold";
+                        clockStyles.value["font-weight"] = "bold";
+                        clockStyles.value["text-shadow"] = "0px 1px 1px white";
+                    }
+                    updateGUI(minutes());
+                    audioTick.value.load();
+
+                    refreshTimerCount();
+                    //
+                    // ipcRenderer.on("cancelTask", () => {
+                    //     processEvent(events.STOP);
+                    // });
+
+                } catch (ex) {
+                    error(ex);
                 }
-            };
-        },
-        mounted: function () {
-            try {
-                this.initProps();
+            });
 
-                this.audioTick = document.getElementById("audio-tick");
-                this.audioGong = document.getElementById("audio-gong");
-                this.audioExtraGong = document.getElementById("audio-extra-gong");
-                this.audioAlarm = document.getElementById("audio-alarm");
-                this.triangle = document.getElementById("triangle");
-
-                this.audioGong.addEventListener("ended", this.gongEnd, false);
-                this.audioExtraGong.addEventListener("ended", this.extraGongEnd, false);
-
-                this.mezzcanvasBackground = props.timerColor as string
-                this.setClockColor(props.timerColor);
-
-                this.paintTriangle(1.0);
-                this.paintVolume();
-
-                // TODO - verify if this code is still needed
-                if (this.isWindows()) {
-                    this.timerFrontFontWeight = "bold"
-                    this.clockStyles["font-weight"] = "bold"
-                    this.clockStyles["text-shadow"] = "0px 1px 1px white"
-                }
-                this.updateGUI(this.minutes());
-                this.audioTick.load();
-
-                this.refreshTimerCount();
-                //
-                // ipcRenderer.on("cancelTask", () => {
-                //     this.processEvent(events.STOP);
-                // });
-
-            } catch (ex) {
-                this.error(ex);
-            }
-        },
-        methods: {
-            async startPauseResume() {
-                const self = this;
+            async function startPauseResume() {
                 if (realState === states.IDLE) {
                     let desc = await window.api.promptDescription(taskDescription);
                     if (desc) {
                         taskDescription = desc;
-                        self.processEvent(events.START);
+                        processEvent(events.START);
                     }
                 } else if (realState === states.RUNNING) {
-                    this.processEvent(events.START);
+                    processEvent(events.START);
 
                 } else if (realState === states.PAUSED) {
-                    this.processEvent(events.START);
+                    processEvent(events.START);
                 }
-            },
+            }
 
-            async stop() {
-                const self = this;
+            async function stop() {
                 if (realState === states.RUNNING || realState === states.PAUSED) {
                     if (await window.api.confirmCancel()) {
-                        self.processEvent(events.STOP);
+                        processEvent(events.STOP);
                     }
                 } else if (realState === states.SHORT_BREAK_RUNNING) {
-                    this.processEvent(events.STOP);
+                    processEvent(events.STOP);
 
                 } else if (realState === states.LONG_BREAK_RUNNING) {
-                    this.processEvent(events.STOP);
+                    processEvent(events.STOP);
                 }
-            },
+            }
 
-            startShortBreak() {
+            function startShortBreak() {
                 if (realState === states.IDLE) {
-                    this.processEvent(events.SHORT_BREAK_START);
+                    processEvent(events.SHORT_BREAK_START);
                 }
-            },
+            }
 
-            startLongBreak() {
+            function startLongBreak() {
                 if (realState === states.IDLE) {
-                    this.processEvent(events.LONG_BREAK_START);
+                    processEvent(events.LONG_BREAK_START);
                 }
-            },
+            }
 
-            paintTriangle(opacity:any) {
-
-                const contextTriangle = this.triangle.getContext("2d");
+            function paintTriangle(opacity: any) {
+                const contextTriangle = triangle.value.getContext("2d");
                 contextTriangle.fillStyle = "white";
                 contextTriangle.beginPath();
                 contextTriangle.moveTo(0, 0);
-                contextTriangle.lineTo(this.triangle.width, 0);
-                contextTriangle.lineTo(this.triangle.width / 2, this.triangle.height);
+                contextTriangle.lineTo(triangle.value.width, 0);
+                contextTriangle.lineTo(triangle.value.width / 2, triangle.value.height);
                 contextTriangle.lineTo(0, 0);
                 contextTriangle.closePath();
                 contextTriangle.fill();
-                this.triangleOpacity = opacity;
-            },
+                triangleOpacity.value = opacity;
+            }
 
-            error(doc:any) {
+            function error(doc: any) {
                 console.log(doc);
                 window.api.error(doc)
-            },
+            }
 
-            updateClock() {
+            function updateClock() {
 
                 // // TODO - is this needed?
                 if (realState !== states.RUNNING && realState !== states.SHORT_BREAK_RUNNING && realState !== states.LONG_BREAK_RUNNING) {
@@ -201,23 +198,23 @@
 
                 if (remainingSeconds % 2 === 0) {
                     if ("true" === props.tick) {
-                        this.audioTick.play();
+                        audioTick.value.play();
                     }
                 }
 
                 millis += 1000;
 
-                this.toggleRunningIndicator();
+                toggleRunningIndicator();
 
                 if (millis >= 60000) {
-                    const mins = this.minutes();
+                    const mins = minutes();
                     millis = 0;
-                    this.updateGUI(mins);
+                    updateGUI(mins);
                     if (mins % 5 === 0 && mins !== 0) {
                         if (needGong) {
                             needGong = false;
                             if (props.gong === "true") {
-                                this.playGong(elapsedFiveMinutePeriods);
+                                playGong(elapsedFiveMinutePeriods);
                                 elapsedFiveMinutePeriods++;
                             }
                         }
@@ -228,110 +225,110 @@
 
                 if (remaining <= 0) {
                     // realState = states.IDLE;
-                    this.processEvent(events.COMPLETE);
+                    processEvent(events.COMPLETE);
                     // audioTick.pause();
                     pauses = [];
                     if ("true" === props.alarm) {
-                        this.audioAlarm.play();
+                        audioAlarm.play();
                     }
                 } else {
-                    setTimeout(this.updateClock, nextTimeout(ellapsed));
+                    setTimeout(updateClock, nextTimeout(ellapsed));
                 }
-            },
+            }
 
-            playGong(extraTimes:any) {
-                this.audioExtraGong.times = extraTimes;
-                this.audioGong.play();
-            },
+            function playGong(extraTimes: any) {
+                audioExtraGong.value.times = extraTimes;
+                audioGong.value.play();
+            }
 
-            gongEnd() {
-                this.playExtraGong();
-            },
+            function gongEnd() {
+                playExtraGong();
+            }
 
-            playExtraGong() {
-                if (this.audioExtraGong.times > 0) {
-                    this.audioExtraGong.play();
+            function playExtraGong() {
+                if (audioExtraGong.value.times > 0) {
+                    audioExtraGong.value.play();
                 }
-            },
+            }
 
-            extraGongEnd() {
-                this.audioExtraGong.times--;
-                this.playExtraGong();
-            },
+            function extraGongEnd() {
+                audioExtraGong.value.times--;
+                playExtraGong();
+            }
 
-            processEvent(timerEvent:any) {
+            function processEvent(timerEvent: any) {
 
                 console.log("timerEvent", timerEvent, realState);
                 try {
                     millis = 0;
                     if (timerEvent === events.START && realState === states.IDLE) {
-                        this.addLogEvent(events.START, taskDescription);
+                        addLogEvent(events.START, taskDescription);
                         realState = states.RUNNING;
-                        this.startUp(props.minutes);
+                        startUp(props.minutes);
 
                     } else if (timerEvent === events.START && realState === states.RUNNING) {
-                        this.addLogEvent(events.PAUSE, "Pause");
+                        addLogEvent(events.PAUSE, "Pause");
                         realState = states.PAUSED;
-                        this.pause();
+                        pause();
 
                     } else if (timerEvent === events.START && realState === states.PAUSED) {
-                        this.addLogEvent(events.RESUME, "Resume");
+                        addLogEvent(events.RESUME, "Resume");
                         realState = states.RUNNING;
-                        this.resume();
+                        resume();
 
                     } else if (timerEvent === events.STOP && realState === states.RUNNING || realState === states.PAUSED) {
-                        this.addLogEvent(events.CANCEL, taskDescription);
+                        addLogEvent(events.CANCEL, taskDescription);
                         realState = states.IDLE;
-                        this.cancel();
+                        cancel();
 
                     } else if (timerEvent === events.COMPLETE && realState === states.RUNNING) {
-                        this.addLogEvent(events.COMPLETE, taskDescription);
+                        addLogEvent(events.COMPLETE, taskDescription);
                         realState = states.IDLE;
-                        this.notifyComplete("The mezzo is complete.");
+                        notifyComplete("The mezzo is complete.");
 
                         // TODO - Timeout needed due to database latency. Is there a better way?
-                        setTimeout(this.refreshTimerCount, 3000);
+                        setTimeout(refreshTimerCount, 3000);
 
                     } else if (timerEvent === events.SHORT_BREAK_START && realState === states.IDLE) {
-                        this.addLogEvent(events.SHORT_BREAK_START, "Short break started");
+                        addLogEvent(events.SHORT_BREAK_START, "Short break started");
                         realState = states.SHORT_BREAK_RUNNING;
-                        this.startUp(parseInt(props.shortBreak, 10));
+                        startUp(parseInt(props.shortBreak, 10));
 
                     } else if (timerEvent === events.LONG_BREAK_START && realState === states.IDLE) {
-                        this.addLogEvent(events.LONG_BREAK_START, "Long break started");
+                        addLogEvent(events.LONG_BREAK_START, "Long break started");
                         realState = states.LONG_BREAK_RUNNING;
-                        this.startUp(parseInt(props.longBreak, 10));
+                        startUp(parseInt(props.longBreak, 10));
 
                     } else if (timerEvent === events.COMPLETE && realState === states.SHORT_BREAK_RUNNING) {
-                        this.addLogEvent(events.SHORT_BREAK_COMPLETE, "Short break complete");
+                        addLogEvent(events.SHORT_BREAK_COMPLETE, "Short break complete");
                         realState = states.IDLE;
-                        this.notifyComplete("The break is over.");
+                        notifyComplete("The break is over.");
 
                     } else if (timerEvent === events.COMPLETE && realState === states.LONG_BREAK_RUNNING) {
-                        this.addLogEvent(events.LONG_BREAK_COMPLETE, "Long break complete");
+                        addLogEvent(events.LONG_BREAK_COMPLETE, "Long break complete");
                         realState = states.IDLE;
-                        this.notifyComplete("The break is over.");
+                        notifyComplete("The break is over.");
 
                     } else if (timerEvent === events.STOP && realState === states.SHORT_BREAK_RUNNING) {
-                        this.addLogEvent(events.CANCEL, "Short break cancelled");
+                        addLogEvent(events.CANCEL, "Short break cancelled");
                         realState = states.IDLE;
-                        this.cancel();
+                        cancel();
 
                     } else if (timerEvent === events.STOP && realState === states.LONG_BREAK_RUNNING) {
-                        this.addLogEvent(events.CANCEL, "Long break cancelled");
+                        addLogEvent(events.CANCEL, "Long break cancelled");
                         realState = states.IDLE;
-                        this.cancel();
+                        cancel();
                     }
 
                     globalState = realState;
 
-                    this.updateGUI(this.minutes());
+                    updateGUI(minutes());
                 } catch (ex) {
-                    this.error(ex);
+                    error(ex);
                 }
-            },
+            }
 
-            startUp(m:any) {
+            function startUp(m: any) {
                 try {
                     mezzoraMinutes = m;
                     elapsedFiveMinutePeriods = 0;
@@ -343,42 +340,42 @@
                     // audioTick.load();
                     // setTimeout(delayPlay, 1000);
                     // }
-                    setTimeout(this.updateClock, 1000);
+                    setTimeout(updateClock, 1000);
 
-                    this.setClockColor(props.timerColor);
+                    setClockColor(props.timerColor);
                 } catch (ex) {
-                    this.error(ex);
+                    error(ex);
                 }
-            },
+            }
 
-            pause() {
-                this.audioTick.pause();
+            function pause() {
+                audioTick.value.pause();
                 startPause = Date.now();
-                this.setClockColor("gray");
-            },
+                setClockColor("gray");
+            }
 
-            resume() {
+            function resume() {
                 // if (props.tick) {
                 //   setTimeout(delayPlay, 1000);
                 // }
-                this.setClockColor(props.timerColor);
+                setClockColor(props.timerColor);
                 pauses.push(Date.now() - startPause);
                 startPause = 0;
-                setTimeout(this.updateClock, 1000);
-            },
+                setTimeout(updateClock, 1000);
+            }
 
-            cancel() {
-                this.audioTick.pause();
+            function cancel() {
+                audioTick.value.pause();
                 // minutes = 0;
                 elapsedFiveMinutePeriods = 0;
                 pauses = [];
-                this.setClockColor(props.timerColor);
-                this.paintTriangle(1.0);
-            },
+                setClockColor(props.timerColor);
+                paintTriangle(1.0);
+            }
 
-            addLogEvent(eventType:string, desc:string) {
+            function addLogEvent(eventType: string, desc: string) {
                 try {
-                    let me:MezzoEvent = {
+                    let me: MezzoEvent = {
                         rowId: 0,
                         eventTimestamp: new Date().getTime(),
                         description: desc,
@@ -386,34 +383,34 @@
                     }
                     window.api.save(me)
                 } catch (ex) {
-                    this.error(ex);
+                    error(ex);
                 }
-            },
+            }
 
-            toggleRunningIndicator() {
-                this.paintTriangle((millis / 1000) % 2 === 0 ? 1.0 : 0.7);
-            },
+            function toggleRunningIndicator() {
+                paintTriangle((millis / 1000) % 2 === 0 ? 1.0 : 0.7);
+            }
 
-            notifyComplete(msg:string) {
+            function notifyComplete(msg: string) {
                 if (props.notification) {
-                  // TODO - put useSpeech on options if it works in windows
+                    // TODO - put useSpeech on options if it works in windows
                     if (false /*props.useSpeech*/) {
                         window.speechSynthesis.speak(new SpeechSynthesisUtterance(msg));
                     } else {
                         new Notification("Mezzo", {body: msg});
                     }
                 }
-            },
+            }
 
-            volume() {
+            function volume() {
                 vol = vol < 0.1 ? 1.0 : vol - 0.3333;
-                this.audioTick.volume = vol;
-                this.audioGong.volume = vol;
-                this.audioExtraGong.volume = vol;
-                this.audioAlarm.volume = vol;
-            },
+                audioTick.value.volume = vol;
+                audioGong.value.volume = vol;
+                audioExtraGong.value.volume = vol;
+                audioAlarm.value.volume = vol;
+            }
 
-            updateGUI(mins:number) {
+            function updateGUI(mins:number) {
 
                 const canvas = document.getElementById("mezzcanvas") as any;
                 const context = canvas.getContext("2d");
@@ -426,7 +423,7 @@
                 context.fill();
                 context.strokeStyle = "white";
                 context.fillStyle = "white";
-                context.font = this.isWindows() ? "bold 38pt Arial" : "38pt Helvetica";
+                context.font = isWindows() ? "bold 38pt Arial" : "38pt Helvetica";
                 context.textAlign = "center";
                 context.beginPath();
                 const deltax = canvas.width / 20;
@@ -440,18 +437,18 @@
                 }
                 context.closePath();
                 context.stroke();
-            },
+            }
 
-            setClockColor(c:string) {
-              this.clockStyles["background-color"] = c
-            },
+            function setClockColor(c:string){
+                clockStyles.value["background-color"] = c
+            }
 
-            stepVolume() {
-                this.volume();
-                this.paintVolume();
-            },
+            function stepVolume() {
+                volume();
+                paintVolume();
+            }
 
-            paintVolume() {
+            function paintVolume() {
                 const timerColor = props.timerColor;
                 const radius = vol * 60 + 100;
                 const canvasVolume = document.getElementById("volume-control") as any;
@@ -478,21 +475,21 @@
                 contextVolume.arc(0, 200, radius, 0, Math.PI / 2.0, true);
                 contextVolume.closePath();
                 contextVolume.stroke();
-            },
+            }
 
-            minutes():number {
+            function minutes(): number {
                 if (realState === states.IDLE) {
                     return 0;
                 }
                 const ellapsed = ellapsedTime(millisAtStart, Date.now(), pausedTime(pauses));
                 return Math.round(mezzoraMinutes - (ellapsed / 60000));
-            },
+            }
 
-            isWindows() {
+            function isWindows() {
                 return navigator.appVersion.indexOf("Win") !== -1;
-            },
+            }
 
-            initProps() {
+            function initProps() {
                 props.minutes = localStorage["minutes"] !== undefined ? localStorage["minutes"] : defaults.DEFAULT_BLOCK;
                 props.longBreak = localStorage["longbreak"] !== undefined ? localStorage["longbreak"] : defaults.DEFAULT_LONG_BREAK;
                 props.shortBreak = localStorage["shortbreak"] !== undefined ? localStorage["shortbreak"] : defaults.DEFAULT_SHORT_BREAK;
@@ -501,9 +498,9 @@
                 props.alarm = localStorage["alarm"] !== undefined ? localStorage["alarm"] : "true";
                 props.notification = localStorage["notification"] !== undefined ? localStorage["notification"] : "true";
                 props.timerColor = localStorage["timercolor"] !== undefined ? localStorage["timercolor"] : defaults.DEFAULT_CLOCK_COLOR;
-            },
+            }
 
-            refreshTimerCount() {
+            function refreshTimerCount() {
                 try {
                     const start = new Date();
                     start.setHours(0, 0, 0, 0);
@@ -513,29 +510,48 @@
 
                     let period = {startkey: start.getTime(), endkey: end.getTime()};
                     window.api.findAll(period)
-                        .then((items:MezzoEvent[]) => {
-                            this.completedCount = items.filter(e => e.eventType === "COMPLETE").length;
+                        .then((items: MezzoEvent[]) => {
+                            completedCount.value = items.filter(e => e.eventType === "COMPLETE").length;
                         })
-                        .catch((err:any) => {
-                            this.error(err)
+                        .catch((err: any) => {
+                            error(err)
                         });
                 } catch (ex) {
-                    this.error(ex);
+                    error(ex);
                 }
-            },
+            }
 
-            viewLog: function () {
+            function viewLog() {
                 window.api.viewLog()
             }
-        },
-        setup() {
-            const emitter = inject("emitter") as Emitter<any>
+
+            function menu() {
+                emitter.emit('currentView', {view: 'timerMenuComponent'});
+            }
 
             return {
-              menu: () => emitter.emit('currentView', { view: 'timerMenuComponent' })
-            }
-        },
+                audioTick,
+                audioGong,
+                audioExtraGong,
+                audioAlarm,
+                triangle,
+                triangleOpacity,
+                mezzcanvasBackground,
+                completedCount,
+                timerFrontFontWeight,
+                clockStyles,
+                startPauseResume,
+                startShortBreak,
+                startLongBreak,
+                stop,
+                stepVolume,
+                viewLog,
+                refreshTimerCount,
+                menu
+            };
+        }
     });
+
 </script>
 
 <style scoped>
