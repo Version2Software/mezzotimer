@@ -13,15 +13,15 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent} from 'vue';
+import {defineComponent} from 'vue';
 
-    export default defineComponent({
-        setup() {
-            return {
-              download: () => window.api.download()
-            }
+export default defineComponent({
+    setup() {
+        return {
+            download: () => window.api.download()
         }
-    });
+    }
+});
 </script>
 
 <style>

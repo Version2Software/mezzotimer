@@ -17,22 +17,23 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, inject} from 'vue';
-    import {Emitter} from "mitt";
+import {defineComponent, inject} from 'vue';
+import {Emitter} from "mitt";
 
-    export default defineComponent({
-        setup() {
-          const emitter = inject("emitter") as Emitter<any>
+export default defineComponent({
+    setup() {
+        const emitter = inject("emitter") as Emitter<any>
 
-          return {
-            done: () => emitter.emit('currentView', { view: 'timerFrontComponent' }),
-            options: () => emitter.emit('currentView', { view: 'optionsComponent' }),
+        return {
+            done: () => emitter.emit('currentView', {view: 'timerFrontComponent'}),
+            options: () => emitter.emit('currentView', {view: 'optionsComponent'}),
             info: () => window.api.info(),
             about: () => window.api.about()
-          }
         }
-    });
+    }
+});
 </script>
+
 <style scoped>
     #timer-menu {
         position: absolute;

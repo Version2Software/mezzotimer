@@ -34,49 +34,49 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, ref, computed, onMounted} from 'vue';
-    import {dateFormat, summary} from "../util/util";
+import {defineComponent, ref, computed, onMounted} from 'vue';
+import {dateFormat, summary} from "../util/util";
 
-    export default defineComponent({
-        setup() {
-            const period = ref({startkey: 0, endkey: 0} as Period);
-            const docs =  ref([] as MezzoEvent[]);
+export default defineComponent({
+    setup() {
+        const period = ref({startkey: 0, endkey: 0} as Period);
+        const docs = ref([] as MezzoEvent[]);
 
-            const format = (ts:number) => dateFormat(ts);
-            const printPage = () => window.api.printPage();
+        const format = (ts: number) => dateFormat(ts);
+        const printPage = () => window.api.printPage();
 
-            const periodFrom = computed(() => new Date(period.value.startkey).toLocaleDateString());
-            const periodTo = computed(() => new Date(period.value.endkey).toLocaleDateString());
-            const reportDate = computed(() => new Date().toLocaleDateString());
-            const summaryRows = computed(() => summary(docs.value));
-            const totalCount = computed(() => {
-              return docs.value.filter((e: MezzoEvent) => e.eventType === "COMPLETE").length;
-            });
+        const periodFrom = computed(() => new Date(period.value.startkey).toLocaleDateString());
+        const periodTo = computed(() => new Date(period.value.endkey).toLocaleDateString());
+        const reportDate = computed(() => new Date().toLocaleDateString());
+        const summaryRows = computed(() => summary(docs.value));
+        const totalCount = computed(() => {
+            return docs.value.filter((e: MezzoEvent) => e.eventType === "COMPLETE").length;
+        });
 
-            onMounted(() => {
-              window.api.getCachedPeriod()
-                  .then((per:Period) => {
+        onMounted(() => {
+            window.api.getCachedPeriod()
+                .then((per: Period) => {
                     period.value = per;
                     window.api.findAll(per)
-                        .then((items:MezzoEvent[]) => docs.value = items)
-                        .catch((err:any) => console.error(err));
-                  })
-                  .catch((err:any) => console.error(err));
-            });
+                        .then((items: MezzoEvent[]) => docs.value = items)
+                        .catch((err: any) => console.error(err));
+                })
+                .catch((err: any) => console.error(err));
+        });
 
-            return {
-                period,
-                docs,
-                format,
-                printPage,
-                periodFrom,
-                periodTo,
-                reportDate,
-                summaryRows,
-                totalCount
-            }
+        return {
+            period,
+            docs,
+            format,
+            printPage,
+            periodFrom,
+            periodTo,
+            reportDate,
+            summaryRows,
+            totalCount
         }
-    });
+    }
+});
 </script>
 
 <style scoped>

@@ -13,33 +13,32 @@
     </div>
 </template>
 <script lang="ts">
-    const mrp = require("minimal-request-promise");
+const mrp = require("minimal-request-promise");
 
-    import { defineComponent, ref, onMounted } from 'vue'
+import {defineComponent, ref, onMounted} from 'vue'
 
-    export default defineComponent({
-        setup() {
-            const version = ref("3.0.0");
-            const availableVersion = ref(null as string | null);
+export default defineComponent({
+    setup() {
+        const version = ref("3.0.0");
+        const availableVersion = ref(null as string | null);
 
-            onMounted(() => {
-              mrp.get("https://mezzotimer.com/version.json", {}).then((response:any) => {
+        onMounted(() => {
+            mrp.get("https://mezzotimer.com/version.json", {}).then((response: any) => {
                 let body = JSON.parse(response.body);
                 availableVersion.value = body.version;
-              }).catch((err:any) => {
+            }).catch((err: any) => {
                 console.error(err);
                 availableVersion.value = "Could not check for available version.";
-              });
             });
+        });
 
-            return {
-                version,
-                availableVersion,
-                download: () => window.api.download()
-            }
-      }
-    });
-
+        return {
+            version,
+            availableVersion,
+            download: () => window.api.download()
+        }
+    }
+});
 </script>
 
 <style scoped>

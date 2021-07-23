@@ -39,518 +39,518 @@
 </template>
 
 <script lang="ts">
-    import {defineComponent, inject, ref, onMounted} from 'vue';
-    import {lengthOfTickMark, tickTime, nextTimeout, ellapsedTime, pausedTime} from "../util/timer-util";
-    import {events, states, defaults} from "../util/mezzo-constants";
-    import {Emitter} from "mitt";
+import {defineComponent, inject, ref, onMounted} from 'vue';
+import {lengthOfTickMark, tickTime, nextTimeout, ellapsedTime, pausedTime} from "../util/timer-util";
+import {events, states, defaults} from "../util/mezzo-constants";
+import {Emitter} from "mitt";
 
-    let globalState = "IDLE";
+let globalState = "IDLE";
 
-    let realState = states.IDLE;
-    let mezzoraMinutes = 0;
-    let millis = 0;
-    let millisAtStart = 0;
-    let startPause = 0;
-    let pauses:number[] = [];
-    let elapsedFiveMinutePeriods = 0;
-    const props = {
-      minutes: "",
-      longBreak: "",
-      shortBreak: "",
-      tick: "",
-      gong: "",
-      alarm: "",
-      notification: "",
-      timerColor: ""
-    };
-    let taskDescription:any = null;
-    let needGong = true;
-    let vol = 1.0;
+let realState = states.IDLE;
+let mezzoraMinutes = 0;
+let millis = 0;
+let millisAtStart = 0;
+let startPause = 0;
+let pauses: number[] = [];
+let elapsedFiveMinutePeriods = 0;
+const props = {
+    minutes: "",
+    longBreak: "",
+    shortBreak: "",
+    tick: "",
+    gong: "",
+    alarm: "",
+    notification: "",
+    timerColor: ""
+};
+let taskDescription: any = null;
+let needGong = true;
+let vol = 1.0;
 
-    export default defineComponent({
-        setup() {
-            const emitter = inject("emitter") as Emitter<any>
+export default defineComponent({
+    setup() {
+        const emitter = inject("emitter") as Emitter<any>
 
-            const audioTick = ref(null as any);
-            const audioGong = ref(null as any);
-            const audioExtraGong = ref(null as any);
-            const audioAlarm = ref(null as any);
-            const triangle = ref(null as any);
-            const triangleOpacity = ref(null);
-            const mezzcanvasBackground = ref(null as any);
-            const completedCount = ref(0);
-            const timerFrontFontWeight = ref("");
-            const clockStyles = ref({
-                'background-color': 'red',
-                'font-weight': 'normal',
-                'text-shadow': 'initial'
-            });
+        const audioTick = ref(null as any);
+        const audioGong = ref(null as any);
+        const audioExtraGong = ref(null as any);
+        const audioAlarm = ref(null as any);
+        const triangle = ref(null as any);
+        const triangleOpacity = ref(null);
+        const mezzcanvasBackground = ref(null as any);
+        const completedCount = ref(0);
+        const timerFrontFontWeight = ref("");
+        const clockStyles = ref({
+            'background-color': 'red',
+            'font-weight': 'normal',
+            'text-shadow': 'initial'
+        });
 
-            onMounted(function () {
-                try {
-                    initProps();
+        onMounted(function () {
+            try {
+                initProps();
 
-                    audioTick.value = document.getElementById("audio-tick");
-                    audioGong.value = document.getElementById("audio-gong");
-                    audioExtraGong.value = document.getElementById("audio-extra-gong");
-                    audioAlarm.value = document.getElementById("audio-alarm");
-                    triangle.value = document.getElementById("triangle");
+                audioTick.value = document.getElementById("audio-tick");
+                audioGong.value = document.getElementById("audio-gong");
+                audioExtraGong.value = document.getElementById("audio-extra-gong");
+                audioAlarm.value = document.getElementById("audio-alarm");
+                triangle.value = document.getElementById("triangle");
 
-                    audioGong.value.addEventListener("ended", gongEnd, false);
-                    audioExtraGong.value.addEventListener("ended", extraGongEnd, false);
+                audioGong.value.addEventListener("ended", gongEnd, false);
+                audioExtraGong.value.addEventListener("ended", extraGongEnd, false);
 
-                    mezzcanvasBackground.value = props.timerColor as string
-                    setClockColor(props.timerColor);
+                mezzcanvasBackground.value = props.timerColor as string
+                setClockColor(props.timerColor);
 
-                    paintTriangle(1.0);
-                    paintVolume();
+                paintTriangle(1.0);
+                paintVolume();
 
-                    // TODO - verify if  code is still needed
-                    if (isWindows()) {
-                        timerFrontFontWeight.value = "bold";
-                        clockStyles.value["font-weight"] = "bold";
-                        clockStyles.value["text-shadow"] = "0px 1px 1px white";
-                    }
-                    updateGUI(minutes());
-                    audioTick.value.load();
-
-                    refreshTimerCount();
-                    //
-                    // ipcRenderer.on("cancelTask", () => {
-                    //     processEvent(events.STOP);
-                    // });
-
-                } catch (ex) {
-                    error(ex);
+                // TODO - verify if  code is still needed
+                if (isWindows()) {
+                    timerFrontFontWeight.value = "bold";
+                    clockStyles.value["font-weight"] = "bold";
+                    clockStyles.value["text-shadow"] = "0px 1px 1px white";
                 }
-            });
+                updateGUI(minutes());
+                audioTick.value.load();
 
-            async function startPauseResume() {
-                if (realState === states.IDLE) {
-                    let desc = await window.api.promptDescription(taskDescription);
-                    if (desc) {
-                        taskDescription = desc;
-                        processEvent(events.START);
-                    }
-                } else if (realState === states.RUNNING) {
-                    processEvent(events.START);
+                refreshTimerCount();
+                //
+                // ipcRenderer.on("cancelTask", () => {
+                //     processEvent(events.STOP);
+                // });
 
-                } else if (realState === states.PAUSED) {
+            } catch (ex) {
+                error(ex);
+            }
+        });
+
+        async function startPauseResume() {
+            if (realState === states.IDLE) {
+                let desc = await window.api.promptDescription(taskDescription);
+                if (desc) {
+                    taskDescription = desc;
                     processEvent(events.START);
                 }
-            }
+            } else if (realState === states.RUNNING) {
+                processEvent(events.START);
 
-            async function stop() {
-                if (realState === states.RUNNING || realState === states.PAUSED) {
-                    if (await window.api.confirmCancel()) {
-                        processEvent(events.STOP);
-                    }
-                } else if (realState === states.SHORT_BREAK_RUNNING) {
+            } else if (realState === states.PAUSED) {
+                processEvent(events.START);
+            }
+        }
+
+        async function stop() {
+            if (realState === states.RUNNING || realState === states.PAUSED) {
+                if (await window.api.confirmCancel()) {
                     processEvent(events.STOP);
+                }
+            } else if (realState === states.SHORT_BREAK_RUNNING) {
+                processEvent(events.STOP);
 
-                } else if (realState === states.LONG_BREAK_RUNNING) {
-                    processEvent(events.STOP);
+            } else if (realState === states.LONG_BREAK_RUNNING) {
+                processEvent(events.STOP);
+            }
+        }
+
+        function startShortBreak() {
+            if (realState === states.IDLE) {
+                processEvent(events.SHORT_BREAK_START);
+            }
+        }
+
+        function startLongBreak() {
+            if (realState === states.IDLE) {
+                processEvent(events.LONG_BREAK_START);
+            }
+        }
+
+        function paintTriangle(opacity: any) {
+            const contextTriangle = triangle.value.getContext("2d");
+            contextTriangle.fillStyle = "white";
+            contextTriangle.beginPath();
+            contextTriangle.moveTo(0, 0);
+            contextTriangle.lineTo(triangle.value.width, 0);
+            contextTriangle.lineTo(triangle.value.width / 2, triangle.value.height);
+            contextTriangle.lineTo(0, 0);
+            contextTriangle.closePath();
+            contextTriangle.fill();
+            triangleOpacity.value = opacity;
+        }
+
+        function error(doc: any) {
+            console.log(doc);
+            window.api.error(doc)
+        }
+
+        function updateClock() {
+
+            // // TODO - is this needed?
+            if (realState !== states.RUNNING && realState !== states.SHORT_BREAK_RUNNING && realState !== states.LONG_BREAK_RUNNING) {
+                return;
+            }
+
+            const ellapsed = ellapsedTime(millisAtStart, Date.now(), pausedTime(pauses));
+            const remaining = Math.round(mezzoraMinutes * 60000 - ellapsed);
+            const remainingSeconds = Math.round(remaining / 1000);
+
+            // console.log("remainingSeconds", remainingSeconds % 2);
+
+            if (remainingSeconds % 2 === 0) {
+                if ("true" === props.tick) {
+                    audioTick.value.play();
                 }
             }
 
-            function startShortBreak() {
-                if (realState === states.IDLE) {
-                    processEvent(events.SHORT_BREAK_START);
-                }
-            }
+            millis += 1000;
 
-            function startLongBreak() {
-                if (realState === states.IDLE) {
-                    processEvent(events.LONG_BREAK_START);
-                }
-            }
+            toggleRunningIndicator();
 
-            function paintTriangle(opacity: any) {
-                const contextTriangle = triangle.value.getContext("2d");
-                contextTriangle.fillStyle = "white";
-                contextTriangle.beginPath();
-                contextTriangle.moveTo(0, 0);
-                contextTriangle.lineTo(triangle.value.width, 0);
-                contextTriangle.lineTo(triangle.value.width / 2, triangle.value.height);
-                contextTriangle.lineTo(0, 0);
-                contextTriangle.closePath();
-                contextTriangle.fill();
-                triangleOpacity.value = opacity;
-            }
-
-            function error(doc: any) {
-                console.log(doc);
-                window.api.error(doc)
-            }
-
-            function updateClock() {
-
-                // // TODO - is this needed?
-                if (realState !== states.RUNNING && realState !== states.SHORT_BREAK_RUNNING && realState !== states.LONG_BREAK_RUNNING) {
-                    return;
-                }
-
-                const ellapsed = ellapsedTime(millisAtStart, Date.now(), pausedTime(pauses));
-                const remaining = Math.round(mezzoraMinutes * 60000 - ellapsed);
-                const remainingSeconds = Math.round(remaining / 1000);
-
-                // console.log("remainingSeconds", remainingSeconds % 2);
-
-                if (remainingSeconds % 2 === 0) {
-                    if ("true" === props.tick) {
-                        audioTick.value.play();
-                    }
-                }
-
-                millis += 1000;
-
-                toggleRunningIndicator();
-
-                if (millis >= 60000) {
-                    const mins = minutes();
-                    millis = 0;
-                    updateGUI(mins);
-                    if (mins % 5 === 0 && mins !== 0) {
-                        if (needGong) {
-                            needGong = false;
-                            if (props.gong === "true") {
-                                playGong(elapsedFiveMinutePeriods);
-                                elapsedFiveMinutePeriods++;
-                            }
+            if (millis >= 60000) {
+                const mins = minutes();
+                millis = 0;
+                updateGUI(mins);
+                if (mins % 5 === 0 && mins !== 0) {
+                    if (needGong) {
+                        needGong = false;
+                        if (props.gong === "true") {
+                            playGong(elapsedFiveMinutePeriods);
+                            elapsedFiveMinutePeriods++;
                         }
-                    } else {
-                        needGong = true;
-                    }
-                }
-
-                if (remaining <= 0) {
-                    // realState = states.IDLE;
-                    processEvent(events.COMPLETE);
-                    // audioTick.pause();
-                    pauses = [];
-                    if ("true" === props.alarm) {
-                        audioAlarm.play();
                     }
                 } else {
-                    setTimeout(updateClock, nextTimeout(ellapsed));
+                    needGong = true;
                 }
             }
 
-            function playGong(extraTimes: any) {
-                audioExtraGong.value.times = extraTimes;
-                audioGong.value.play();
-            }
-
-            function gongEnd() {
-                playExtraGong();
-            }
-
-            function playExtraGong() {
-                if (audioExtraGong.value.times > 0) {
-                    audioExtraGong.value.play();
-                }
-            }
-
-            function extraGongEnd() {
-                audioExtraGong.value.times--;
-                playExtraGong();
-            }
-
-            function processEvent(timerEvent: any) {
-
-                console.log("timerEvent", timerEvent, realState);
-                try {
-                    millis = 0;
-                    if (timerEvent === events.START && realState === states.IDLE) {
-                        addLogEvent(events.START, taskDescription);
-                        realState = states.RUNNING;
-                        startUp(props.minutes);
-
-                    } else if (timerEvent === events.START && realState === states.RUNNING) {
-                        addLogEvent(events.PAUSE, "Pause");
-                        realState = states.PAUSED;
-                        pause();
-
-                    } else if (timerEvent === events.START && realState === states.PAUSED) {
-                        addLogEvent(events.RESUME, "Resume");
-                        realState = states.RUNNING;
-                        resume();
-
-                    } else if (timerEvent === events.STOP && realState === states.RUNNING || realState === states.PAUSED) {
-                        addLogEvent(events.CANCEL, taskDescription);
-                        realState = states.IDLE;
-                        cancel();
-
-                    } else if (timerEvent === events.COMPLETE && realState === states.RUNNING) {
-                        addLogEvent(events.COMPLETE, taskDescription);
-                        realState = states.IDLE;
-                        notifyComplete("The mezzo is complete.");
-
-                        // TODO - Timeout needed due to database latency. Is there a better way?
-                        setTimeout(refreshTimerCount, 3000);
-
-                    } else if (timerEvent === events.SHORT_BREAK_START && realState === states.IDLE) {
-                        addLogEvent(events.SHORT_BREAK_START, "Short break started");
-                        realState = states.SHORT_BREAK_RUNNING;
-                        startUp(parseInt(props.shortBreak, 10));
-
-                    } else if (timerEvent === events.LONG_BREAK_START && realState === states.IDLE) {
-                        addLogEvent(events.LONG_BREAK_START, "Long break started");
-                        realState = states.LONG_BREAK_RUNNING;
-                        startUp(parseInt(props.longBreak, 10));
-
-                    } else if (timerEvent === events.COMPLETE && realState === states.SHORT_BREAK_RUNNING) {
-                        addLogEvent(events.SHORT_BREAK_COMPLETE, "Short break complete");
-                        realState = states.IDLE;
-                        notifyComplete("The break is over.");
-
-                    } else if (timerEvent === events.COMPLETE && realState === states.LONG_BREAK_RUNNING) {
-                        addLogEvent(events.LONG_BREAK_COMPLETE, "Long break complete");
-                        realState = states.IDLE;
-                        notifyComplete("The break is over.");
-
-                    } else if (timerEvent === events.STOP && realState === states.SHORT_BREAK_RUNNING) {
-                        addLogEvent(events.CANCEL, "Short break cancelled");
-                        realState = states.IDLE;
-                        cancel();
-
-                    } else if (timerEvent === events.STOP && realState === states.LONG_BREAK_RUNNING) {
-                        addLogEvent(events.CANCEL, "Long break cancelled");
-                        realState = states.IDLE;
-                        cancel();
-                    }
-
-                    globalState = realState;
-
-                    updateGUI(minutes());
-                } catch (ex) {
-                    error(ex);
-                }
-            }
-
-            function startUp(m: any) {
-                try {
-                    mezzoraMinutes = m;
-                    elapsedFiveMinutePeriods = 0;
-                    millisAtStart = Date.now();
-                    pauses = [];
-                    // if (props.tick) {
-                    // audioTick.play();
-
-                    // audioTick.load();
-                    // setTimeout(delayPlay, 1000);
-                    // }
-                    setTimeout(updateClock, 1000);
-
-                    setClockColor(props.timerColor);
-                } catch (ex) {
-                    error(ex);
-                }
-            }
-
-            function pause() {
-                audioTick.value.pause();
-                startPause = Date.now();
-                setClockColor("gray");
-            }
-
-            function resume() {
-                // if (props.tick) {
-                //   setTimeout(delayPlay, 1000);
-                // }
-                setClockColor(props.timerColor);
-                pauses.push(Date.now() - startPause);
-                startPause = 0;
-                setTimeout(updateClock, 1000);
-            }
-
-            function cancel() {
-                audioTick.value.pause();
-                // minutes = 0;
-                elapsedFiveMinutePeriods = 0;
+            if (remaining <= 0) {
+                // realState = states.IDLE;
+                processEvent(events.COMPLETE);
+                // audioTick.pause();
                 pauses = [];
-                setClockColor(props.timerColor);
-                paintTriangle(1.0);
-            }
-
-            function addLogEvent(eventType: string, desc: string) {
-                try {
-                    let me: MezzoEvent = {
-                        rowId: 0,
-                        eventTimestamp: new Date().getTime(),
-                        description: desc,
-                        eventType: eventType
-                    }
-                    window.api.save(me)
-                } catch (ex) {
-                    error(ex);
+                if ("true" === props.alarm) {
+                    audioAlarm.play();
                 }
+            } else {
+                setTimeout(updateClock, nextTimeout(ellapsed));
             }
-
-            function toggleRunningIndicator() {
-                paintTriangle((millis / 1000) % 2 === 0 ? 1.0 : 0.7);
-            }
-
-            function notifyComplete(msg: string) {
-                if (props.notification) {
-                    // TODO - put useSpeech on options if it works in windows
-                    if (false /*props.useSpeech*/) {
-                        window.speechSynthesis.speak(new SpeechSynthesisUtterance(msg));
-                    } else {
-                        new Notification("Mezzo", {body: msg});
-                    }
-                }
-            }
-
-            function volume() {
-                vol = vol < 0.1 ? 1.0 : vol - 0.3333;
-                audioTick.value.volume = vol;
-                audioGong.value.volume = vol;
-                audioExtraGong.value.volume = vol;
-                audioAlarm.value.volume = vol;
-            }
-
-            function updateGUI(mins:number) {
-
-                const canvas = document.getElementById("mezzcanvas") as any;
-                const context = canvas.getContext("2d");
-                canvas.width = canvas.width;
-                context.fillStyle = "black";
-                context.beginPath();
-                context.moveTo(0, 0);
-                context.fillRect(0, 0, canvas.width, 8);
-                context.closePath();
-                context.fill();
-                context.strokeStyle = "white";
-                context.fillStyle = "white";
-                context.font = isWindows() ? "bold 38pt Arial" : "38pt Helvetica";
-                context.textAlign = "center";
-                context.beginPath();
-                const deltax = canvas.width / 20;
-
-                for (let i = 0; i <= 19; i++) {
-                    const len = lengthOfTickMark(i, mins);
-                    context.fillRect(i * deltax, 20, 2, len - 5);
-                    if (len === 60) {
-                        context.fillText(tickTime(i, mins) + "", deltax * i, 125);
-                    }
-                }
-                context.closePath();
-                context.stroke();
-            }
-
-            function setClockColor(c:string){
-                clockStyles.value["background-color"] = c
-            }
-
-            function stepVolume() {
-                volume();
-                paintVolume();
-            }
-
-            function paintVolume() {
-                const timerColor = props.timerColor;
-                const radius = vol * 60 + 100;
-                const canvasVolume = document.getElementById("volume-control") as any;
-                const contextVolume = canvasVolume.getContext("2d");
-
-                // Erase the area
-                contextVolume.fillStyle = "black";
-                contextVolume.beginPath();
-                contextVolume.fillRect(0, 0, 200, 200);
-                contextVolume.closePath();
-                contextVolume.fill();
-
-                // Draw the bottom left small quarter circle
-                contextVolume.fillStyle = Math.round(radius) === 100 ? timerColor : "white";
-                contextVolume.beginPath();
-                contextVolume.arc(0, 200, 100, 0, Math.PI / 2.0, true);
-                contextVolume.closePath();
-                contextVolume.fill();
-
-                // Draw the outer ring
-                contextVolume.strokeStyle = Math.round(radius) === 100 ? timerColor : "white";
-                contextVolume.beginPath();
-                contextVolume.lineWidth = 20;
-                contextVolume.arc(0, 200, radius, 0, Math.PI / 2.0, true);
-                contextVolume.closePath();
-                contextVolume.stroke();
-            }
-
-            function minutes(): number {
-                if (realState === states.IDLE) {
-                    return 0;
-                }
-                const ellapsed = ellapsedTime(millisAtStart, Date.now(), pausedTime(pauses));
-                return Math.round(mezzoraMinutes - (ellapsed / 60000));
-            }
-
-            function isWindows() {
-                return navigator.appVersion.indexOf("Win") !== -1;
-            }
-
-            function initProps() {
-                props.minutes = localStorage["minutes"] !== undefined ? localStorage["minutes"] : defaults.DEFAULT_BLOCK;
-                props.longBreak = localStorage["longbreak"] !== undefined ? localStorage["longbreak"] : defaults.DEFAULT_LONG_BREAK;
-                props.shortBreak = localStorage["shortbreak"] !== undefined ? localStorage["shortbreak"] : defaults.DEFAULT_SHORT_BREAK;
-                props.tick = localStorage["tick"] !== undefined ? localStorage["tick"] : "true";
-                props.gong = localStorage["gong"] !== undefined ? localStorage["gong"] : "true";
-                props.alarm = localStorage["alarm"] !== undefined ? localStorage["alarm"] : "true";
-                props.notification = localStorage["notification"] !== undefined ? localStorage["notification"] : "true";
-                props.timerColor = localStorage["timercolor"] !== undefined ? localStorage["timercolor"] : defaults.DEFAULT_CLOCK_COLOR;
-            }
-
-            function refreshTimerCount() {
-                try {
-                    const start = new Date();
-                    start.setHours(0, 0, 0, 0);
-
-                    const end = new Date();
-                    end.setHours(23, 59, 59, 99);
-
-                    let period = {startkey: start.getTime(), endkey: end.getTime()};
-                    window.api.findAll(period)
-                        .then((items: MezzoEvent[]) => {
-                            completedCount.value = items.filter(e => e.eventType === "COMPLETE").length;
-                        })
-                        .catch((err: any) => {
-                            error(err)
-                        });
-                } catch (ex) {
-                    error(ex);
-                }
-            }
-
-            function viewLog() {
-                window.api.viewLog()
-            }
-
-            function menu() {
-                emitter.emit('currentView', {view: 'timerMenuComponent'});
-            }
-
-            return {
-                audioTick,
-                audioGong,
-                audioExtraGong,
-                audioAlarm,
-                triangle,
-                triangleOpacity,
-                mezzcanvasBackground,
-                completedCount,
-                timerFrontFontWeight,
-                clockStyles,
-                startPauseResume,
-                startShortBreak,
-                startLongBreak,
-                stop,
-                stepVolume,
-                viewLog,
-                refreshTimerCount,
-                menu
-            };
         }
-    });
+
+        function playGong(extraTimes: any) {
+            audioExtraGong.value.times = extraTimes;
+            audioGong.value.play();
+        }
+
+        function gongEnd() {
+            playExtraGong();
+        }
+
+        function playExtraGong() {
+            if (audioExtraGong.value.times > 0) {
+                audioExtraGong.value.play();
+            }
+        }
+
+        function extraGongEnd() {
+            audioExtraGong.value.times--;
+            playExtraGong();
+        }
+
+        function processEvent(timerEvent: any) {
+
+            console.log("timerEvent", timerEvent, realState);
+            try {
+                millis = 0;
+                if (timerEvent === events.START && realState === states.IDLE) {
+                    addLogEvent(events.START, taskDescription);
+                    realState = states.RUNNING;
+                    startUp(props.minutes);
+
+                } else if (timerEvent === events.START && realState === states.RUNNING) {
+                    addLogEvent(events.PAUSE, "Pause");
+                    realState = states.PAUSED;
+                    pause();
+
+                } else if (timerEvent === events.START && realState === states.PAUSED) {
+                    addLogEvent(events.RESUME, "Resume");
+                    realState = states.RUNNING;
+                    resume();
+
+                } else if (timerEvent === events.STOP && realState === states.RUNNING || realState === states.PAUSED) {
+                    addLogEvent(events.CANCEL, taskDescription);
+                    realState = states.IDLE;
+                    cancel();
+
+                } else if (timerEvent === events.COMPLETE && realState === states.RUNNING) {
+                    addLogEvent(events.COMPLETE, taskDescription);
+                    realState = states.IDLE;
+                    notifyComplete("The mezzo is complete.");
+
+                    // TODO - Timeout needed due to database latency. Is there a better way?
+                    setTimeout(refreshTimerCount, 3000);
+
+                } else if (timerEvent === events.SHORT_BREAK_START && realState === states.IDLE) {
+                    addLogEvent(events.SHORT_BREAK_START, "Short break started");
+                    realState = states.SHORT_BREAK_RUNNING;
+                    startUp(parseInt(props.shortBreak, 10));
+
+                } else if (timerEvent === events.LONG_BREAK_START && realState === states.IDLE) {
+                    addLogEvent(events.LONG_BREAK_START, "Long break started");
+                    realState = states.LONG_BREAK_RUNNING;
+                    startUp(parseInt(props.longBreak, 10));
+
+                } else if (timerEvent === events.COMPLETE && realState === states.SHORT_BREAK_RUNNING) {
+                    addLogEvent(events.SHORT_BREAK_COMPLETE, "Short break complete");
+                    realState = states.IDLE;
+                    notifyComplete("The break is over.");
+
+                } else if (timerEvent === events.COMPLETE && realState === states.LONG_BREAK_RUNNING) {
+                    addLogEvent(events.LONG_BREAK_COMPLETE, "Long break complete");
+                    realState = states.IDLE;
+                    notifyComplete("The break is over.");
+
+                } else if (timerEvent === events.STOP && realState === states.SHORT_BREAK_RUNNING) {
+                    addLogEvent(events.CANCEL, "Short break cancelled");
+                    realState = states.IDLE;
+                    cancel();
+
+                } else if (timerEvent === events.STOP && realState === states.LONG_BREAK_RUNNING) {
+                    addLogEvent(events.CANCEL, "Long break cancelled");
+                    realState = states.IDLE;
+                    cancel();
+                }
+
+                globalState = realState;
+
+                updateGUI(minutes());
+            } catch (ex) {
+                error(ex);
+            }
+        }
+
+        function startUp(m: any) {
+            try {
+                mezzoraMinutes = m;
+                elapsedFiveMinutePeriods = 0;
+                millisAtStart = Date.now();
+                pauses = [];
+                // if (props.tick) {
+                // audioTick.play();
+
+                // audioTick.load();
+                // setTimeout(delayPlay, 1000);
+                // }
+                setTimeout(updateClock, 1000);
+
+                setClockColor(props.timerColor);
+            } catch (ex) {
+                error(ex);
+            }
+        }
+
+        function pause() {
+            audioTick.value.pause();
+            startPause = Date.now();
+            setClockColor("gray");
+        }
+
+        function resume() {
+            // if (props.tick) {
+            //   setTimeout(delayPlay, 1000);
+            // }
+            setClockColor(props.timerColor);
+            pauses.push(Date.now() - startPause);
+            startPause = 0;
+            setTimeout(updateClock, 1000);
+        }
+
+        function cancel() {
+            audioTick.value.pause();
+            // minutes = 0;
+            elapsedFiveMinutePeriods = 0;
+            pauses = [];
+            setClockColor(props.timerColor);
+            paintTriangle(1.0);
+        }
+
+        function addLogEvent(eventType: string, desc: string) {
+            try {
+                let me: MezzoEvent = {
+                    rowId: 0,
+                    eventTimestamp: new Date().getTime(),
+                    description: desc,
+                    eventType: eventType
+                }
+                window.api.save(me)
+            } catch (ex) {
+                error(ex);
+            }
+        }
+
+        function toggleRunningIndicator() {
+            paintTriangle((millis / 1000) % 2 === 0 ? 1.0 : 0.7);
+        }
+
+        function notifyComplete(msg: string) {
+            if (props.notification) {
+                // TODO - put useSpeech on options if it works in windows
+                if (false /*props.useSpeech*/) {
+                    window.speechSynthesis.speak(new SpeechSynthesisUtterance(msg));
+                } else {
+                    new Notification("Mezzo", {body: msg});
+                }
+            }
+        }
+
+        function volume() {
+            vol = vol < 0.1 ? 1.0 : vol - 0.3333;
+            audioTick.value.volume = vol;
+            audioGong.value.volume = vol;
+            audioExtraGong.value.volume = vol;
+            audioAlarm.value.volume = vol;
+        }
+
+        function updateGUI(mins: number) {
+
+            const canvas = document.getElementById("mezzcanvas") as any;
+            const context = canvas.getContext("2d");
+            canvas.width = canvas.width;
+            context.fillStyle = "black";
+            context.beginPath();
+            context.moveTo(0, 0);
+            context.fillRect(0, 0, canvas.width, 8);
+            context.closePath();
+            context.fill();
+            context.strokeStyle = "white";
+            context.fillStyle = "white";
+            context.font = isWindows() ? "bold 38pt Arial" : "38pt Helvetica";
+            context.textAlign = "center";
+            context.beginPath();
+            const deltax = canvas.width / 20;
+
+            for (let i = 0; i <= 19; i++) {
+                const len = lengthOfTickMark(i, mins);
+                context.fillRect(i * deltax, 20, 2, len - 5);
+                if (len === 60) {
+                    context.fillText(tickTime(i, mins) + "", deltax * i, 125);
+                }
+            }
+            context.closePath();
+            context.stroke();
+        }
+
+        function setClockColor(c: string) {
+            clockStyles.value["background-color"] = c
+        }
+
+        function stepVolume() {
+            volume();
+            paintVolume();
+        }
+
+        function paintVolume() {
+            const timerColor = props.timerColor;
+            const radius = vol * 60 + 100;
+            const canvasVolume = document.getElementById("volume-control") as any;
+            const contextVolume = canvasVolume.getContext("2d");
+
+            // Erase the area
+            contextVolume.fillStyle = "black";
+            contextVolume.beginPath();
+            contextVolume.fillRect(0, 0, 200, 200);
+            contextVolume.closePath();
+            contextVolume.fill();
+
+            // Draw the bottom left small quarter circle
+            contextVolume.fillStyle = Math.round(radius) === 100 ? timerColor : "white";
+            contextVolume.beginPath();
+            contextVolume.arc(0, 200, 100, 0, Math.PI / 2.0, true);
+            contextVolume.closePath();
+            contextVolume.fill();
+
+            // Draw the outer ring
+            contextVolume.strokeStyle = Math.round(radius) === 100 ? timerColor : "white";
+            contextVolume.beginPath();
+            contextVolume.lineWidth = 20;
+            contextVolume.arc(0, 200, radius, 0, Math.PI / 2.0, true);
+            contextVolume.closePath();
+            contextVolume.stroke();
+        }
+
+        function minutes(): number {
+            if (realState === states.IDLE) {
+                return 0;
+            }
+            const ellapsed = ellapsedTime(millisAtStart, Date.now(), pausedTime(pauses));
+            return Math.round(mezzoraMinutes - (ellapsed / 60000));
+        }
+
+        function isWindows() {
+            return navigator.appVersion.indexOf("Win") !== -1;
+        }
+
+        function initProps() {
+            props.minutes = localStorage["minutes"] !== undefined ? localStorage["minutes"] : defaults.DEFAULT_BLOCK;
+            props.longBreak = localStorage["longbreak"] !== undefined ? localStorage["longbreak"] : defaults.DEFAULT_LONG_BREAK;
+            props.shortBreak = localStorage["shortbreak"] !== undefined ? localStorage["shortbreak"] : defaults.DEFAULT_SHORT_BREAK;
+            props.tick = localStorage["tick"] !== undefined ? localStorage["tick"] : "true";
+            props.gong = localStorage["gong"] !== undefined ? localStorage["gong"] : "true";
+            props.alarm = localStorage["alarm"] !== undefined ? localStorage["alarm"] : "true";
+            props.notification = localStorage["notification"] !== undefined ? localStorage["notification"] : "true";
+            props.timerColor = localStorage["timercolor"] !== undefined ? localStorage["timercolor"] : defaults.DEFAULT_CLOCK_COLOR;
+        }
+
+        function refreshTimerCount() {
+            try {
+                const start = new Date();
+                start.setHours(0, 0, 0, 0);
+
+                const end = new Date();
+                end.setHours(23, 59, 59, 99);
+
+                let period = {startkey: start.getTime(), endkey: end.getTime()};
+                window.api.findAll(period)
+                    .then((items: MezzoEvent[]) => {
+                        completedCount.value = items.filter(e => e.eventType === "COMPLETE").length;
+                    })
+                    .catch((err: any) => {
+                        error(err)
+                    });
+            } catch (ex) {
+                error(ex);
+            }
+        }
+
+        function viewLog() {
+            window.api.viewLog()
+        }
+
+        function menu() {
+            emitter.emit('currentView', {view: 'timerMenuComponent'});
+        }
+
+        return {
+            audioTick,
+            audioGong,
+            audioExtraGong,
+            audioAlarm,
+            triangle,
+            triangleOpacity,
+            mezzcanvasBackground,
+            completedCount,
+            timerFrontFontWeight,
+            clockStyles,
+            startPauseResume,
+            startShortBreak,
+            startLongBreak,
+            stop,
+            stepVolume,
+            viewLog,
+            refreshTimerCount,
+            menu
+        };
+    }
+});
 
 </script>
 

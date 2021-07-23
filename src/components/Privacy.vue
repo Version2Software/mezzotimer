@@ -29,22 +29,22 @@
 </template>
 
 <script lang="ts">
-    import { defineComponent, ref } from 'vue'
+import {defineComponent, ref} from 'vue'
 
-    export default defineComponent({
-        props: {
-          readOnly: Boolean
-        },
-        setup() {
-          return {
+export default defineComponent({
+    props: {
+        readOnly: Boolean
+    },
+    setup() {
+        return {
             checked: ref(false),
             activeClass: ref("button"),
             disabledClass: ref("disabled-button"),
             accepted: () => window.api.accepted(),
             declined: () => window.api.exit()
-          }
         }
-    });
+    }
+});
 </script>
 
 <style>
