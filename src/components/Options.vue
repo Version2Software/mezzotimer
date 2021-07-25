@@ -65,7 +65,7 @@ const defaultGongStyle = "progressive";
 
 export default defineComponent({
     setup() {
-        const emitter = inject("emitter") as Emitter<any>
+        const emitter = inject("emitter") as Emitter<any>;
 
         const times = ref([1, 3, 5, 10, 15, 20, 25, 30, 45, 60]);
         const minutes = ref(localStorage["minutes"] !== undefined ? localStorage["minutes"] : defaultMinutes);

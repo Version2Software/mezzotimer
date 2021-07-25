@@ -5,6 +5,9 @@
                 <td @click="options">Options</td>
             </tr>
             <tr class="menuitem">
+                <td @click="exportData">Export</td>
+            </tr>
+            <tr class="menuitem">
                 <td @click="info">Help</td>
             </tr>
             <tr class="menuitem">
@@ -27,6 +30,7 @@ export default defineComponent({
         return {
             done: () => emitter.emit('currentView', {view: 'timerFrontComponent'}),
             options: () => emitter.emit('currentView', {view: 'optionsComponent'}),
+            exportData: () => emitter.emit('currentView', {view: 'exportComponent'}),
             info: () => window.api.info(),
             about: () => window.api.about()
         }

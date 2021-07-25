@@ -1,6 +1,7 @@
 'use strict'
 
 const {contextBridge, ipcRenderer, shell} = require('electron');
+import {MezzoEvent, Period} from "./mezzo-types";
 
 contextBridge.exposeInMainWorld("api", {
 
@@ -51,7 +52,10 @@ contextBridge.exposeInMainWorld("api", {
             f(data)
         })
     },
-    'getCachedPeriod': (channel:any) => {
+    'getCachedPeriod': () => {
         return ipcRenderer.invoke("getCachedPeriod")
+    },
+    'exportData': (format:string, period:Period, completedOnly:boolean) => {
+        return ipcRenderer.invoke("exportData", format, period, completedOnly);
     }
 });

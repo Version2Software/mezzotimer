@@ -3,6 +3,7 @@
  */
 
 const sqlite3 = require('sqlite3');
+import {MezzoEvent} from "./mezzo-types";
 
 export class DatabaseService {
 
@@ -38,7 +39,7 @@ export class DatabaseService {
     }
 
     findAll(startkey:number, endkey:number) {
-        return new Promise((resolve, reject) => {
+        return new Promise<MezzoEvent[]>((resolve, reject) => {
             try {
                 let sql = "select rowid, * from mz_event where event_ts >= ? and event_ts <= ? order by event_ts"
                 this.db.all(sql, [startkey, endkey], function(err:any, arr:any) {

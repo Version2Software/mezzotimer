@@ -89,7 +89,7 @@ export default defineComponent({
             const period = getPeriod(timePeriod.value, new Date());
 
             window.api.findAll(period)
-                .then((items: [MezzoEvent]) => {
+                .then((items: MezzoEvent[]) => {
                     docs.value = items
                     console.log('items', items)
                 })

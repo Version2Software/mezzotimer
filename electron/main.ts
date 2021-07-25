@@ -7,6 +7,7 @@ import path from "path";
 import fs from "fs";
 
 import {app, BrowserWindow, ipcMain, Menu, screen, dialog} from "electron";
+import {MezzoEvent, Period} from "./mezzo-types";
 
 import prompt from "electron-prompt";
 import Store from "electron-store";
@@ -259,6 +260,48 @@ function initEventListeners() {
         // 0 means Yes
         return (result.response === 0)
     });
+
+    ipcMain.handle("exportData", async (_, format:string, period:Period, completedOnly:boolean) => {
+
+        dialog.showSaveDialog(winTimer as BrowserWindow, {
+            title: "Select the File Path to save",
+            defaultPath: path.join(os.homedir(), "mezzo."+format),
+            buttonLabel: 'Save',
+            filters: [
+                {
+                    name: 'Text Files',
+                    extensions: ['json', 'csv']
+                }, ],
+        }).then((file: any) => {
+            if (!file.canceled) {
+                db.findAll(period.startkey, period.endkey)
+                    .then((items:MezzoEvent[]) => {
+                        const filteredItems = items.filter(i => completedOnly ? i.eventType === 'COMPLETE' : true )
+                        const items2write = format === 'json' ? items2json(filteredItems) : items2csv(filteredItems);
+
+                        fs.writeFile(file.filePath.toString(),
+                            items2write,
+                            function (err) {
+                                if (err) throw err;
+                            });
+                    }).catch((err: any) => {
+                        console.error(err)
+                    });
+            }
+        });
+    });
+
+    function items2json(items:MezzoEvent[]):string {
+        return JSON.stringify(items, null, 4);
+    }
+
+    function items2csv(items:MezzoEvent[]):string {
+        let s = "rowId,eventTimestamp,description,eventType\n";
+        for(let i of items) {
+            s += i.rowId + "," + i.eventTimestamp + "," + i.description + "," + i.eventType + "\n";
+        }
+        return s;
+    }
 
     ipcMain.on("about", () => {
         createAboutWindow();

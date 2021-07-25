@@ -85,6 +85,10 @@ export const getPeriod = (timePeriod:string, today:Date) => {
         end = new Date(year, month + 1, 0);
         end.setHours(23, 59, 59, 99);
         break;
+    case "all":
+        start = new Date(1900, 0, 1);
+        start.setHours(0, 0, 0, 0);
+        break;
     }
 
     return {startkey: start.getTime(), endkey: end.getTime()};

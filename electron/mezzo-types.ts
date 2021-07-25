@@ -1,11 +1,11 @@
-type MezzoEvent = {
+export type MezzoEvent = {
     rowId: number,
     eventTimestamp: number,
     description: string,
     eventType: string
 }
 
-type Period = {
+export type Period = {
     startkey: number,
     endkey: number
 }
