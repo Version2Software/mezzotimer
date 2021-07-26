@@ -7,7 +7,6 @@
 
 <script lang="ts">
 import {defineComponent, ref, inject, onMounted} from 'vue';
-import downloadComponent from './Download.vue';
 import exportComponent from './ExportData.vue';
 import timerFrontComponent from './TimerFront.vue';
 import timerMenuComponent from './TimerMenu.vue';
@@ -29,7 +28,6 @@ export default defineComponent({
     },
     components: {
         exportComponent,
-        downloadComponent,
         timerFrontComponent,
         timerMenuComponent,
         optionsComponent
