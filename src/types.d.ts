@@ -13,3 +13,8 @@ type Period = {
     startkey: number,
     endkey: number
 }
+
+type QueryOptions = {
+    period: Period,
+    completedOnly: boolean
+}

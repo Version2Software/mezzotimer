@@ -7,7 +7,7 @@ import path from "path";
 import fs from "fs";
 
 import {app, BrowserWindow, ipcMain, Menu, screen, dialog} from "electron";
-import {MezzoEvent, Period} from "./mezzo-types";
+import {MezzoEvent, Period, QueryOptions} from "./mezzo-types";
 
 import prompt from "electron-prompt";
 import Store from "electron-store";
@@ -26,7 +26,7 @@ let winAbout:BrowserWindow | null;
 let winPrivacy:BrowserWindow | null;
 let winPrivacyReadOnly:BrowserWindow | null;
 
-let cachedPeriod:{startkey: number, endkey: number};
+let cachedOptions:QueryOptions;
 
 const DEBUG = false;
 
@@ -204,13 +204,14 @@ function initEventListeners() {
         createEventsWindow();
     });
 
-    ipcMain.on("print", async (event, period) => {
-        cachedPeriod = period
+    ipcMain.on("print", async (event, queryOptions) => {
+        cachedOptions = queryOptions
         createPrintWindow()
     });
 
-    ipcMain.handle("getCachedPeriod", () => {
-        return cachedPeriod;
+    // TODO - There has to be a beter way of passing options to print window
+    ipcMain.handle("getCachedOptions", () => {
+        return cachedOptions;
     });
 
     ipcMain.handle("promptDescription" , async (event, taskDescription) => {
@@ -261,7 +262,7 @@ function initEventListeners() {
         return (result.response === 0)
     });
 
-    ipcMain.handle("exportData", async (_, format:string, period:Period, completedOnly:boolean) => {
+    ipcMain.handle("exportData", async (_, format:string, queryOptions:QueryOptions) => {
 
         dialog.showSaveDialog(winTimer as BrowserWindow, {
             title: "Select the File Path to save",
@@ -274,10 +275,9 @@ function initEventListeners() {
                 }, ],
         }).then((file: any) => {
             if (!file.canceled) {
-                db.findAll(period.startkey, period.endkey)
+                db.findAll(queryOptions)
                     .then((items:MezzoEvent[]) => {
-                        const filteredItems = items.filter(i => completedOnly ? i.eventType === 'COMPLETE' : true )
-                        const items2write = format === 'json' ? items2json(filteredItems) : items2csv(filteredItems);
+                        const items2write = format === 'json' ? items2json(items) : items2csv(items);
 
                         fs.writeFile(file.filePath.toString(),
                             items2write,
@@ -311,8 +311,12 @@ function initEventListeners() {
         refresh();
     });
 
-    ipcMain.handle("findAll", async (event, period) => {
-        return await db.findAll(period.startkey, period.endkey)
+    ipcMain.handle("findAll", async (event, queryOptions) => {
+        return await db.findAll(queryOptions);
+    });
+
+    ipcMain.handle("completedCount", async (event, period:Period) => {
+        return await db.completedCount(period);
     });
 
     ipcMain.on("save", async (_, me) => {

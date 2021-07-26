@@ -500,7 +500,7 @@ export default defineComponent({
             props.timerColor = localStorage["timercolor"] !== undefined ? localStorage["timercolor"] : defaults.DEFAULT_CLOCK_COLOR;
         }
 
-        function refreshTimerCount() {
+        async function refreshTimerCount() {
             try {
                 const start = new Date();
                 start.setHours(0, 0, 0, 0);
@@ -509,13 +509,9 @@ export default defineComponent({
                 end.setHours(23, 59, 59, 99);
 
                 let period = {startkey: start.getTime(), endkey: end.getTime()};
-                window.api.findAll(period)
-                    .then((items: MezzoEvent[]) => {
-                        completedCount.value = items.filter(e => e.eventType === "COMPLETE").length;
-                    })
-                    .catch((err: any) => {
-                        error(err)
-                    });
+
+                completedCount.value = await window.api.completedCount(period);
+
             } catch (ex) {
                 error(ex);
             }

@@ -41,9 +41,11 @@ export default defineComponent({
         const completedOnly = ref(false);
 
         function exportData() {
-            const period = getPeriod(timePeriod.value, new Date());
-            console.log('exportFormat.value', exportFormat.value);
-            window.api.exportData(exportFormat.value, period, completedOnly.value)
+            const queryOptions:QueryOptions = {
+                period: getPeriod(timePeriod.value, new Date()),
+                completedOnly: completedOnly.value
+            }
+            window.api.exportData(exportFormat.value, queryOptions)
         }
 
         return {

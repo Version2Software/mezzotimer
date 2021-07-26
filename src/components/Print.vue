@@ -54,10 +54,10 @@ export default defineComponent({
         });
 
         onMounted(() => {
-            window.api.getCachedPeriod()
-                .then((per: Period) => {
-                    period.value = per;
-                    window.api.findAll(per)
+            window.api.getCachedOptions()
+                .then((queryOptions: QueryOptions) => {
+                    period.value = queryOptions.period;
+                    window.api.findAll(queryOptions)
                         .then((items: MezzoEvent[]) => docs.value = items)
                         .catch((err: any) => console.error(err));
                 })

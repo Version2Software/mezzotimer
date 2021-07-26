@@ -3,7 +3,7 @@
  */
 
 const sqlite3 = require('sqlite3');
-import {MezzoEvent} from "./mezzo-types";
+import {MezzoEvent, Period, QueryOptions} from "./mezzo-types";
 
 export class DatabaseService {
 
@@ -38,10 +38,20 @@ export class DatabaseService {
         });
     }
 
-    findAll(startkey:number, endkey:number) {
+    findAll(queryOptions:QueryOptions) {
+        const startkey = queryOptions.period.startkey;
+        const endkey = queryOptions.period.endkey;
+        const completedOnly = queryOptions.completedOnly;
+
         return new Promise<MezzoEvent[]>((resolve, reject) => {
             try {
-                let sql = "select rowid, * from mz_event where event_ts >= ? and event_ts <= ? order by event_ts"
+
+                let sql = "select rowid, * from mz_event where event_ts >= ? and event_ts <= ?";
+                if (completedOnly) {
+                    sql += " and event_type = 'COMPLETE'";
+                }
+                sql += " order by event_ts";
+
                 this.db.all(sql, [startkey, endkey], function(err:any, arr:any) {
                     resolve(arr.map((row:any) => {
                             return {
@@ -51,6 +61,26 @@ export class DatabaseService {
                                 eventType: row.event_type
                             }
                         }))
+                });
+            } catch (err) {
+                reject("remoteService.findAll, " + err);
+            }
+        });
+    }
+
+    completedCount(period: Period) {
+        const startkey = period.startkey;
+        const endkey = period.endkey;
+
+        return new Promise<number>((resolve, reject) => {
+            try {
+
+                let sql = `select count(*) as cnt from mz_event
+                           where event_ts >= ? and event_ts <= ?
+                           and event_type = 'COMPLETE'`;
+
+                this.db.all(sql, [startkey, endkey], function(err:any, ary:any) {
+                    resolve(ary[0].cnt);
                 });
             } catch (err) {
                 reject("remoteService.findAll, " + err);

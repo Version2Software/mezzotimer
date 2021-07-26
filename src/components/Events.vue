@@ -10,6 +10,8 @@
             <option value="lastmonth">Last Month</option>
         </select>
 
+        <span id="completed-checkbox"><input type="checkbox" v-model="completedOnly">Only include Completed</span>
+
         <button id="print-event" @click="print">Printable Page</button>
 
         <br>
@@ -45,12 +47,13 @@
 <script lang="ts">
 
 import {dateFormat, summary, getPeriod} from "../util/util";
-import {computed, defineComponent, ref, onMounted} from 'vue'
+import {computed, defineComponent, ref, onMounted, watch} from 'vue'
 
 export default defineComponent({
     setup() {
         const docs = ref([] as MezzoEvent[]);
         const timePeriod = ref("today")
+        const completedOnly = ref(false);
 
         const summaryRows = computed(function (): { taskDescription: string, count: string }[] {
             return summary(docs.value);
@@ -61,8 +64,11 @@ export default defineComponent({
         });
 
         const print = function (): void {
-            const period = getPeriod(timePeriod.value, new Date());
-            window.api.print(period);
+            let queryOptions:QueryOptions = {
+                period: getPeriod(timePeriod.value, new Date()),
+                completedOnly: completedOnly.value
+            }
+            window.api.print(queryOptions);
         };
 
         const selectPeriod = () => refreshLog();
@@ -86,12 +92,13 @@ export default defineComponent({
         };
 
         const refreshLog = function () {
-            const period = getPeriod(timePeriod.value, new Date());
-
-            window.api.findAll(period)
+            let queryOptions:QueryOptions = {
+                period: getPeriod(timePeriod.value, new Date()),
+                completedOnly: completedOnly.value
+            }
+            window.api.findAll(queryOptions)
                 .then((items: MezzoEvent[]) => {
-                    docs.value = items
-                    console.log('items', items)
+                    docs.value = items;
                 })
                 .catch((err: any) => {
                     window.api.error(err)
@@ -108,9 +115,12 @@ export default defineComponent({
             });
         });
 
+        watch(completedOnly, (newValue, _) => refreshLog());
+
         return {
             docs,
             timePeriod,
+            completedOnly,
             summaryRows,
             totalCount,
             print,
@@ -149,6 +159,11 @@ export default defineComponent({
 
     #completed-table, #log-table  {
         width: 100%;
+    }
+
+    #completed-checkbox {
+        margin-left: 1em;
+        margin-right: 1em;
     }
 
     tr:nth-child(even) {

@@ -1,7 +1,7 @@
 'use strict'
 
 const {contextBridge, ipcRenderer, shell} = require('electron');
-import {MezzoEvent, Period} from "./mezzo-types";
+import {MezzoEvent, Period, QueryOptions} from "./mezzo-types";
 
 contextBridge.exposeInMainWorld("api", {
 
@@ -35,11 +35,14 @@ contextBridge.exposeInMainWorld("api", {
     'viewLog': () => {
         ipcRenderer.send("viewLog");
     },
-    'findAll': async (period:Period) => {
-        return await ipcRenderer.invoke("findAll", period)
+    'findAll': async (queryOptions:QueryOptions) => {
+        return await ipcRenderer.invoke("findAll", queryOptions)
     },
-    'print': (period:Period) => {
-        ipcRenderer.send("print", period);
+    'completedCount': async (period:Period) => {
+        return await ipcRenderer.invoke("completedCount", period)
+    },
+    'print': (queryOptions:QueryOptions) => {
+        ipcRenderer.send("print", queryOptions);
     },
     'info': () => {
         shell.openExternal("https://mezzotimer.com/help.html");
@@ -52,8 +55,8 @@ contextBridge.exposeInMainWorld("api", {
             f(data)
         })
     },
-    'getCachedPeriod': () => {
-        return ipcRenderer.invoke("getCachedPeriod")
+    'getCachedOptions': () => {
+        return ipcRenderer.invoke("getCachedOptions")
     },
     'exportData': (format:string, period:Period, completedOnly:boolean) => {
         return ipcRenderer.invoke("exportData", format, period, completedOnly);

@@ -9,3 +9,8 @@ export type Period = {
     startkey: number,
     endkey: number
 }
+
+export type QueryOptions = {
+    period: Period,
+    completedOnly: boolean
+}
