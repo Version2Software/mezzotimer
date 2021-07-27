@@ -8,6 +8,9 @@
                 <td @click="exportData">Export</td>
             </tr>
             <tr class="menuitem">
+                <td @click="purgeData">Purge</td>
+            </tr>
+            <tr class="menuitem">
                 <td @click="info">Help</td>
             </tr>
             <tr class="menuitem">
@@ -31,6 +34,7 @@ export default defineComponent({
             done: () => emitter.emit('currentView', {view: 'timerFrontComponent'}),
             options: () => emitter.emit('currentView', {view: 'optionsComponent'}),
             exportData: () => emitter.emit('currentView', {view: 'exportComponent'}),
+            purgeData: () => emitter.emit('currentView', {view: 'purgeComponent'}),
             info: () => window.api.info(),
             about: () => window.api.about()
         }

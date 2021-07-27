@@ -83,7 +83,25 @@ export class DatabaseService {
                     resolve(ary[0].cnt);
                 });
             } catch (err) {
-                reject("remoteService.findAll, " + err);
+                reject("remoteService.completedCount, " + err);
+            }
+        });
+    }
+
+    purgeData(days: number) {
+        return new Promise<boolean>((resolve, reject) => {
+
+            let ts = this.days2timestamp(days);
+
+            console.log('Purge data before ', new Date(ts));
+            try {
+                let sql = "delete from mz_event where event_ts < ?";
+
+                this.db.all(sql, [ts], function(err:any, ary:any) {
+                    resolve(true);
+                });
+            } catch (err) {
+                reject("remoteService.purgeData, " + err);
             }
         });
     }
@@ -123,6 +141,13 @@ export class DatabaseService {
                 reject("remoteService.delete," + ex);
             }
         });
+    }
+
+    days2timestamp(days:number):number {
+        const ONE_DAY = 24 * 60 * 60 * 1000;
+
+        let ms = Date.now();
+        return ms - days * ONE_DAY;
     }
 }
 

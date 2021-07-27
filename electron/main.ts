@@ -291,6 +291,21 @@ function initEventListeners() {
         });
     });
 
+    ipcMain.handle("purgeData", async (_, days:number):Promise<boolean> => {
+        let result = await dialog.showMessageBox(winTimer as BrowserWindow, {
+            type: "question",
+            buttons: ["Yes", "No"],
+            title: "Confirm Cancel",
+            message: "Are you sure you want to purge " + days + " days?"
+        });
+        // 0 means Yes
+        if (result.response === 0) {
+            db.purgeData(days);
+            return true;
+        }
+        return false;
+    });
+
     function items2json(items:MezzoEvent[]):string {
         return JSON.stringify(items, null, 4);
     }
@@ -326,6 +341,12 @@ function initEventListeners() {
 
     ipcMain.handle("update", async (_, item) => {
         return await db.update(item);
+    });
+
+    ipcMain.handle("getDatabaseSize", async (_) => {
+        const mezzoFile = path.join(os.homedir(), '.mezzo', "mezzo.sqlite");
+        var stats = fs.statSync(mezzoFile);
+        return stats.size;
     });
 
     ipcMain.on("error", (_, doc) => {

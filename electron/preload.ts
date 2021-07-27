@@ -60,5 +60,11 @@ contextBridge.exposeInMainWorld("api", {
     },
     'exportData': (format:string, period:Period, completedOnly:boolean) => {
         return ipcRenderer.invoke("exportData", format, period, completedOnly);
+    },
+    'purgeData': (days:number):Promise<boolean> => {
+        return ipcRenderer.invoke("purgeData", days);
+    },
+    'getDatabaseSize': ():Promise<number> => {
+        return ipcRenderer.invoke("getDatabaseSize");
     }
 });
