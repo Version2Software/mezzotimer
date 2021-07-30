@@ -172,7 +172,11 @@ describe("dateFormat", () => {
         const ts = 1625094927254;
         const s = dateFormat(ts);
 
-        expect(s).toEqual("2021-06-30 5:15 PM");
+        const dt = new Date(ts);
+        const hm = dt.toLocaleTimeString().slice(0,4);
+
+        expect(s).toContain("2021-06-30");
+        expect(s).toContain(hm);
     });
 
     test("1625581890487", () => {
@@ -180,6 +184,10 @@ describe("dateFormat", () => {
         const ts = 1625581890487;
         const s = dateFormat(ts);
 
-        expect(s).toEqual("2021-07-06 8:31 AM");
+        const dt = new Date(ts);
+        const hm = dt.toLocaleTimeString().slice(0,4);
+
+        expect(s).toContain("2021-07-06");
+        expect(s).toContain(hm);
     });
 });
