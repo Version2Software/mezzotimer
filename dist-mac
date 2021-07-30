@@ -1,6 +1,6 @@
 #!/bin/bash
+export CSC_IDENTITY_AUTO_DISCOVERY=false
 rm -rf dist coverage staging
 npx vue-cli-service build
 tsc --build tsconfig-electron.json
 npm run electron-builder
-

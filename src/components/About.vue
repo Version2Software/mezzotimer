@@ -19,7 +19,7 @@ import {defineComponent, ref, onMounted} from 'vue'
 
 export default defineComponent({
     setup() {
-        const version = ref("3.0.0");
+        const version = ref("3.1.0");
         const availableVersion = ref(null as string | null);
 
         onMounted(() => {
