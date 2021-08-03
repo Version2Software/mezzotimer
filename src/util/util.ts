@@ -109,3 +109,28 @@ export const dateFormat = (ts:number) => {
     return d + " " + t.slice(0, lastColon) + " " + t.slice(lastSpace + 1)
 }
 
+export function loadProperties():Props {
+    let sProps = localStorage['props']
+
+    if (sProps === undefined) {
+        const props:Props = {
+            minutes: "30",
+            longBreak: "15",
+            shortBreak: "5",
+            tick: "true",
+            gong: "true",
+            alarm: "true",
+            notification: "true",
+            timerColor: "green",
+            gongStyle: "progressive"
+        }
+        saveProperties(props);
+        return props;
+    }
+
+    return JSON.parse(sProps);
+}
+
+export function saveProperties(props:Props) {
+    localStorage['props'] = JSON.stringify(props);
+}

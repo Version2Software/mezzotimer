@@ -26,11 +26,3 @@ export const events = {
     LONG_BREAK_COMPLETE: "LONG_BREAK_COMPLETE",
     LONG_BREAK_CANCEL: "LONG_BREAK_CANCEL"
 };
-
-export const defaults = {
-    DEFAULT_BLOCK: 30,
-    DEFAULT_LONG_BREAK: 15,
-    DEFAULT_SHORT_BREAK: 5,
-    DEFAULT_CLOCK_COLOR: "red",
-};
-

@@ -2,7 +2,7 @@
     <div id="options">
         <div id="options-body">
         Color:
-        <select v-model="timerColor">
+        <select v-model="props.timerColor">
             <option value="green">Green</option>
             <option value="#4169E1">Blue</option>
             <option value="orange">Orange</option>
@@ -14,32 +14,32 @@
         Minutes:
         <div style="padding-left: 1em;">
             Task Length:
-            <select v-model="minutes">
+            <select v-model="props.minutes">
                 <option v-for="t in times" v-bind:value="t">{{t}}</option>
             </select>
             <br>
 
             Long Break:
-            <select v-model="longBreak">
+            <select v-model="props.longBreak">
                 <option v-for="t in times" v-bind:value="t">{{t}}</option>
             </select>
 
             Short Break:
 
-            <select v-model="shortBreak">
+            <select v-model="props.shortBreak">
                 <option v-for="t in times" v-bind:value="t">{{t}}</option>
             </select>
         </div>
 
         <br>
 
-        <input type="checkbox" v-model="tick" true-value="true" false-value="false">Tick-tock
-        <input type="checkbox" v-model="alarm" true-value="true" false-value="false">Final Alarm
-        <input type="checkbox" v-model="notification">Notification
+        <input type="checkbox" v-model="props.tick" true-value="true" false-value="false">Tick-tock
+        <input type="checkbox" v-model="props.alarm" true-value="true" false-value="false">Final Alarm
+        <input type="checkbox" v-model="props.notification">Notification
         <br><br>
-        <input type="checkbox" v-model="gong" true-value="true" false-value="false">Gong
-        <input type="radio" name="gong-style" value="progressive" v-model="gongStyle">Progressive
-        <input type="radio" name="gong-style" value="single" v-model="gongStyle">Single<br>
+        <input type="checkbox" v-model="props.gong" true-value="true" false-value="false">Gong
+        <input type="radio" name="gong-style" value="progressive" v-model="props.gongStyle">Progressive
+        <input type="radio" name="gong-style" value="single" v-model="props.gongStyle">Single<br>
 
         <div class="center">
             <button class="button" @click="defaultOptions">Defaults</button>
@@ -50,67 +50,33 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, inject, ref, watch} from 'vue';
+import {defineComponent, inject, reactive, ref, watch} from 'vue';
 import {Emitter} from "mitt";
-
-const defaultMinutes = "30";
-const defaultLongBreak = "15";
-const defaultShortBreak = "5";
-const defaultTick = "true";
-const defaultGong = "true";
-const defaultAlarm = "true";
-const defaultNotification = "true";
-const defaultTimerColor = "green";
-const defaultGongStyle = "progressive";
+import {loadProperties, saveProperties} from "../util/util";
 
 export default defineComponent({
     setup() {
         const emitter = inject("emitter") as Emitter<any>;
-
         const times = ref([1, 3, 5, 10, 15, 20, 25, 30, 45, 60]);
-        const minutes = ref(localStorage["minutes"] !== undefined ? localStorage["minutes"] : defaultMinutes);
-        const longBreak = ref(localStorage["longbreak"] !== undefined ? localStorage["longbreak"] : defaultLongBreak);
-        const shortBreak = ref(localStorage["shortbreak"] !== undefined ? localStorage["shortbreak"] : defaultShortBreak);
-        const tick = ref(localStorage["tick"] !== undefined ? localStorage["tick"] : defaultTick);
-        const gong = ref(localStorage["gong"] !== undefined ? localStorage["gong"] : defaultGong);
-        const alarm = ref(localStorage["alarm"] !== undefined ? localStorage["alarm"] : defaultAlarm);
-        const notification = ref(localStorage["notification"] !== undefined ? localStorage["notification"] : defaultNotification);
-        const timerColor = ref(localStorage["timercolor"] !== undefined ? localStorage["timercolor"] : defaultTimerColor);
-        const gongStyle = ref(localStorage["gongstyle"] !== undefined ? localStorage["gongstyle"] : defaultGongStyle);
+        const props = reactive(loadProperties());
 
         function defaultOptions() {
-            minutes.value = defaultMinutes;
-            longBreak.value = defaultLongBreak;
-            shortBreak.value = defaultShortBreak;
-            tick.value = defaultTick;
-            gong.value = defaultGong;
-            alarm.value = defaultAlarm;
-            notification.value = defaultNotification;
-            timerColor.value = defaultTimerColor;
-            gongStyle.value = defaultGongStyle;
+            props.minutes = "30";
+            props.longBreak = "15";
+            props.shortBreak = "5";
+            props.tick = "true";
+            props.gong = "true";
+            props.alarm = "true";
+            props.notification = "true";
+            props.timerColor = "green";
+            props.gongStyle = "progressive";
         }
 
-        watch(minutes, (newValue, _) => localStorage["minutes"] = newValue)
-        watch(longBreak, (newValue, _) => localStorage["longbreak"] = newValue)
-        watch(shortBreak, (newValue, _) => localStorage["shortbreak"] = newValue)
-        watch(tick, (newValue, _) => localStorage["tick"] = newValue)
-        watch(gong, (newValue, _) => localStorage["gong"] = newValue)
-        watch(alarm, (newValue, _) => localStorage["alarm"] = newValue)
-        watch(notification, (newValue, _) => localStorage["notification"] = newValue)
-        watch(timerColor, (newValue, _) => localStorage["timercolor"] = newValue)
-        watch(gongStyle, (newValue, _) => localStorage["gongstyle"] = newValue)
+        watch(props, (newValue, _) => saveProperties(newValue));
 
         return {
             times,
-            minutes,
-            longBreak,
-            shortBreak,
-            tick,
-            gong,
-            alarm,
-            notification,
-            timerColor,
-            gongStyle,
+            props,
             defaultOptions,
             done: () => emitter.emit('currentView', {view: 'timerMenuComponent'})
         };

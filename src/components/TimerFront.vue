@@ -41,8 +41,9 @@
 <script lang="ts">
 import {defineComponent, inject, ref, onMounted} from 'vue';
 import {lengthOfTickMark, tickTime, nextTimeout, ellapsedTime, pausedTime} from "../util/timer-util";
-import {events, states, defaults} from "../util/mezzo-constants";
+import {events, states} from "../util/mezzo-constants";
 import {Emitter} from "mitt";
+import {loadProperties} from "../util/util";
 
 let globalState = "IDLE";
 
@@ -53,16 +54,6 @@ let millisAtStart = 0;
 let startPause = 0;
 let pauses: number[] = [];
 let elapsedFiveMinutePeriods = 0;
-const props = {
-    minutes: "",
-    longBreak: "",
-    shortBreak: "",
-    tick: "",
-    gong: "",
-    alarm: "",
-    notification: "",
-    timerColor: ""
-};
 let taskDescription: any = null;
 let needGong = true;
 let vol = 1.0;
@@ -86,10 +77,10 @@ export default defineComponent({
             'text-shadow': 'initial'
         });
 
+        const props = loadProperties();
+
         onMounted(function () {
             try {
-                initProps();
-
                 audioTick.value = document.getElementById("audio-tick");
                 audioGong.value = document.getElementById("audio-gong");
                 audioExtraGong.value = document.getElementById("audio-extra-gong");
@@ -99,7 +90,7 @@ export default defineComponent({
                 audioGong.value.addEventListener("ended", gongEnd, false);
                 audioExtraGong.value.addEventListener("ended", extraGongEnd, false);
 
-                mezzcanvasBackground.value = props.timerColor as string
+                mezzcanvasBackground.value = props.timerColor;
                 setClockColor(props.timerColor);
 
                 paintTriangle(1.0);
@@ -487,17 +478,6 @@ export default defineComponent({
 
         function isWindows() {
             return navigator.appVersion.indexOf("Win") !== -1;
-        }
-
-        function initProps() {
-            props.minutes = localStorage["minutes"] !== undefined ? localStorage["minutes"] : defaults.DEFAULT_BLOCK;
-            props.longBreak = localStorage["longbreak"] !== undefined ? localStorage["longbreak"] : defaults.DEFAULT_LONG_BREAK;
-            props.shortBreak = localStorage["shortbreak"] !== undefined ? localStorage["shortbreak"] : defaults.DEFAULT_SHORT_BREAK;
-            props.tick = localStorage["tick"] !== undefined ? localStorage["tick"] : "true";
-            props.gong = localStorage["gong"] !== undefined ? localStorage["gong"] : "true";
-            props.alarm = localStorage["alarm"] !== undefined ? localStorage["alarm"] : "true";
-            props.notification = localStorage["notification"] !== undefined ? localStorage["notification"] : "true";
-            props.timerColor = localStorage["timercolor"] !== undefined ? localStorage["timercolor"] : defaults.DEFAULT_CLOCK_COLOR;
         }
 
         async function refreshTimerCount() {
