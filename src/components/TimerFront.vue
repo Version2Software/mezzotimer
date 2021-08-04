@@ -43,7 +43,7 @@ import {defineComponent, inject, ref, onMounted} from 'vue';
 import {lengthOfTickMark, tickTime, nextTimeout, ellapsedTime, pausedTime} from "../util/timer-util";
 import {events, states} from "../util/mezzo-constants";
 import {Emitter} from "mitt";
-import {loadProperties} from "../util/util";
+import {defaultProperties} from "../util/util";
 
 let globalState = "IDLE";
 
@@ -77,9 +77,11 @@ export default defineComponent({
             'text-shadow': 'initial'
         });
 
-        const props = loadProperties();
+        let props = defaultProperties();
 
-        onMounted(function () {
+        onMounted(async function () {
+            props = await window.api.loadProperties();
+
             try {
                 audioTick.value = document.getElementById("audio-tick");
                 audioGong.value = document.getElementById("audio-gong");

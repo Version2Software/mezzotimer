@@ -7,7 +7,7 @@ import path from "path";
 import fs from "fs";
 
 import {app, BrowserWindow, ipcMain, Menu, screen, dialog} from "electron";
-import {MezzoEvent, Period, QueryOptions} from "./mezzo-types";
+import {MezzoEvent, Period, QueryOptions, Props} from "./mezzo-types";
 
 import prompt from "electron-prompt";
 import Store from "electron-store";
@@ -382,6 +382,26 @@ function initEventListeners() {
 
         (winPrivacy as BrowserWindow).close();
     });
+
+    ipcMain.handle('loadProperties', async (_) => {
+        return loadProperties();
+    });
+
+    ipcMain.handle('saveProperties', async (_, props:Props) => {
+        saveProperties(props);
+    });
+}
+
+function loadProperties():Props {
+    const mezzoConfigFile = path.join(os.homedir(), '.mezzo', "mezzo.config.json");
+    const data = fs.readFileSync(mezzoConfigFile);
+    return JSON.parse(data.toString()) as Props;
+}
+
+function saveProperties(props:Props) {
+    const mezzoConfigFile = path.join(os.homedir(), '.mezzo', "mezzo.config.json");
+    const json = JSON.stringify(props, null, 4);
+    fs.writeFileSync(mezzoConfigFile, json);
 }
 
 function refresh() {
@@ -484,6 +504,7 @@ const init = () => {
         createPrivacyWindow();
     }
 
+    // Create .mezzo directory if necessary
     const mezzodir = path.join(os.homedir(), '.mezzo');
 
     if (!fs.existsSync(mezzodir)) {
@@ -496,9 +517,31 @@ const init = () => {
             console.log('Directory created successfully: ', mezzodir);
         });
     }
+
+    // Create mezzo config file if necessary
+    const mezzoConfigFile = path.join(os.homedir(), '.mezzo', "mezzo.config.json");
+
+    if (!fs.existsSync(mezzoConfigFile)) {
+        saveProperties(defaultProperties());
+    }
+
+    // Create and initialize database if necessary
     db.init(path.join(mezzodir, 'mezzo.sqlite'));
 };
 
+function defaultProperties():Props {
+    return {
+        minutes: "30",
+        longBreak: "15",
+        shortBreak: "5",
+        tick: "true",
+        gong: "true",
+        alarm: "true",
+        notification: "true",
+        timerColor: "green",
+        gongStyle: "progressive"
+    }
+}
 app.on("ready", init);
 
 app.on("window-all-closed", () => {

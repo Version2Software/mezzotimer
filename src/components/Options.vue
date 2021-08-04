@@ -42,6 +42,7 @@
         <input type="radio" name="gong-style" value="single" v-model="props.gongStyle">Single<br>
 
         <div class="center">
+            <button class="button" @click="save">Save</button>
             <button class="button" @click="defaultOptions">Defaults</button>
         </div>
         </div>
@@ -50,33 +51,46 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, inject, reactive, ref, watch} from 'vue';
+import {defineComponent, inject, reactive, ref, onMounted} from 'vue';
 import {Emitter} from "mitt";
-import {loadProperties, saveProperties} from "../util/util";
+import {defaultProperties} from "../util/util";
 
 export default defineComponent({
     setup() {
         const emitter = inject("emitter") as Emitter<any>;
         const times = ref([1, 3, 5, 10, 15, 20, 25, 30, 45, 60]);
-        const props = reactive(loadProperties());
+
+        let props = reactive(defaultProperties());
 
         function defaultOptions() {
-            props.minutes = "30";
-            props.longBreak = "15";
-            props.shortBreak = "5";
-            props.tick = "true";
-            props.gong = "true";
-            props.alarm = "true";
-            props.notification = "true";
-            props.timerColor = "green";
-            props.gongStyle = "progressive";
+            updateProps(defaultProperties());
         }
 
-        watch(props, (newValue, _) => saveProperties(newValue));
+        function updateProps(p:Props) {
+            props.minutes = p.minutes;
+            props.longBreak = p.longBreak;
+            props.shortBreak = p.shortBreak;
+            props.tick = p.tick;
+            props.gong = p.gong;
+            props.alarm = p.alarm;
+            props.notification = p.notification;
+            props.timerColor = p.timerColor;
+            props.gongStyle = p.gongStyle;
+        }
+
+        function save() {
+            // This bizzare snippet converts props from a proxy to a simple object, therefore preventing a clone error.
+            window.api.saveProperties(JSON.parse(JSON.stringify(props)));
+        }
+
+        onMounted(async function() {
+            updateProps(await window.api.loadProperties());
+        });
 
         return {
             times,
             props,
+            save,
             defaultOptions,
             done: () => emitter.emit('currentView', {view: 'timerMenuComponent'})
         };
@@ -125,5 +139,11 @@ export default defineComponent({
         font-size: 16px;
         border-radius: 20px;
         margin-top: 5px;
+        margin-left: 2px;
+        margin-right: 2px;
+    }
+
+    .button:active {
+        background-color: lightblue;
     }
 </style>

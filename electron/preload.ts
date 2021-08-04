@@ -1,7 +1,7 @@
 'use strict'
 
 const {contextBridge, ipcRenderer, shell} = require('electron');
-import {MezzoEvent, Period, QueryOptions} from "./mezzo-types";
+import {MezzoEvent, Period, QueryOptions, Props} from "./mezzo-types";
 
 contextBridge.exposeInMainWorld("api", {
 
@@ -66,5 +66,11 @@ contextBridge.exposeInMainWorld("api", {
     },
     'getDatabaseSize': ():Promise<number> => {
         return ipcRenderer.invoke("getDatabaseSize");
+    },
+    'loadProperties': ():Promise<Props> => {
+        return ipcRenderer.invoke("loadProperties");
+    },
+    'saveProperties': (props:Props) => {
+        ipcRenderer.invoke("saveProperties", props);
     }
 });
