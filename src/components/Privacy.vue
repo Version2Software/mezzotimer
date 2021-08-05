@@ -8,7 +8,7 @@
 
         <h2>Data Privacy</h2>
 
-        <p>We do not collect or store any data from you. Your data is only kept on your desktop.</p>
+        <p>We do not collect any personal data from or about you. We do not collect any of your application data. Your application data is only stored on your local computer.</p>
 
         <h2>Contact Us</h2>
 

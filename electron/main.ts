@@ -38,7 +38,7 @@ const winPrefs = {
 
 async function createPrivacyWindow() {
 
-    winPrivacy = new BrowserWindow({x: 20, y: 20, width: 800, height: 488, webPreferences: winPrefs});
+    winPrivacy = new BrowserWindow({x: 20, y: 20, width: 800, height: 560, webPreferences: winPrefs});
 
     await winPrivacy.loadURL(path.join("file://", __dirname, "index.html"));
     winPrivacy.setMenu(null);
@@ -54,7 +54,7 @@ async function createPrivacyWindow() {
 
 async function createPrivacyWindowReadOnly() {
 
-    winPrivacyReadOnly = new BrowserWindow({x: 20, y: 20, width: 800, height: 488, webPreferences: winPrefs});
+    winPrivacyReadOnly = new BrowserWindow({x: 20, y: 20, width: 800, height: 560, webPreferences: winPrefs});
 
     await winPrivacyReadOnly.loadURL(path.join("file://", __dirname, "index.html"));
     winPrivacyReadOnly.setMenu(null);

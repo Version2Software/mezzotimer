@@ -1,9 +1,9 @@
-import { mount } from '@vue/test-utils'
+import { shallowMount } from '@vue/test-utils'
 import Privacy from '@/components/Privacy.vue'
 
 describe('Privacy.vue', () => {
     it('Checkbox is present', () => {
-        const wrapper = mount(Privacy, {
+        const wrapper = shallowMount(Privacy, {
             props: {
                 readOnly: true
             }
@@ -12,7 +12,7 @@ describe('Privacy.vue', () => {
     });
 
     it('Checkbox is not present', () => {
-        const wrapper = mount(Privacy, {
+        const wrapper = shallowMount(Privacy, {
             props: {
                 readOnly: false
             }
