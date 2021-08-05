@@ -20,8 +20,8 @@
 
         <div v-if="!readOnly">
             <input type="checkbox" id="checkbox" v-model="checked">I accept this privacy policy
-            <button type="button"  :disabled="!checked" :class="[checked ? activeClass : disabledClass]" @click="accepted">Accept</button>
-            <button type="button" class="secondary-button" @click="declined">Decline</button>
+            <button :disabled="!checked" :class="[checked ? activeClass : disabledClass]" @click="accepted">Accept</button>
+            <button class="secondary-button" @click="declined">Decline</button>
         </div>
 
     </article>

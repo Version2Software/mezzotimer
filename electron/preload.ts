@@ -50,6 +50,9 @@ contextBridge.exposeInMainWorld("api", {
     'about': () => {
         ipcRenderer.send("about");
     },
+    'exit': () => {
+        ipcRenderer.send("exit");
+    },
     'register': (channel:any, f:any) => {
         ipcRenderer.on(channel, (event, data) => {
             f(data)
