@@ -46,6 +46,10 @@ async function createPrivacyWindow() {
     winPrivacy.webContents.send("page", "privacy")
     winPrivacy.on("closed", () => winPrivacy = null);
     winPrivacy.focus();
+
+    if (DEBUG) {
+        winPrivacy.webContents.openDevTools();
+    }
 }
 
 async function createPrivacyWindowReadOnly() {
@@ -393,15 +397,11 @@ function initEventListeners() {
 }
 
 function loadProperties():Props {
-    const mezzoConfigFile = path.join(os.homedir(), '.mezzo', "mezzo.config.json");
-    const data = fs.readFileSync(mezzoConfigFile);
-    return JSON.parse(data.toString()) as Props;
+    return store.get("props") as Props;
 }
 
 function saveProperties(props:Props) {
-    const mezzoConfigFile = path.join(os.homedir(), '.mezzo', "mezzo.config.json");
-    const json = JSON.stringify(props, null, 4);
-    fs.writeFileSync(mezzoConfigFile, json);
+    store.set("props", props);
 }
 
 function refresh() {
@@ -518,10 +518,8 @@ const init = () => {
         });
     }
 
-    // Create mezzo config file if necessary
-    const mezzoConfigFile = path.join(os.homedir(), '.mezzo', "mezzo.config.json");
-
-    if (!fs.existsSync(mezzoConfigFile)) {
+    // Create default properties if necessary
+    if (store.get("props") === undefined) {
         saveProperties(defaultProperties());
     }
 
