@@ -28,35 +28,28 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, inject, ref} from 'vue';
+<script lang="ts" setup>
+
+import {inject, ref} from 'vue';
 import {getPeriod} from "../util/util";
 import {Emitter} from "mitt";
 
-export default defineComponent({
-    setup() {
-        const emitter = inject("emitter") as Emitter<any>;
-        const exportFormat = ref("json");
-        const timePeriod = ref("today");
-        const completedOnly = ref(false);
+const emitter = inject("emitter") as Emitter<any>;
 
-        function exportData() {
-            const queryOptions:QueryOptions = {
-                period: getPeriod(timePeriod.value, new Date()),
-                completedOnly: completedOnly.value
-            }
-            window.api.exportData(exportFormat.value, queryOptions)
-        }
+const exportFormat = ref("json");
+const timePeriod = ref("today");
+const completedOnly = ref(false);
 
-        return {
-            timePeriod,
-            exportFormat,
-            completedOnly,
-            exportData,
-            done: () => emitter.emit('currentView', {view: 'timerMenuComponent'})
-        }
+const exportData = () => {
+    const queryOptions:QueryOptions = {
+        period: getPeriod(timePeriod.value, new Date()),
+        completedOnly: completedOnly.value
     }
-});
+    window.api.exportData(exportFormat.value, queryOptions)
+}
+
+const done = () => emitter.emit('currentView', {view: 'timerMenuComponent'});
+
 </script>
 
 <style scoped>
