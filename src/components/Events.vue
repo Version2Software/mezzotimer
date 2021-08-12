@@ -44,95 +44,77 @@
     </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 
 import {dateFormat, summary, getPeriod} from "../util/util";
-import {computed, defineComponent, ref, onMounted, watch} from 'vue'
+import {computed, ref, onMounted, watch} from 'vue'
 
-export default defineComponent({
-    setup() {
-        const docs = ref([] as MezzoEvent[]);
-        const timePeriod = ref("today")
-        const completedOnly = ref(false);
+const docs = ref([] as MezzoEvent[]);
+const timePeriod = ref("today")
+const completedOnly = ref(false);
 
-        const summaryRows = computed(function (): { taskDescription: string, count: string }[] {
-            return summary(docs.value);
-        });
-
-        const totalCount = computed(function (): number {
-            return docs.value.filter((e: MezzoEvent) => e.eventType === "COMPLETE").length;
-        });
-
-        const print = function (): void {
-            let queryOptions:QueryOptions = {
-                period: getPeriod(timePeriod.value, new Date()),
-                completedOnly: completedOnly.value
-            }
-            window.api.print(queryOptions);
-        };
-
-        const selectPeriod = () => refreshLog();
-
-        const textColor = function (e: MezzoEvent): string {
-            return (e.eventType === "COMPLETE") ? "red" : "black";
-        };
-
-        const deleteEvent = async function (e: MezzoEvent) {
-            if (await window.api.deleteTask(e.rowId, e.description)) {
-                refreshLog();
-            }
-        };
-
-        const editEvent = async function (e: MezzoEvent) {
-            let desc = await window.api.changeDescription(e.description);
-            if (desc) {
-                e.description = desc;
-                window.api.update(e);
-            }
-        };
-
-        const refreshLog = function () {
-            let queryOptions:QueryOptions = {
-                period: getPeriod(timePeriod.value, new Date()),
-                completedOnly: completedOnly.value
-            }
-            window.api.findAll(queryOptions)
-                .then((items: MezzoEvent[]) => {
-                    docs.value = items;
-                })
-                .catch((err: any) => {
-                    window.api.error(err)
-                });
-        };
-
-        const format = (ts:number) => dateFormat(ts);
-
-        onMounted(() => {
-            refreshLog();
-
-            window.api.register("refresh", () => {
-                refreshLog();
-            });
-        });
-
-        watch(completedOnly, (newValue, _) => refreshLog());
-
-        return {
-            docs,
-            timePeriod,
-            completedOnly,
-            summaryRows,
-            totalCount,
-            print,
-            selectPeriod,
-            textColor,
-            deleteEvent,
-            editEvent,
-            refreshLog,
-            format
-        }
-    }
+const summaryRows = computed(function (): { taskDescription: string, count: string }[] {
+    return summary(docs.value);
 });
+
+const totalCount = computed(function (): number {
+    return docs.value.filter((e: MezzoEvent) => e.eventType === "COMPLETE").length;
+});
+
+const print = function (): void {
+    let queryOptions:QueryOptions = {
+        period: getPeriod(timePeriod.value, new Date()),
+        completedOnly: completedOnly.value
+    }
+    window.api.print(queryOptions);
+};
+
+const selectPeriod = () => refreshLog();
+
+const textColor = function (e: MezzoEvent): string {
+    return (e.eventType === "COMPLETE") ? "red" : "black";
+};
+
+const deleteEvent = async function (e: MezzoEvent) {
+    if (await window.api.deleteTask(e.rowId, e.description)) {
+        refreshLog();
+    }
+};
+
+const editEvent = async function (e: MezzoEvent) {
+    let desc = await window.api.changeDescription(e.description);
+    if (desc) {
+        e.description = desc;
+        window.api.update(e);
+    }
+};
+
+const refreshLog = function () {
+    let queryOptions:QueryOptions = {
+        period: getPeriod(timePeriod.value, new Date()),
+        completedOnly: completedOnly.value
+    }
+    window.api.findAll(queryOptions)
+        .then((items: MezzoEvent[]) => {
+            docs.value = items;
+        })
+        .catch((err: any) => {
+            window.api.error(err)
+        });
+};
+
+const format = (ts:number) => dateFormat(ts);
+
+onMounted(() => {
+    refreshLog();
+
+    window.api.register("refresh", () => {
+        refreshLog();
+    });
+});
+
+watch(completedOnly, (newValue, _) => refreshLog());
+
 </script>
 
 <style>
