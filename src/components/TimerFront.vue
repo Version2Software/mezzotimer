@@ -45,8 +45,6 @@ import {events, states} from "../util/mezzo-constants";
 import {Emitter} from "mitt";
 import {defaultProperties} from "../util/util";
 
-let globalState = "IDLE";
-
 let realState = states.IDLE;
 let mezzoraMinutes = 0;
 let millis = 0;
@@ -316,8 +314,6 @@ export default defineComponent({
                     realState = states.IDLE;
                     cancel();
                 }
-
-                globalState = realState;
 
                 updateGUI(minutes());
             } catch (ex) {
