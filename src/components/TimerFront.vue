@@ -112,6 +112,11 @@ export default defineComponent({
                 //     processEvent(events.STOP);
                 // });
 
+                if (realState === states.PAUSED) {
+                    addLogEvent(events.RESUME, "Resume");
+                    realState = states.RUNNING;
+                    resume();
+                }
             } catch (ex) {
                 error(ex);
             }
@@ -503,6 +508,11 @@ export default defineComponent({
         }
 
         function menu() {
+            if (realState === states.RUNNING) {
+                addLogEvent(events.PAUSE, "Pause");
+                realState = states.PAUSED;
+                pause();
+            }
             emitter.emit('currentView', {view: 'timerMenuComponent'});
         }
 
