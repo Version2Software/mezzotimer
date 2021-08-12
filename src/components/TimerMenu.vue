@@ -22,24 +22,19 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, inject} from 'vue';
+<script lang="ts" setup>
+import {inject} from 'vue';
 import {Emitter} from "mitt";
 
-export default defineComponent({
-    setup() {
-        const emitter = inject("emitter") as Emitter<any>
+const emitter = inject("emitter") as Emitter<any>
 
-        return {
-            done: () => emitter.emit('currentView', {view: 'timerFrontComponent'}),
-            options: () => emitter.emit('currentView', {view: 'optionsComponent'}),
-            exportData: () => emitter.emit('currentView', {view: 'exportComponent'}),
-            purgeData: () => emitter.emit('currentView', {view: 'purgeComponent'}),
-            info: () => window.api.info(),
-            about: () => window.api.about()
-        }
-    }
-});
+const done = () => emitter.emit('currentView', {view: 'timerFrontComponent'});
+const options = () => emitter.emit('currentView', {view: 'optionsComponent'});
+const exportData = () => emitter.emit('currentView', {view: 'exportComponent'});
+const purgeData = () => emitter.emit('currentView', {view: 'purgeComponent'});
+const info = () => window.api.info();
+const about = () => window.api.about();
+
 </script>
 
 <style scoped>
