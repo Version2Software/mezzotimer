@@ -12,10 +12,10 @@
         </footer>
     </div>
 </template>
-<script lang="ts">
-const mrp = require("minimal-request-promise");
 
-import {defineComponent, ref, onMounted} from 'vue'
+<script lang="ts">
+import axios from 'axios';
+import {defineComponent, ref, onMounted} from 'vue';
 
 export default defineComponent({
     setup() {
@@ -23,13 +23,13 @@ export default defineComponent({
         const availableVersion = ref(null as string | null);
 
         onMounted(() => {
-            mrp.get("https://mezzotimer.com/version.json", {}).then((response: any) => {
-                let body = JSON.parse(response.body);
-                availableVersion.value = body.version;
-            }).catch((err: any) => {
-                console.error(err);
-                availableVersion.value = "Could not check for available version.";
-            });
+            // Use ts to avoid any potential caching issues
+            axios.get("https://mezzotimer.com/version.json?ts="+new Date().getTime())
+                .then(response => availableVersion.value = response.data.version)
+                .catch((err: any) => {
+                    console.error(err);
+                    availableVersion.value = "Could not check for available version.";
+                });
         });
 
         return {
