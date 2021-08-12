@@ -50,52 +50,44 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, inject, reactive, ref, onMounted} from 'vue';
+<script lang="ts" setup>
+
+import {inject, reactive, ref, onMounted} from 'vue';
 import {Emitter} from "mitt";
 import {defaultProperties} from "../util/util";
 
-export default defineComponent({
-    setup() {
-        const emitter = inject("emitter") as Emitter<any>;
-        const times = ref([1, 3, 5, 10, 15, 20, 25, 30, 45, 60]);
+const emitter = inject("emitter") as Emitter<any>;
+const times = ref([1, 3, 5, 10, 15, 20, 25, 30, 45, 60]);
 
-        let props = reactive(defaultProperties());
+let props = reactive(defaultProperties());
 
-        function defaultOptions() {
-            updateProps(defaultProperties());
-        }
-
-        function updateProps(p:Props) {
-            props.minutes = p.minutes;
-            props.longBreak = p.longBreak;
-            props.shortBreak = p.shortBreak;
-            props.tick = p.tick;
-            props.gong = p.gong;
-            props.alarm = p.alarm;
-            props.notification = p.notification;
-            props.timerColor = p.timerColor;
-            props.gongStyle = p.gongStyle;
-        }
-
-        function save() {
-            // This bizzare snippet converts props from a proxy to a simple object, therefore preventing a clone error.
-            window.api.saveProperties(JSON.parse(JSON.stringify(props)));
-        }
-
-        onMounted(async function() {
-            updateProps(await window.api.loadProperties());
-        });
-
-        return {
-            times,
-            props,
-            save,
-            defaultOptions,
-            done: () => emitter.emit('currentView', {view: 'timerMenuComponent'})
-        };
-    }
+onMounted(async function() {
+    updateProps(await window.api.loadProperties());
 });
+
+function defaultOptions() {
+    updateProps(defaultProperties());
+}
+
+function updateProps(p:Props) {
+    props.minutes = p.minutes;
+    props.longBreak = p.longBreak;
+    props.shortBreak = p.shortBreak;
+    props.tick = p.tick;
+    props.gong = p.gong;
+    props.alarm = p.alarm;
+    props.notification = p.notification;
+    props.timerColor = p.timerColor;
+    props.gongStyle = p.gongStyle;
+}
+
+const save = () => {
+    // This bizzare snippet converts props from a proxy to a simple object, therefore preventing a clone error.
+    window.api.saveProperties(JSON.parse(JSON.stringify(props)));
+}
+
+const done = () => emitter.emit('currentView', {view: 'timerMenuComponent'});
+
 </script>
 
 <style scoped>
