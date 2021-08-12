@@ -461,7 +461,7 @@ function createMenu() {
                         }
                     },
                     {
-                        label: "Log",
+                        label: "Event Log",
                         accelerator: "Command+L",
                         click() {
                             events();
