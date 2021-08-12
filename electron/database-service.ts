@@ -90,10 +90,7 @@ export class DatabaseService {
 
     purgeData(days: number) {
         return new Promise<boolean>((resolve, reject) => {
-
-            let ts = this.days2timestamp(days);
-
-            console.log('Purge data before ', new Date(ts));
+            let ts = this.calculatePurgeTimestamp(days, Date.now());
             try {
                 let sql = "delete from mz_event where event_ts < ?";
 
@@ -143,11 +140,10 @@ export class DatabaseService {
         });
     }
 
-    days2timestamp(days:number):number {
+    calculatePurgeTimestamp(daysBefore:number, now:number):number {
         const ONE_DAY = 24 * 60 * 60 * 1000;
 
-        let ms = Date.now();
-        return ms - days * ONE_DAY;
+        return now - daysBefore * ONE_DAY;
     }
 }
 

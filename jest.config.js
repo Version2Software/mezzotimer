@@ -6,6 +6,7 @@ module.exports = {
     },
     collectCoverage: true,
     collectCoverageFrom: [
-        'src/**/*.{ts,vue}'
+        'src/**/*.{ts,vue}',
+        'electron/**/*.ts'
     ],
 }
