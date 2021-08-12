@@ -57,6 +57,7 @@ let elapsedFiveMinutePeriods = 0;
 let taskDescription: any = null;
 let needGong = true;
 let vol = 1.0;
+let props = defaultProperties();
 
 export default defineComponent({
     setup() {
@@ -67,7 +68,7 @@ export default defineComponent({
         const audioExtraGong = ref(null as any);
         const audioAlarm = ref(null as any);
         const triangle = ref(null as any);
-        const triangleOpacity = ref(null);
+        const triangleOpacity = ref(1.0);
         const mezzcanvasBackground = ref(null as any);
         const completedCount = ref(0);
         const timerFrontFontWeight = ref("");
@@ -76,8 +77,6 @@ export default defineComponent({
             'font-weight': 'normal',
             'text-shadow': 'initial'
         });
-
-        let props = defaultProperties();
 
         onMounted(async function () {
             props = await window.api.loadProperties();
@@ -158,7 +157,7 @@ export default defineComponent({
             }
         }
 
-        function paintTriangle(opacity: any) {
+        function paintTriangle(opacity: number) {
             const contextTriangle = triangle.value.getContext("2d");
             contextTriangle.fillStyle = "white";
             contextTriangle.beginPath();
@@ -167,8 +166,8 @@ export default defineComponent({
             contextTriangle.lineTo(triangle.value.width / 2, triangle.value.height);
             contextTriangle.lineTo(0, 0);
             contextTriangle.closePath();
-            contextTriangle.fill();
             triangleOpacity.value = opacity;
+            contextTriangle.fill();
         }
 
         function error(doc: any) {
