@@ -4,8 +4,13 @@
         <h2>What can <span class="you">you</span> do in thirty minutes?</h2>
         <br>
         <p>Version {{version}}</p>
-        <p v-if="version !== availableVersion" class="you">New Version Available: {{availableVersion}}<br><br>
+        <p v-if="availableVersion === null" class="you">Could not check for available version.<br><br>
             <button @click="download()">Go to download site</button>
+        </p>
+        <p v-else-if="version !== availableVersion" class="you">New Version Available: {{availableVersion}}<br><br>
+            <button @click="download()">Go to download site</button>
+        </p>
+        <p v-else>You are using the latest version.
         </p>
         <footer>
             Copyright (C) 2021 Version 2 Software, LLC. All rights reserved.
@@ -13,32 +18,23 @@
     </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
+
 import axios from 'axios';
-import {defineComponent, ref, onMounted} from 'vue';
+import {ref, onMounted} from 'vue';
 
-export default defineComponent({
-    setup() {
-        const version = ref("3.1.0");
-        const availableVersion = ref(null as string | null);
+const version = ref("3.1.0");
+const availableVersion = ref(null as string | null);
 
-        onMounted(() => {
-            // Use ts to avoid any potential caching issues
-            axios.get("https://mezzotimer.com/version.json?ts="+new Date().getTime())
-                .then(response => availableVersion.value = response.data.version)
-                .catch((err: any) => {
-                    console.error(err);
-                    availableVersion.value = "Could not check for available version.";
-                });
+onMounted(() => {
+    // Use ts to avoid any potential caching issues
+    axios.get("https://mezzotimer.com/version.json?ts="+new Date().getTime())
+        .then(response => availableVersion.value = response.data.version)
+        .catch((err: any) => {
+            console.error(err);
         });
-
-        return {
-            version,
-            availableVersion,
-            download: () => window.api.download()
-        }
-    }
 });
+
 </script>
 
 <style scoped>
