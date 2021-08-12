@@ -14,9 +14,9 @@
         </div>
 
         <div id="mezzora">
-            <div id="clock" :style="clockStyles">
-                <canvas id="triangle" :style="{'opacity': triangleOpacity}"></canvas>
-                <canvas id="mezzcanvas" :style="{'background-color': mezzcanvasBackground}"></canvas>
+            <div id="clock">
+                <canvas id="triangle"></canvas>
+                <canvas id="mezzcanvas"></canvas>
             </div>
             <div id="middle-buttons">
                 <div id="start-stop" class="center"><img id="play-button" src="../images/play-pause-gray.png"
@@ -559,6 +559,9 @@ export default defineComponent({
         height: 79%;
         border-top-left-radius: 200px;
         border-top-right-radius: 200px;
+        background-color: v-bind(clockStyles['background-color']);
+        font-weight: v-bind(clockStyles['font-weight']);
+        text-shadow: v-bind(clockStyles['text-shadow']);
     }
 
     #triangle {
@@ -568,6 +571,7 @@ export default defineComponent({
         right: 45%;
         width: 10%;
         height: 10%;
+        opacity: v-bind(triangleOpacity);
     }
 
     #mezzcanvas {
@@ -576,6 +580,7 @@ export default defineComponent({
         left: 0px;
         width: 100%;
         height: 30%;
+        background-color: v-bind(mezzcanvasBackground);
     }
 
     #start-stop, #pause-resume, #short-break, #long-break {
