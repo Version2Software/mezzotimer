@@ -72,7 +72,7 @@ async function createTimerWindow(left:number) {
     if (DEBUG) {
         winTimer = new BrowserWindow({x: 0, y: 0, width: 2000, height: 400, webPreferences: winPrefs});
     } else {
-        winTimer = new BrowserWindow({x: left, y: 40, width: size, height: size, show: false, webPreferences: winPrefs});
+        winTimer = new BrowserWindow({x: left, y: 40, width: size, height: size, webPreferences: winPrefs});
     }
 
     await winTimer.loadURL(path.join("file://", __dirname, "index.html"));
@@ -84,7 +84,6 @@ async function createTimerWindow(left:number) {
         winTimer.webContents.openDevTools();
     }
 
-    winTimer.once("ready-to-show", () => (winTimer as BrowserWindow).show());
     winTimer.on("closed", () => winTimer = null);
 }
 
