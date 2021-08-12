@@ -358,6 +358,10 @@ function initEventListeners() {
         }
     });
 
+    ipcMain.on("log", (_, doc:any) => {
+        console.log(doc);
+    });
+
     ipcMain.on("closeEvents", () => {
         if (winEvents) {
             winEvents.close();

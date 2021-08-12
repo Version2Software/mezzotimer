@@ -50,6 +50,9 @@ contextBridge.exposeInMainWorld("api", {
     'about': () => {
         ipcRenderer.send("about");
     },
+    'log': (doc:any) => {
+        ipcRenderer.send("log", doc);
+    },
     'exit': () => {
         ipcRenderer.send("exit");
     },
