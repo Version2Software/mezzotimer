@@ -33,50 +33,35 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, ref, computed, onMounted} from 'vue';
+<script lang="ts" setup>
+import {ref, computed, onMounted} from 'vue';
 import {dateFormat, summary} from "../util/util";
 
-export default defineComponent({
-    setup() {
-        const period = ref({startkey: 0, endkey: 0} as Period);
-        const docs = ref([] as MezzoEvent[]);
+const period = ref({startkey: 0, endkey: 0} as Period);
+const docs = ref([] as MezzoEvent[]);
 
-        const format = (ts: number) => dateFormat(ts);
-        const printPage = () => window.api.printPage();
+const format = (ts: number) => dateFormat(ts);
+const printPage = () => window.api.printPage();
 
-        const periodFrom = computed(() => new Date(period.value.startkey).toLocaleDateString());
-        const periodTo = computed(() => new Date(period.value.endkey).toLocaleDateString());
-        const reportDate = computed(() => new Date().toLocaleDateString());
-        const summaryRows = computed(() => summary(docs.value));
-        const totalCount = computed(() => {
-            return docs.value.filter((e: MezzoEvent) => e.eventType === "COMPLETE").length;
-        });
-
-        onMounted(() => {
-            window.api.getCachedOptions()
-                .then((queryOptions: QueryOptions) => {
-                    period.value = queryOptions.period;
-                    window.api.findAll(queryOptions)
-                        .then((items: MezzoEvent[]) => docs.value = items)
-                        .catch((err: any) => console.error(err));
-                })
-                .catch((err: any) => console.error(err));
-        });
-
-        return {
-            period,
-            docs,
-            format,
-            printPage,
-            periodFrom,
-            periodTo,
-            reportDate,
-            summaryRows,
-            totalCount
-        }
-    }
+const periodFrom = computed(() => new Date(period.value.startkey).toLocaleDateString());
+const periodTo = computed(() => new Date(period.value.endkey).toLocaleDateString());
+const reportDate = computed(() => new Date().toLocaleDateString());
+const summaryRows = computed(() => summary(docs.value));
+const totalCount = computed(() => {
+    return docs.value.filter((e: MezzoEvent) => e.eventType === "COMPLETE").length;
 });
+
+onMounted(() => {
+    window.api.getCachedOptions()
+        .then((queryOptions: QueryOptions) => {
+            period.value = queryOptions.period;
+            window.api.findAll(queryOptions)
+                .then((items: MezzoEvent[]) => docs.value = items)
+                .catch((err: any) => console.error(err));
+        })
+        .catch((err: any) => console.error(err));
+});
+
 </script>
 
 <style scoped>
