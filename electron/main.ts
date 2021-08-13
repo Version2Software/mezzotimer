@@ -513,11 +513,11 @@ const init = () => {
     if (!fs.existsSync(mezzodir)) {
         fs.mkdir(mezzodir, (err) => {
             if (err) {
-                console.error('Could not create ' + mezzodir);
+                console.error(`Could not create ${mezzodir}`);
                 console.error(err);
                 app.exit(-1);
             }
-            console.log('Directory created successfully: ', mezzodir);
+            console.log(`Directory created successfully: ${mezzodir}`);
         });
     }
 
