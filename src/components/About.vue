@@ -32,6 +32,7 @@ onMounted(() => {
         .then(response => availableVersion.value = response.data.version)
         .catch((err: any) => {
             console.error(err);
+            window.api.log(err);
         });
 });
 

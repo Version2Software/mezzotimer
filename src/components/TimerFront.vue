@@ -175,7 +175,7 @@ export default defineComponent({
 
         function error(doc: any) {
             console.log(doc);
-            window.api.error(doc)
+            window.api.log(doc);
         }
 
         function updateClock() {

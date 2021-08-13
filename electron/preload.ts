@@ -23,9 +23,6 @@ contextBridge.exposeInMainWorld("api", {
     'printPage': () => {
         ipcRenderer.send("printPage");
     },
-    'error': (doc:any) => {
-        ipcRenderer.send("error", doc);
-    },
     'save': (me:MezzoEvent) => {
         ipcRenderer.send("save", me)
     },

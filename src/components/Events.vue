@@ -99,7 +99,7 @@ const refreshLog = function () {
             docs.value = items;
         })
         .catch((err: any) => {
-            window.api.error(err)
+            window.api.log(err)
         });
 };
 

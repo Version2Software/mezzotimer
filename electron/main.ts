@@ -21,7 +21,6 @@ const size = os.platform() === 'darwin' ? 250 : 270;
 let winTimer:BrowserWindow | null;
 let winEvents:BrowserWindow | null;
 let winPrint:BrowserWindow | null;
-let winError:BrowserWindow | null;
 let winAbout:BrowserWindow | null;
 let winPrivacy:BrowserWindow | null;
 let winPrivacyReadOnly:BrowserWindow | null;
@@ -139,33 +138,6 @@ async function createPrintWindow() {
     }
 
     winPrint.on("closed", () => winPrint = null);
-}
-
-async function createErrorWindow() {
-
-    if (winError) {
-        winError.close();
-        return;
-    }
-
-    const dimensions = screen.getPrimaryDisplay().size;
-    const left = dimensions.width - 290 - 600;
-    const top = 40;
-
-    if (DEBUG) {
-        winError = new BrowserWindow({x: left, y: top, width: 2000, height: 600, webPreferences: winPrefs});
-    } else {
-        winError = new BrowserWindow({x: left, y: top, width: 600, height: 250, webPreferences: winPrefs});
-    }
-
-    await winError.loadURL(path.join("file://", __dirname, "index.html"));
-    winError.setMenu(null);
-
-    if (DEBUG) {
-        winError.webContents.openDevTools();
-    }
-
-    winError.on("closed", () => winError = null);
 }
 
 async function createAboutWindow() {
@@ -352,12 +324,6 @@ function initEventListeners() {
         return stats.size;
     });
 
-    ipcMain.on("error", (_, doc) => {
-        if (winError && winError.isVisible()) {
-            winError.webContents.send("doc", doc);
-        }
-    });
-
     ipcMain.on("log", (_, doc:any) => {
         console.log(doc);
     });
@@ -421,10 +387,6 @@ function events() {
     createEventsWindow();
 }
 
-function errors() {
-    createErrorWindow();
-}
-
 function createMenu() {
     if (os.platform() == "darwin") {
         const template = [
@@ -469,14 +431,6 @@ function createMenu() {
                         accelerator: "Command+L",
                         click() {
                             events();
-                        }
-                    },
-                    {
-                        visible: DEBUG,
-                        label: "System Events",
-                        accelerator: "Command+E",
-                        click() {
-                            errors();
                         }
                     }
                 ]
