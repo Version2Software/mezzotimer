@@ -5,8 +5,10 @@
 
 </template>
 
-<script lang="ts">
-import {defineComponent, ref, inject, onMounted} from 'vue';
+<script lang="ts" setup>
+
+import {ref, inject, onMounted} from 'vue';
+import {Component} from "@vue/runtime-core";
 import exportComponent from './ExportData.vue';
 import purgeComponent from './PurgeData.vue';
 import timerFrontComponent from './TimerFront.vue';
@@ -14,27 +16,25 @@ import timerMenuComponent from './TimerMenu.vue';
 import optionsComponent from './Options.vue';
 import {Emitter} from "mitt";
 
-export default defineComponent({
-    setup() {
-        const emitter = inject("emitter") as Emitter<any>
-        const currentView = ref(timerFrontComponent);
+const emitter = inject("emitter") as Emitter<any>
+const currentView = ref(timerFrontComponent as Component);
 
-        onMounted(() => {
-            emitter.on('currentView', (e: any) => currentView.value = e.view)
-        });
+const names = {
+    exportComponent,
+    purgeComponent,
+    timerFrontComponent,
+    timerMenuComponent,
+    optionsComponent
+}
 
-        return {
-            currentView
-        };
-    },
-    components: {
-        exportComponent,
-        purgeComponent,
-        timerFrontComponent,
-        timerMenuComponent,
-        optionsComponent
-    }
+function lookup(name:string):Component {
+    return names[name]
+}
+
+onMounted(() => {
+    emitter.on('currentView', (e: string) => currentView.value = lookup(e.view));
 });
+
 </script>
 
 <style scoped>
