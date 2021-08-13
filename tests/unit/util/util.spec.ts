@@ -151,12 +151,12 @@ describe("getPeriod", () => {
 
         const start = new Date(todayJanuary);
         start.setHours(0, 0, 0, 0);
-        start.setDate(-1);
-        start.setDate(1);
+        start.setDate(-1);  // Move to Dec 31th, the -1st day of the month
+        start.setDate(1);   // Now that we are in Dec, move to Dec 1st
 
         const end = new Date(todayJanuary);
         end.setHours(23, 59, 59, 99);
-        end.setDate(0);
+        end.setDate(0); // Move to the beginning of Jan
 
         const period = getPeriod("lastmonth", todayJanuary);
 
