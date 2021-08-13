@@ -252,8 +252,6 @@ export default defineComponent({
         }
 
         function processEvent(timerEvent: any) {
-
-            console.log("timerEvent", timerEvent, realState);
             try {
                 millis = 0;
                 if (timerEvent === events.START && realState === states.IDLE) {
