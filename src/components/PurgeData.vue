@@ -22,41 +22,34 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, inject, onMounted, ref} from 'vue';
+<script lang="ts" setup>
+
+import {inject, onMounted, ref} from 'vue';
 import {Emitter} from "mitt";
 
-export default defineComponent({
-    setup() {
-        const emitter = inject("emitter") as Emitter<any>;
-        const days = ref(730);
-        const databaseSize = ref(0);
+const emitter = inject("emitter") as Emitter<any>;
+const days = ref(730);
+const databaseSize = ref(0);
 
-        function getDatabaseSize() {
-            window.api.getDatabaseSize().
-                then((size:number) => databaseSize.value = size);
-        }
+function getDatabaseSize() {
+    window.api.getDatabaseSize().
+        then((size:number) => databaseSize.value = size);
+}
 
-        async function purgeData() {
-            window.api.purgeData(days.value).then((purged:boolean) => {
-                if (purged) {
-                    getDatabaseSize();
-                }
-            });
-        }
-
-        onMounted(function () {
+async function purgeData() {
+    window.api.purgeData(days.value).then((purged:boolean) => {
+        if (purged) {
             getDatabaseSize();
-        });
-
-        return {
-            databaseSize,
-            days: days,
-            purgeData,
-            done: () => emitter.emit('currentView', {view: 'timerMenuComponent'})
         }
-    }
+    });
+}
+
+onMounted(function () {
+    getDatabaseSize();
 });
+
+const done = () => emitter.emit('currentView', {view: 'timerMenuComponent'});
+
 </script>
 
 <style scoped>
