@@ -23,7 +23,7 @@
 import axios from 'axios';
 import {ref, onMounted} from 'vue';
 
-const version = ref("3.1.0");
+const version = ref("3.2.0");
 const availableVersion = ref(null as string | null);
 
 onMounted(() => {
