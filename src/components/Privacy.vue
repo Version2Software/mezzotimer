@@ -28,23 +28,19 @@
 </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, ref} from 'vue'
+<script lang="ts" setup>
 
-export default defineComponent({
-    props: {
-        readOnly: Boolean
-    },
-    setup() {
-        return {
-            checked: ref(false),
-            activeClass: ref("button"),
-            disabledClass: ref("disabled-button"),
-            accepted: () => window.api.accepted(),
-            declined: () => window.api.exit()
-        }
-    }
-});
+import {ref} from 'vue'
+
+const props = defineProps({ readOnly: Boolean });
+const readOnly = props.readOnly;
+
+const checked = ref(false);
+const activeClass = ref("button");
+const disabledClass = ref("disabled-button");
+const accepted = () => window.api.accepted();
+const declined = () => window.api.exit();
+
 </script>
 
 <style>

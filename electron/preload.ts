@@ -23,6 +23,9 @@ contextBridge.exposeInMainWorld("api", {
     'printPage': () => {
         ipcRenderer.send("printPage");
     },
+    'accepted': () => {
+        ipcRenderer.send("accepted");
+    },
     'save': (me:MezzoEvent) => {
         ipcRenderer.send("save", me)
     },
