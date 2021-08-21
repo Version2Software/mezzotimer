@@ -11,9 +11,12 @@
   
 `npm run start-mac` or  `npm run start-win` 
 
-### Built using:   
+### Built using:
+vue 3.2.2  
+electron 13.1.2  
 node 16.0.0  
-electron 13.1.2
+typescript 4.3.5
+
 
 ### To Download Prebuilt Release:
 https://mezzotimer.com

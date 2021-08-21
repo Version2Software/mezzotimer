@@ -2,43 +2,45 @@
  *  Copyright (C) 2021 Version 2 Software, LLC. All rights reserved.
  */
 
-const sqlite3 = require('sqlite3');
+// const sqlite3 = require("sqlite3");
+import sqlite3 from "sqlite3";
+
 import {MezzoEvent, Period, QueryOptions} from "./mezzo-types";
 
 export class DatabaseService {
 
-    db:any = null
+    private db: any = null;
 
-    init(dbfilename:string) {
+    public init(dbfilename: string) {
         this.db = new sqlite3.Database(dbfilename);
 
-        let db = this.db // need to preserve reference when inside the following function
-        this.db.serialize(function () {
+        const db = this.db; // need to preserve reference when inside the following function
+        this.db.serialize(() => {
 
-            let sql = `
-            CREATE TABLE IF NOT EXISTS mz_event (
-                event_ts INTEGER,
-                description TEXT,
-                event_type TEXT                
-            )
-            `
+            const sql = `
+                CREATE TABLE IF NOT EXISTS mz_event (
+                    event_ts INTEGER,
+                    description TEXT,
+                    event_type TEXT
+                )
+            `;
 
             db.prepare(sql).run().finalize();
-        })
+        });
     }
 
-    shutdown() {
-        console.log('Dbservice shutdown')
+    public shutdown() {
+        console.log("Dbservice shutdown");
         this.db.close();
     }
 
-    isValid() {
+    public isValid() {
         return new Promise((resolve, reject) => {
             resolve(true);
         });
     }
 
-    findAll(queryOptions:QueryOptions) {
+    public findAll(queryOptions: QueryOptions) {
         const startkey = queryOptions.period.startkey;
         const endkey = queryOptions.period.endkey;
         const completedOnly = queryOptions.completedOnly;
@@ -52,15 +54,15 @@ export class DatabaseService {
                 }
                 sql += " order by event_ts";
 
-                this.db.all(sql, [startkey, endkey], function(err:any, arr:any) {
-                    resolve(arr.map((row:any) => {
+                this.db.all(sql, [startkey, endkey], (err: any, arr: any) => {
+                    resolve(arr.map((row: any) => {
                             return {
-                                rowId: row.rowid,
-                                eventTimestamp: row.event_ts,
                                 description: row.description,
-                                eventType: row.event_type
-                            }
-                        }))
+                                eventTimestamp: row.event_ts,
+                                eventType: row.event_type,
+                                rowId: row.rowid,
+                            };
+                        }));
                 });
             } catch (err) {
                 reject("remoteService.findAll, " + err);
@@ -68,18 +70,18 @@ export class DatabaseService {
         });
     }
 
-    completedCount(period: Period) {
+    public completedCount(period: Period) {
         const startkey = period.startkey;
         const endkey = period.endkey;
 
         return new Promise<number>((resolve, reject) => {
             try {
 
-                let sql = `select count(*) as cnt from mz_event
+                const sql = `select count(*) as cnt from mz_event
                            where event_ts >= ? and event_ts <= ?
                            and event_type = 'COMPLETE'`;
 
-                this.db.all(sql, [startkey, endkey], function(err:any, ary:any) {
+                this.db.all(sql, [startkey, endkey], (err: any, ary: any) => {
                     resolve(ary[0].cnt);
                 });
             } catch (err) {
@@ -88,13 +90,13 @@ export class DatabaseService {
         });
     }
 
-    purgeData(days: number) {
+    public purgeData(days: number) {
         return new Promise<boolean>((resolve, reject) => {
-            let ts = this.calculatePurgeTimestamp(days, Date.now());
+            const ts = this.calculatePurgeTimestamp(days, Date.now());
             try {
-                let sql = "delete from mz_event where event_ts < ?";
+                const sql = "delete from mz_event where event_ts < ?";
 
-                this.db.all(sql, [ts], function(err:any, ary:any) {
+                this.db.all(sql, [ts], (err: any, ary: any) => {
                     resolve(true);
                 });
             } catch (err) {
@@ -103,10 +105,10 @@ export class DatabaseService {
         });
     }
 
-    save(me:MezzoEvent) {
+    public save(me: MezzoEvent) {
         return new Promise((resolve, reject) => {
             try {
-                let stmt = this.db.prepare("insert into mz_event values (?, ?, ?)");
+                const stmt = this.db.prepare("insert into mz_event values (?, ?, ?)");
                 stmt.run(me.eventTimestamp, me.description, me.eventType).finalize();
                 resolve(true);
             } catch (ex) {
@@ -115,10 +117,10 @@ export class DatabaseService {
         });
     }
 
-    update(me:MezzoEvent) {
+    public update(me: MezzoEvent) {
         return new Promise((resolve, reject) => {
             try {
-                let stmt = this.db.prepare("update mz_event set description = ? where rowid = ?");
+                const stmt = this.db.prepare("update mz_event set description = ? where rowid = ?");
                 stmt.run(me.description, me.rowId).finalize();
                 resolve(true);
             } catch (ex) {
@@ -127,10 +129,10 @@ export class DatabaseService {
         });
     }
 
-    delete(rowid:number) {
+    public delete(rowid: number) {
         return new Promise((resolve, reject) => {
             try {
-                let stmt = this.db.prepare("delete from mz_event where rowid = ?");
+                const stmt = this.db.prepare("delete from mz_event where rowid = ?");
                 stmt.run(rowid).finalize();
 
                 resolve(true);
@@ -140,10 +142,9 @@ export class DatabaseService {
         });
     }
 
-    calculatePurgeTimestamp(daysBefore:number, now:number):number {
+    public calculatePurgeTimestamp(daysBefore: number, now: number): number {
         const ONE_DAY = 24 * 60 * 60 * 1000;
 
         return now - daysBefore * ONE_DAY;
     }
 }
-

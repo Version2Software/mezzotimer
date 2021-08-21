@@ -2,12 +2,12 @@
  *  Copyright (C) 2021 Version 2 Software, LLC. All rights reserved.
  */
 
+import fs from "fs";
 import os from "os";
 import path from "path";
-import fs from "fs";
 
-import {app, BrowserWindow, ipcMain, Menu, screen, dialog} from "electron";
-import {MezzoEvent, Period, QueryOptions, Props} from "./mezzo-types";
+import {app, BrowserWindow, dialog, ipcMain, Menu, screen} from "electron";
+import {MezzoEvent, Period, Props, QueryOptions} from "./mezzo-types";
 
 import prompt from "electron-prompt";
 import Store from "electron-store";
@@ -16,23 +16,23 @@ import {DatabaseService} from "./database-service";
 const db = new DatabaseService();
 
 const store = new Store();
-const size = os.platform() === 'darwin' ? 250 : 270;
+const size = os.platform() === "darwin" ? 250 : 270;
 
-let winTimer:BrowserWindow | null;
-let winEvents:BrowserWindow | null;
-let winPrint:BrowserWindow | null;
-let winAbout:BrowserWindow | null;
-let winPrivacy:BrowserWindow | null;
-let winPrivacyReadOnly:BrowserWindow | null;
+let winTimer: BrowserWindow | null;
+let winEvents: BrowserWindow | null;
+let winPrint: BrowserWindow | null;
+let winAbout: BrowserWindow | null;
+let winPrivacy: BrowserWindow | null;
+let winPrivacyReadOnly: BrowserWindow | null;
 
-let cachedOptions:QueryOptions;
+let cachedOptions: QueryOptions;
 
 const DEBUG = false;
 
 const winPrefs = {
-    nodeIntegration: true,
     contextIsolation: true,
-    preload: path.join(__dirname, 'preload.js')
+    nodeIntegration: true,
+    preload: path.join(__dirname, "preload.js"),
 };
 
 async function createPrivacyWindow() {
@@ -41,8 +41,8 @@ async function createPrivacyWindow() {
 
     await winPrivacy.loadURL(path.join("file://", __dirname, "index.html"));
     winPrivacy.setMenu(null);
-    winPrivacy.setTitle("Privacy Policy")
-    winPrivacy.webContents.send("page", "privacy")
+    winPrivacy.setTitle("Privacy Policy");
+    winPrivacy.webContents.send("page", "privacy");
     winPrivacy.on("closed", () => winPrivacy = null);
     winPrivacy.focus();
 
@@ -57,8 +57,8 @@ async function createPrivacyWindowReadOnly() {
 
     await winPrivacyReadOnly.loadURL(path.join("file://", __dirname, "index.html"));
     winPrivacyReadOnly.setMenu(null);
-    winPrivacyReadOnly.setTitle("Privacy Policy")
-    winPrivacyReadOnly.webContents.send("page", "privacy-readonly")
+    winPrivacyReadOnly.setTitle("Privacy Policy");
+    winPrivacyReadOnly.webContents.send("page", "privacy-readonly");
     winPrivacyReadOnly.on("closed", () => winPrivacyReadOnly = null);
     winPrivacyReadOnly.focus();
 
@@ -67,7 +67,7 @@ async function createPrivacyWindowReadOnly() {
     }
 }
 
-async function createTimerWindow(left:number) {
+async function createTimerWindow(left: number) {
     if (DEBUG) {
         winTimer = new BrowserWindow({x: 0, y: 0, width: 2000, height: 400, webPreferences: winPrefs});
     } else {
@@ -102,11 +102,11 @@ async function createEventsWindow() {
         winEvents = new BrowserWindow({x: left, y: top, width: 600, height: 600, webPreferences: winPrefs});
     }
 
-    await winEvents.loadURL(path.join("file://", __dirname, "index.html"))
+    await winEvents.loadURL(path.join("file://", __dirname, "index.html"));
 
     winEvents.setMenu(null);
-    winEvents.setTitle("Mezzo Events")
-    winEvents.webContents.send("page", "events")
+    winEvents.setTitle("Mezzo Events");
+    winEvents.webContents.send("page", "events");
 
     if (DEBUG) {
         winEvents.webContents.openDevTools();
@@ -147,8 +147,8 @@ async function createAboutWindow() {
     }
 
     const dimensions = screen.getPrimaryDisplay().size;
-    const left = dimensions.width/2 - 409/2;
-    const top = dimensions.height/2 - 125;
+    const left = dimensions.width / 2 - 409 / 2;
+    const top = dimensions.height / 2 - 125;
 
     if (DEBUG) {
         winAbout = new BrowserWindow({x: left, y: top, width: 2000, height: 600, webPreferences: winPrefs});
@@ -158,8 +158,8 @@ async function createAboutWindow() {
 
     await winAbout.loadURL(path.join("file://", __dirname, "index.html"));
     winAbout.setMenu(null);
-    winAbout.setTitle("About")
-    winAbout.webContents.send("page", "about")
+    winAbout.setTitle("About");
+    winAbout.webContents.send("page", "about");
 
     if (DEBUG) {
         winAbout.webContents.openDevTools();
@@ -180,8 +180,8 @@ function initEventListeners() {
     });
 
     ipcMain.on("print", async (event, queryOptions) => {
-        cachedOptions = queryOptions
-        createPrintWindow()
+        cachedOptions = queryOptions;
+        createPrintWindow();
     });
 
     // TODO - There has to be a beter way of passing options to print window
@@ -197,25 +197,25 @@ function initEventListeners() {
         return descriptionHelper(taskDescription, winEvents as BrowserWindow);
     });
 
-    async function descriptionHelper(taskDescription:string, currentWin:BrowserWindow) {
+    async function descriptionHelper(taskDescription: string, currentWin: BrowserWindow) {
         return await prompt({
-            width: size - 20,
-            title: "Task",
-            label: "Task description:",
-            value: taskDescription,
             inputAttrs: {
-                type: 'text'
+                type: "text",
             },
-            type: 'input'
+            label: "Task description:",
+            title: "Task",
+            type: "input",
+            value: taskDescription,
+            width: size - 20,
         }, currentWin);
     }
 
     ipcMain.handle("deleteTask" , async (event, rowId, description) => {
-        let result = await dialog.showMessageBox(winEvents as BrowserWindow, {
-            type: "question",
+        const result = await dialog.showMessageBox(winEvents as BrowserWindow, {
             buttons: ["Yes", "No"],
+            message: "Delete " + description + "?",
             title: "Confirm",
-            message: "Delete " + description + "?"
+            type: "question",
         });
 
         // 0 means Yes
@@ -227,51 +227,53 @@ function initEventListeners() {
     });
 
     ipcMain.handle("confirmCancel" , async (_) => {
-        let result = await dialog.showMessageBox(winTimer as BrowserWindow, {
-            type: "question",
+        const result = await dialog.showMessageBox(winTimer as BrowserWindow, {
             buttons: ["Yes", "No"],
+            message: "Are you sure you want to cancel?",
             title: "Confirm Cancel",
-            message: "Are you sure you want to cancel?"
+            type: "question",
         });
         // 0 means Yes
-        return (result.response === 0)
+        return (result.response === 0);
     });
 
-    ipcMain.handle("exportData", async (_, format:string, queryOptions:QueryOptions) => {
+    ipcMain.handle("exportData", async (_, format: string, queryOptions: QueryOptions) => {
 
         dialog.showSaveDialog(winTimer as BrowserWindow, {
-            title: "Select the File Path to save",
-            defaultPath: path.join(os.homedir(), "mezzo."+format),
-            buttonLabel: 'Save',
+            buttonLabel: "Save",
+            defaultPath: path.join(os.homedir(), "mezzo." + format),
             filters: [
                 {
-                    name: 'Text Files',
-                    extensions: ['json', 'csv']
-                }, ],
+                    extensions: ["json", "csv"],
+                    name: "Text Files",
+                } ],
+            title: "Select the File Path to save",
         }).then((file: any) => {
             if (!file.canceled) {
                 db.findAll(queryOptions)
-                    .then((items:MezzoEvent[]) => {
-                        const items2write = format === 'json' ? items2json(items) : items2csv(items);
+                    .then((items: MezzoEvent[]) => {
+                        const items2write = format === "json" ? items2json(items) : items2csv(items);
 
                         fs.writeFile(file.filePath.toString(),
                             items2write,
-                            function (err) {
-                                if (err) throw err;
+                            (err) => {
+                                if (err) {
+                                    throw err;
+                                }
                             });
                     }).catch((err: any) => {
-                        console.error(err)
+                        console.error(err);
                     });
             }
         });
     });
 
-    ipcMain.handle("purgeData", async (_, days:number):Promise<boolean> => {
-        let result = await dialog.showMessageBox(winTimer as BrowserWindow, {
-            type: "question",
+    ipcMain.handle("purgeData", async (_, days: number): Promise<boolean> => {
+        const result = await dialog.showMessageBox(winTimer as BrowserWindow, {
             buttons: ["Yes", "No"],
+            message: "Are you sure you want to purge " + days + " days?",
             title: "Confirm Cancel",
-            message: "Are you sure you want to purge " + days + " days?"
+            type: "question",
         });
         // 0 means Yes
         if (result.response === 0) {
@@ -281,13 +283,13 @@ function initEventListeners() {
         return false;
     });
 
-    function items2json(items:MezzoEvent[]):string {
+    function items2json(items: MezzoEvent[]): string {
         return JSON.stringify(items, null, 4);
     }
 
-    function items2csv(items:MezzoEvent[]):string {
+    function items2csv(items: MezzoEvent[]): string {
         let s = "rowId,eventTimestamp,description,eventType\n";
-        for(let i of items) {
+        for (const i of items) {
             s += i.rowId + "," + i.eventTimestamp + "," + i.description + "," + i.eventType + "\n";
         }
         return s;
@@ -305,7 +307,7 @@ function initEventListeners() {
         return await db.findAll(queryOptions);
     });
 
-    ipcMain.handle("completedCount", async (event, period:Period) => {
+    ipcMain.handle("completedCount", async (event, period: Period) => {
         return await db.completedCount(period);
     });
 
@@ -319,12 +321,12 @@ function initEventListeners() {
     });
 
     ipcMain.handle("getDatabaseSize", async (_) => {
-        const mezzoFile = path.join(os.homedir(), '.mezzo', "mezzo.sqlite");
-        var stats = fs.statSync(mezzoFile);
+        const mezzoFile = path.join(os.homedir(), ".mezzo", "mezzo.sqlite");
+        const stats = fs.statSync(mezzoFile);
         return stats.size;
     });
 
-    ipcMain.on("log", (_, doc:any) => {
+    ipcMain.on("log", (_, doc: any) => {
         console.log(doc);
     });
 
@@ -348,7 +350,7 @@ function initEventListeners() {
     });
 
     ipcMain.on("accepted", () => {
-        store.set('agreed', true);
+        store.set("agreed", true);
 
         createWindow();
         createMenu();
@@ -356,20 +358,20 @@ function initEventListeners() {
         (winPrivacy as BrowserWindow).close();
     });
 
-    ipcMain.handle('loadProperties', async (_) => {
+    ipcMain.handle("loadProperties", async (_) => {
         return loadProperties();
     });
 
-    ipcMain.handle('saveProperties', async (_, props:Props) => {
+    ipcMain.handle("saveProperties", async (_, props: Props) => {
         saveProperties(props);
     });
 }
 
-function loadProperties():Props {
+function loadProperties(): Props {
     return store.get("props") as Props;
 }
 
-function saveProperties(props:Props) {
+function saveProperties(props: Props) {
     store.set("props", props);
 }
 
@@ -388,7 +390,7 @@ function events() {
 }
 
 function createMenu() {
-    if (os.platform() == "darwin") {
+    if (os.platform() === "darwin") {
         const template = [
             {
                 label: "Mezzo",
@@ -397,25 +399,25 @@ function createMenu() {
                         label: "About Mezzo",
                         click() {
                             about();
-                        }
+                        },
                     },
                     {
                         label: "Hide Mezzo",
-                        role: "hide"
+                        role: "hide",
                     },
                     {
                         label: "Quit Mezzo",
-                        role: "quit"
+                        role: "quit",
                     },
-                ]
+                ],
             },
             {
                 label: "Edit",
                 submenu: [
                     {label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:"},
                     {label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:"},
-                    {label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:"}
-                ]
+                    {label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:"},
+                ],
             },
             {
                 label: "View",
@@ -424,17 +426,17 @@ function createMenu() {
                         label: "Privacy Policy",
                         click() {
                             createPrivacyWindowReadOnly();
-                        }
+                        },
                     },
                     {
-                        label: "Event Log",
                         accelerator: "Command+L",
+                        label: "Event Log",
                         click() {
                             events();
-                        }
-                    }
-                ]
-            }
+                        },
+                    },
+                ],
+            },
         ];
         // @ts-ignore
         Menu.setApplicationMenu(Menu.buildFromTemplate(template));
@@ -452,7 +454,7 @@ const init = () => {
 
     initEventListeners();
 
-    let agreed = store.get('agreed');
+    const agreed = store.get("agreed");
 
     if (agreed) {
         createWindow();
@@ -462,7 +464,7 @@ const init = () => {
     }
 
     // Create .mezzo directory if necessary
-    const mezzodir = path.join(os.homedir(), '.mezzo');
+    const mezzodir = path.join(os.homedir(), ".mezzo");
 
     if (!fs.existsSync(mezzodir)) {
         fs.mkdir(mezzodir, (err) => {
@@ -481,21 +483,21 @@ const init = () => {
     }
 
     // Create and initialize database if necessary
-    db.init(path.join(mezzodir, 'mezzo.sqlite'));
+    db.init(path.join(mezzodir, "mezzo.sqlite"));
 };
 
-function defaultProperties():Props {
+function defaultProperties(): Props {
     return {
-        minutes: "30",
+        alarm: "true",
+        gong: "true",
+        gongStyle: "progressive",
         longBreak: "15",
+        minutes: "30",
+        notification: "true",
         shortBreak: "5",
         tick: "true",
-        gong: "true",
-        alarm: "true",
-        notification: "true",
         timerColor: "green",
-        gongStyle: "progressive"
-    }
+    };
 }
 app.on("ready", init);
 
@@ -504,6 +506,6 @@ app.on("window-all-closed", () => {
 });
 
 app.on("will-quit", () => {
-    console.log("will-quit")
+    console.log("will-quit");
     // db.shutdown()
 });

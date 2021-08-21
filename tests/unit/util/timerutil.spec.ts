@@ -15,16 +15,16 @@ describe("nextTimeout", () => {
 
 describe("ellapsedTime", () => {
     it("should be 0", () => {
-        expect(timerutil.ellapsedTime(0,0,0)).toBe(0);
+        expect(timerutil.ellapsedTime(0, 0, 0)).toBe(0);
     });
     it("should be 1900", () => {
-        expect(timerutil.ellapsedTime(1000,100000,100)).toBe(98900);
+        expect(timerutil.ellapsedTime(1000, 100000, 100)).toBe(98900);
     });
 });
 
 describe("pausedTime", () => {
     it("should be 6000", () => {
-        expect(timerutil.pausedTime([1000,2000,3000])).toBe(6000);
+        expect(timerutil.pausedTime([1000, 2000, 3000])).toBe(6000);
     });
     it("should be 0", () => {
         expect(timerutil.pausedTime([])).toBe(0);

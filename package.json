@@ -10,6 +10,8 @@
   "scripts": {
     "clean": "rm -rf dist coverage staging",
     "test:unit": "vue-cli-service test:unit",
+    "lint-src": "tslint -p tsconfig.json",
+    "lint-electron": "tslint -p tsconfig-electron.json",
     "start-mac": "./start-mac",
     "dist-mac": "./dist-mac",
     "electron-builder": "electron-builder",

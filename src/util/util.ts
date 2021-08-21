@@ -4,16 +4,16 @@
 
 const ONE_DAY = 24 * 60 * 60 * 1000;
 
-export const summary = function (events:MezzoEvent[]) {
+export const summary = function(events: MezzoEvent[]) {
 
-    const summaryRows:{taskDescription:string, count:string}[] = [];
-    const descArray:string[] = [];
+    const summaryRows: Array<{taskDescription: string, count: string}> = [];
+    const descArray: string[] = [];
 
-    events.forEach(e => {
+    events.forEach((e) => {
         if (e.eventType === "COMPLETE") {
 
             let isPresent = false;
-            descArray.forEach(d => {
+            descArray.forEach((d) => {
                 if (d === e.description) {
                     isPresent = true;
                 }
@@ -24,7 +24,7 @@ export const summary = function (events:MezzoEvent[]) {
         }
     });
 
-    descArray.forEach(d => {
+    descArray.forEach((d) => {
         const count = events.filter((e) => {
             if (e.eventType === "COMPLETE" && e.description === d) {
                 return e;
@@ -33,14 +33,14 @@ export const summary = function (events:MezzoEvent[]) {
 
         summaryRows.push({
             taskDescription: d ? d : "No description",
-            count: "X ".repeat(count)
+            count: "X ".repeat(count),
         });
     });
 
     return summaryRows;
 };
 
-export const getPeriod = (timePeriod:string, today:Date) => {
+export const getPeriod = (timePeriod: string, today: Date) => {
 
     let start = new Date(today);
     start.setHours(0, 0, 0, 0);
@@ -94,22 +94,22 @@ export const getPeriod = (timePeriod:string, today:Date) => {
     return {startkey: start.getTime(), endkey: end.getTime()};
 };
 
-export const dateFormat = (ts:number) => {
-    let dt = new Date(ts)
+export const dateFormat = (ts: number) => {
+    const dt = new Date(ts);
 
-    let d = dt.getFullYear() + "-" +
-        (""+(dt.getMonth() + 1)).padStart(2, '0') + "-" +
-        (""+dt.getDate()).padStart(2, '0')
+    const d = dt.getFullYear() + "-" +
+        ("" + (dt.getMonth() + 1)).padStart(2, "0") + "-" +
+        ("" + dt.getDate()).padStart(2, "0");
 
-    let t = dt.toLocaleTimeString()
+    const t = dt.toLocaleTimeString();
 
-    let lastColon = t.lastIndexOf(":")
-    let lastSpace = t.lastIndexOf(" ")
+    const lastColon = t.lastIndexOf(":");
+    const lastSpace = t.lastIndexOf(" ");
 
-    return d + " " + t.slice(0, lastColon) + " " + t.slice(lastSpace + 1)
-}
+    return d + " " + t.slice(0, lastColon) + " " + t.slice(lastSpace + 1);
+};
 
-export function defaultProperties():Props {
+export function defaultProperties(): Props {
     return {
         minutes: "30",
         longBreak: "15",
@@ -119,6 +119,6 @@ export function defaultProperties():Props {
         alarm: "true",
         notification: "true",
         timerColor: "green",
-        gongStyle: "progressive"
-    }
+        gongStyle: "progressive",
+    };
 }

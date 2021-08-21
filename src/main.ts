@@ -1,9 +1,7 @@
-'use strict'
+import mitt from "mitt";
+import {createApp} from "vue";
+import App from "./components/App.vue";
 
-import {createApp} from 'vue';
-import mitt from 'mitt'
-import App from './components/App.vue';
-
-const app = createApp(App)
-app.provide('emitter', mitt());
-app.mount('#app');
+const app = createApp(App);
+app.provide("emitter", mitt());
+app.mount("#app");

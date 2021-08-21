@@ -147,7 +147,7 @@ describe("getPeriod", () => {
 
     test("lastmonth of last year", () => {
 
-        const todayJanuary = new Date(2018,0,15);
+        const todayJanuary = new Date(2018, 0, 15);
 
         const start = new Date(todayJanuary);
         start.setHours(0, 0, 0, 0);
@@ -173,7 +173,7 @@ describe("dateFormat", () => {
         const s = dateFormat(ts);
 
         const dt = new Date(ts);
-        const hm = dt.toLocaleTimeString().slice(0,4);
+        const hm = dt.toLocaleTimeString().slice(0, 4);
 
         expect(s).toContain("2021-06-30");
         expect(s).toContain(hm);
@@ -185,7 +185,7 @@ describe("dateFormat", () => {
         const s = dateFormat(ts);
 
         const dt = new Date(ts);
-        const hm = dt.toLocaleTimeString().slice(0,4);
+        const hm = dt.toLocaleTimeString().slice(0, 4);
 
         expect(s).toContain("2021-07-06");
         expect(s).toContain(hm);
