@@ -56,13 +56,13 @@ export class DatabaseService {
 
                 this.db.all(sql, [startkey, endkey], (err: any, arr: any) => {
                     resolve(arr.map((row: any) => {
-                            return {
-                                description: row.description,
-                                eventTimestamp: row.event_ts,
-                                eventType: row.event_type,
-                                rowId: row.rowid,
-                            };
-                        }));
+                        return {
+                            description: row.description,
+                            eventTimestamp: row.event_ts,
+                            eventType: row.event_type,
+                            rowId: row.rowid,
+                        };
+                    }));
                 });
             } catch (err) {
                 reject("remoteService.findAll, " + err);

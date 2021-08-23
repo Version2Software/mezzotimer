@@ -3,38 +3,63 @@
  */
 
 <template>
-    <div id="report">
-        <p><a href="#" @click="printPage()">Print</a></p>
-        <br><br>
-        Report Date: {{reportDate}}
-        <br>
-        Period: {{periodFrom}} - {{periodTo}}
-        <br><br>
-        <div class="center">Completed Mezzos: {{totalCount}}</div>
-        <div>
-            <table>
-                <tr v-for="sr in summaryRows">
-                    <td width="70%">{{sr.taskDescription}}</td>
-                    <td width="30%">{{sr.count}}</td>
-                </tr>
-            </table>
-        </div>
-        <br>
-        <div class="center">Events</div>
-        <div>
-            <table>
-                <tr v-for="d in docs">
-                    <td width="30%">{{format(d.eventTimestamp)}}</td>
-                    <td width="45%">{{d.description}}</td>
-                    <td width="20%">{{d.eventType}}</td>
-                </tr>
-            </table>
-        </div>
+  <div id="report">
+    <p>
+      <a
+        href="#"
+        @click="printPage()"
+      >Print</a>
+    </p>
+    <br><br>
+    Report Date: {{ reportDate }}
+    <br>
+    Period: {{ periodFrom }} - {{ periodTo }}
+    <br><br>
+    <div class="center">
+      Completed Mezzos: {{ totalCount }}
     </div>
+    <div>
+      <table>
+        <tr
+          v-for="(sr, index) in summaryRows"
+          :key="index"
+        >
+          <td width="70%">
+            {{ sr.taskDescription }}
+          </td>
+          <td width="30%">
+            {{ sr.count }}
+          </td>
+        </tr>
+      </table>
+    </div>
+    <br>
+    <div class="center">
+      Events
+    </div>
+    <div>
+      <table>
+        <tr
+          v-for="(d, index) in docs"
+          :key="index"
+        >
+          <td width="30%">
+            {{ format(d.eventTimestamp) }}
+          </td>
+          <td width="45%">
+            {{ d.description }}
+          </td>
+          <td width="20%">
+            {{ d.eventType }}
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import {ref, computed, onMounted} from 'vue';
+import {ref, computed, onMounted} from "vue";
 import {dateFormat, summary} from "../util/util";
 
 const period = ref({startkey: 0, endkey: 0} as Period);

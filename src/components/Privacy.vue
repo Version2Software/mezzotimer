@@ -1,40 +1,52 @@
 <template>
-<div id="privacy">
+  <div id="privacy">
     <article>
-        <h1>Mezzo Task Timer<br>Privacy Policy</h1>
-        <h2>Effective: June 16, 2021</h2>
+      <h1>Mezzo Task Timer<br>Privacy Policy</h1>
+      <h2>Effective: June 16, 2021</h2>
 
-        <p>Mezzo Task Timer is copyrighted by Version 2 Software, LLC. This software is open source and free to use, released under the Apache License 2.0.</p>
+      <p>Mezzo Task Timer is copyrighted by Version 2 Software, LLC. This software is open source and free to use, released under the Apache License 2.0.</p>
 
-        <h2>Data Privacy</h2>
+      <h2>Data Privacy</h2>
 
-        <p>We do not collect any personal data from or about you. We do not collect any of your application data. Your application data is only stored on your local computer.</p>
+      <p>We do not collect any personal data from or about you. We do not collect any of your application data. Your application data is only stored on your local computer.</p>
 
-        <h2>Contact Us</h2>
+      <h2>Contact Us</h2>
 
-        <p>
-            Version 2 Software, LLC<br>
-            Denver, CO<br>
-            E-Mail: mezzotimer@version2software.com<br>
-        </p>
+      <p>
+        Version 2 Software, LLC<br>
+        Denver, CO<br>
+        E-Mail: mezzotimer@version2software.com<br>
+      </p>
 
-        <div v-if="!readOnly">
-            <input type="checkbox" id="checkbox" v-model="checked">I accept this privacy policy
-            <button :disabled="!checked" :class="[checked ? activeClass : disabledClass]" @click="accepted">Accept</button>
-            <button class="secondary-button" @click="declined">Decline</button>
-        </div>
-
+      <div v-if="!props.readOnly">
+        <input
+          id="checkbox"
+          v-model="checked"
+          type="checkbox"
+        >I accept this privacy policy
+        <button
+          :disabled="!checked"
+          :class="[checked ? activeClass : disabledClass]"
+          @click="accepted"
+        >
+          Accept
+        </button>
+        <button
+          class="secondary-button"
+          @click="declined"
+        >
+          Decline
+        </button>
+      </div>
     </article>
-</div>
+  </div>
 </template>
 
 <script lang="ts" setup>
 
-import {ref} from 'vue'
+import {ref} from "vue";
 
 const props = defineProps({ readOnly: Boolean });
-const readOnly = props.readOnly;
-
 const checked = ref(false);
 const activeClass = ref("button");
 const disabledClass = ref("disabled-button");

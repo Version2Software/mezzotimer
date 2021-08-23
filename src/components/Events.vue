@@ -1,56 +1,111 @@
 <template>
-    <div id="events">
-        Time Period:
-        <select id="time-period" @change="selectPeriod" v-model="timePeriod">
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="lastweek">Last Week</option>
-            <option value="lastmonth">Last Month</option>
-        </select>
+  <div id="events">
+    Time Period:
+    <select
+      id="time-period"
+      v-model="timePeriod"
+      @change="selectPeriod"
+    >
+      <option value="today">
+        Today
+      </option>
+      <option value="week">
+        This Week
+      </option>
+      <option value="month">
+        This Month
+      </option>
+      <option value="yesterday">
+        Yesterday
+      </option>
+      <option value="lastweek">
+        Last Week
+      </option>
+      <option value="lastmonth">
+        Last Month
+      </option>
+    </select>
 
-        <span id="completed-checkbox"><input type="checkbox" v-model="completedOnly">Only include Completed</span>
+    <span id="completed-checkbox"><input
+      v-model="completedOnly"
+      type="checkbox"
+    >Only include Completed</span>
 
-        <button id="print-event" @click="print">Printable Page</button>
+    <button
+      id="print-event"
+      @click="print"
+    >
+      Printable Page
+    </button>
 
-        <br>
-        <br>
+    <br>
+    <br>
 
-        <div class="center">Completed Mezzos: {{totalCount}}</div>
-
-        <div id="completed-div">
-            <table id="completed-table">
-                <tr v-for="sr in summaryRows">
-                    <td width="70%">{{sr.taskDescription}}</td>
-                    <td width="30%">{{sr.count}}</td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="center">Events</div>
-
-        <div id="log-div">
-            <table id="log-table">
-                <tr v-for="d in docs">
-                    <td width="30%">{{format(d.eventTimestamp)}}</td>
-                    <td width="45%">{{d.description}}</td>
-                    <td width="20%" :style="{ color: textColor(d) }" >{{d.eventType}}</td>
-                    <td width="5%"><button @click="editEvent(d)">edit</button></td>
-                    <td width="5%"><button @click="deleteEvent(d)">del</button></td>
-                </tr>
-            </table>
-        </div>
+    <div class="center">
+      Completed Mezzos: {{ totalCount }}
     </div>
+
+    <div id="completed-div">
+      <table id="completed-table">
+        <tr
+          v-for="(sr, index) in summaryRows"
+          :key="index"
+        >
+          <td width="70%">
+            {{ sr.taskDescription }}
+          </td>
+          <td width="30%">
+            {{ sr.count }}
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="center">
+      Events
+    </div>
+
+    <div id="log-div">
+      <table id="log-table">
+        <tr
+          v-for="(d, index) in docs"
+          :key="index"
+        >
+          <td width="30%">
+            {{ format(d.eventTimestamp) }}
+          </td>
+          <td width="45%">
+            {{ d.description }}
+          </td>
+          <td
+            width="20%"
+            :style="{ color: textColor(d) }"
+          >
+            {{ d.eventType }}
+          </td>
+          <td width="5%">
+            <button @click="editEvent(d)">
+              edit
+            </button>
+          </td>
+          <td width="5%">
+            <button @click="deleteEvent(d)">
+              del
+            </button>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
 
 import {dateFormat, summary, getPeriod} from "../util/util";
-import {computed, ref, onMounted, watch} from 'vue'
+import {computed, ref, onMounted, watch} from "vue";
 
 const docs = ref([] as MezzoEvent[]);
-const timePeriod = ref("today")
+const timePeriod = ref("today");
 const completedOnly = ref(false);
 
 const summaryRows = computed(function (): { taskDescription: string, count: string }[] {
@@ -62,10 +117,10 @@ const totalCount = computed(function (): number {
 });
 
 const print = function (): void {
-    let queryOptions:QueryOptions = {
+    const queryOptions:QueryOptions = {
         period: getPeriod(timePeriod.value, new Date()),
         completedOnly: completedOnly.value
-    }
+    };
     window.api.print(queryOptions);
 };
 
@@ -82,7 +137,7 @@ const deleteEvent = async function (e: MezzoEvent) {
 };
 
 const editEvent = async function (e: MezzoEvent) {
-    let desc = await window.api.changeDescription(e.description);
+    const desc = await window.api.changeDescription(e.description);
     if (desc) {
         e.description = desc;
         window.api.update(e);
@@ -90,16 +145,16 @@ const editEvent = async function (e: MezzoEvent) {
 };
 
 const refreshLog = function () {
-    let queryOptions:QueryOptions = {
+    const queryOptions:QueryOptions = {
         period: getPeriod(timePeriod.value, new Date()),
         completedOnly: completedOnly.value
-    }
+    };
     window.api.findAll(queryOptions)
         .then((items: MezzoEvent[]) => {
             docs.value = items;
         })
         .catch((err: any) => {
-            window.api.log(err)
+            window.api.log(err);
         });
 };
 

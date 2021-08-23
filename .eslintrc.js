@@ -4,7 +4,7 @@ module.exports = {
         "es6": true,
         "node": true
     },
-    "extends": "eslint:recommended",
+    "extends": ["plugin:vue/vue3-recommended", "@vue/typescript"],
     "parserOptions": {
         "sourceType": "module"
     },
@@ -33,4 +33,4 @@ module.exports = {
             "off"
         ]
     }
-};
+}

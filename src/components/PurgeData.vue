@@ -1,30 +1,56 @@
 <template>
-    <div id="purgeData">
-        <div id="purge-body">
-            <div>
-                Current database size (bytes): {{databaseSize}}
-            </div>
-            <br>
-            Delete records older than:
-            <select id="time-period" v-model="days">
-                <option value="30">30 days</option>
-                <option value="90">90 days</option>
-                <option value="365">1 year</option>
-                <option value="730">2 years</option>
-                <option value="0">Delete all records</option>
-            </select>
-            <br><br>
-            <div class="center">
-                <button class="button" @click="purgeData">Purge</button>
-            </div>
-        </div>
-        <div class="done-button" @click="done"><img src="../images/arrow_left.png" title="Back"/></div>
+  <div id="purgeData">
+    <div id="purge-body">
+      <div>
+        Current database size (bytes): {{ databaseSize }}
+      </div>
+      <br>
+      Delete records older than:
+      <select
+        id="time-period"
+        v-model="days"
+      >
+        <option value="30">
+          30 days
+        </option>
+        <option value="90">
+          90 days
+        </option>
+        <option value="365">
+          1 year
+        </option>
+        <option value="730">
+          2 years
+        </option>
+        <option value="0">
+          Delete all records
+        </option>
+      </select>
+      <br><br>
+      <div class="center">
+        <button
+          class="button"
+          @click="purgeData"
+        >
+          Purge
+        </button>
+      </div>
     </div>
+    <div
+      class="done-button"
+      @click="done"
+    >
+      <img
+        src="../images/arrow_left.png"
+        title="Back"
+      >
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
 
-import {inject, onMounted, ref} from 'vue';
+import {inject, onMounted, ref} from "vue";
 import {Emitter} from "mitt";
 
 const emitter = inject("emitter") as Emitter<any>;
@@ -48,7 +74,7 @@ onMounted(function () {
     getDatabaseSize();
 });
 
-const done = () => emitter.emit('currentView', {view: 'timerMenuComponent'});
+const done = () => emitter.emit("currentView", {view: "timerMenuComponent"});
 
 </script>
 

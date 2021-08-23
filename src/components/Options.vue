@@ -1,65 +1,139 @@
 <template>
-    <div id="options">
-        <div id="options-body">
-        Color:
-        <select v-model="props.timerColor">
-            <option value="green">Green</option>
-            <option value="#4169E1">Blue</option>
-            <option value="orange">Orange</option>
-            <option value="purple">Purple</option>
-            <option value="red">Red</option>
+  <div id="options">
+    <div id="options-body">
+      Color:
+      <select v-model="props.timerColor">
+        <option value="green">
+          Green
+        </option>
+        <option value="#4169E1">
+          Blue
+        </option>
+        <option value="orange">
+          Orange
+        </option>
+        <option value="purple">
+          Purple
+        </option>
+        <option value="red">
+          Red
+        </option>
+      </select>
+      <br><br>
+
+      Minutes:
+      <div style="padding-left: 1em;">
+        Task Length:
+        <select v-model="props.minutes">
+          <option
+            v-for="(t, index) in times"
+            :key="index"
+            :value="t"
+          >
+            {{ t }}
+          </option>
         </select>
-        <br><br>
-
-        Minutes:
-        <div style="padding-left: 1em;">
-            Task Length:
-            <select v-model="props.minutes">
-                <option v-for="t in times" v-bind:value="t">{{t}}</option>
-            </select>
-            <br>
-
-            Long Break:
-            <select v-model="props.longBreak">
-                <option v-for="t in times" v-bind:value="t">{{t}}</option>
-            </select>
-
-            Short Break:
-
-            <select v-model="props.shortBreak">
-                <option v-for="t in times" v-bind:value="t">{{t}}</option>
-            </select>
-        </div>
-
         <br>
 
-        <input type="checkbox" v-model="props.tick" true-value="true" false-value="false">Tick-tock
-        <input type="checkbox" v-model="props.alarm" true-value="true" false-value="false">Final Alarm
-        <input type="checkbox" v-model="props.notification">Notification
-        <br><br>
-        <input type="checkbox" v-model="props.gong" true-value="true" false-value="false">Gong
-        <input type="radio" name="gong-style" value="progressive" v-model="props.gongStyle">Progressive
-        <input type="radio" name="gong-style" value="single" v-model="props.gongStyle">Single<br>
+        Long Break:
+        <select v-model="props.longBreak">
+          <option
+            v-for="(t, index) in times"
+            :key="index"
+            :value="t"
+          >
+            {{ t }}
+          </option>
+        </select>
 
-        <div class="center">
-            <button class="button" @click="save">Save</button>
-            <button class="button" @click="defaultOptions">Defaults</button>
-        </div>
-        </div>
-        <div class="done-button" @click="done"><img src="../images/arrow_left.png" title="Back"/></div>
+        Short Break:
+
+        <select v-model="props.shortBreak">
+          <option
+            v-for="(t, index) in times"
+            :key="index"
+            :value="t"
+          >
+            {{ t }}
+          </option>
+        </select>
+      </div>
+
+      <br>
+
+      <input
+        v-model="props.tick"
+        type="checkbox"
+        true-value="true"
+        false-value="false"
+      >Tick-tock
+      <input
+        v-model="props.alarm"
+        type="checkbox"
+        true-value="true"
+        false-value="false"
+      >Final Alarm
+      <input
+        v-model="props.notification"
+        type="checkbox"
+      >Notification
+      <br><br>
+      <input
+        v-model="props.gong"
+        type="checkbox"
+        true-value="true"
+        false-value="false"
+      >Gong
+      <input
+        v-model="props.gongStyle"
+        type="radio"
+        name="gong-style"
+        value="progressive"
+      >Progressive
+      <input
+        v-model="props.gongStyle"
+        type="radio"
+        name="gong-style"
+        value="single"
+      >Single<br>
+
+      <div class="center">
+        <button
+          class="button"
+          @click="save"
+        >
+          Save
+        </button>
+        <button
+          class="button"
+          @click="defaultOptions"
+        >
+          Defaults
+        </button>
+      </div>
     </div>
+    <div
+      class="done-button"
+      @click="done"
+    >
+      <img
+        src="../images/arrow_left.png"
+        title="Back"
+      >
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
 
-import {inject, reactive, ref, onMounted} from 'vue';
+import {inject, reactive, ref, onMounted} from "vue";
 import {Emitter} from "mitt";
 import {defaultProperties} from "../util/util";
 
 const emitter = inject("emitter") as Emitter<any>;
 const times = ref([1, 3, 5, 10, 15, 20, 25, 30, 45, 60]);
 
-let props = reactive(defaultProperties());
+const props = reactive(defaultProperties());
 
 onMounted(async function() {
     updateProps(await window.api.loadProperties());
@@ -84,9 +158,9 @@ function updateProps(p:Props) {
 const save = () => {
     // This bizzare snippet converts props from a proxy to a simple object, therefore preventing a clone error.
     window.api.saveProperties(JSON.parse(JSON.stringify(props)));
-}
+};
 
-const done = () => emitter.emit('currentView', {view: 'timerMenuComponent'});
+const done = () => emitter.emit("currentView", {view: "timerMenuComponent"});
 
 </script>
 

@@ -3,39 +3,115 @@
 */
 
 <template>
-    <div id="timer-front" :style="{'font-weight': timerFrontFontWeight}">
-        <audio id="audio-tick" src="./ogg/ticktock.ogg"></audio>
-        <audio id="audio-gong" src="./ogg/gong.ogg"></audio>
-        <audio id="audio-extra-gong" src="./ogg/extra-gong.ogg"></audio>
-        <audio id="audio-alarm" src="./ogg/low-gong.ogg"></audio>
+  <div
+    id="timer-front"
+    :style="{'font-weight': timerFrontFontWeight}"
+  >
+    <audio
+      id="audio-tick"
+      src="./ogg/ticktock.ogg"
+    />
+    <audio
+      id="audio-gong"
+      src="./ogg/gong.ogg"
+    />
+    <audio
+      id="audio-extra-gong"
+      src="./ogg/extra-gong.ogg"
+    />
+    <audio
+      id="audio-alarm"
+      src="./ogg/low-gong.ogg"
+    />
 
-        <div>
-            <div id="completed-counter" title="Completed" v-show="completedCount > 0">{{completedCount}}</div>
-        </div>
-
-        <div id="mezzora">
-            <div id="clock">
-                <canvas id="triangle"></canvas>
-                <canvas id="mezzcanvas"></canvas>
-            </div>
-            <div id="middle-buttons">
-                <div id="start-stop" class="center"><img id="play-button" src="../images/play-pause-gray.png"
-                                                         class="play-pause" @click="startPauseResume" title="Start/Pause"/>
-                </div>
-                <div id="short-break" @click="startShortBreak" title="Short Break"></div>
-                <div id="long-break" @click="startLongBreak" title="Long Break"></div>
-                <div id="pause-resume" class="center"><img id="stop-button" src="../images/stop-gray.png"
-                                                           class="play-pause" @click="stop" title="Stop"/></div>
-            </div>
-        </div>
-
-        <div>
-            <canvas id="volume-control" @click="stepVolume" width=200 height=200 title="Volume"></canvas>
-            <div id="log-button" @click="viewLog"><img src="../images/log.png" title="Records"></div>
-            <div id="refresh-button" @click="refreshTimerCount"><img src="../images/reset.png" title="Refresh"></div>
-            <div id="menu-button" class="defaultCursor" @click="menu">...</div>
-        </div>
+    <div>
+      <div
+        v-show="completedCount > 0"
+        id="completed-counter"
+        title="Completed"
+      >
+        {{ completedCount }}
+      </div>
     </div>
+
+    <div id="mezzora">
+      <div id="clock">
+        <canvas id="triangle" />
+        <canvas id="mezzcanvas" />
+      </div>
+      <div id="middle-buttons">
+        <div
+          id="start-stop"
+          class="center"
+        >
+          <img
+            id="play-button"
+            src="../images/play-pause-gray.png"
+            class="play-pause"
+            title="Start/Pause"
+            @click="startPauseResume"
+          >
+        </div>
+        <div
+          id="short-break"
+          title="Short Break"
+          @click="startShortBreak"
+        />
+        <div
+          id="long-break"
+          title="Long Break"
+          @click="startLongBreak"
+        />
+        <div
+          id="pause-resume"
+          class="center"
+        >
+          <img
+            id="stop-button"
+            src="../images/stop-gray.png"
+            class="play-pause"
+            title="Stop"
+            @click="stop"
+          >
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <canvas
+        id="volume-control"
+        width="200"
+        height="200"
+        title="Volume"
+        @click="stepVolume"
+      />
+      <div
+        id="log-button"
+        @click="viewLog"
+      >
+        <img
+          src="../images/log.png"
+          title="Records"
+        >
+      </div>
+      <div
+        id="refresh-button"
+        @click="refreshTimerCount"
+      >
+        <img
+          src="../images/reset.png"
+          title="Refresh"
+        >
+      </div>
+      <div
+        id="menu-button"
+        class="defaultCursor"
+        @click="menu"
+      >
+        ...
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -59,12 +135,12 @@ let props = defaultProperties();
 
 <script lang="ts" setup>
 
-import {inject, ref, onMounted} from 'vue';
+import {inject, ref, onMounted} from "vue";
 import {lengthOfTickMark, tickTime, nextTimeout, ellapsedTime, pausedTime} from "../util/timer-util";
 import {events, states} from "../util/mezzo-constants";
 import {Emitter} from "mitt";
 
-const emitter = inject("emitter") as Emitter<any>
+const emitter = inject("emitter") as Emitter<any>;
 
 const audioTick = ref(null as any);
 const audioGong = ref(null as any);
@@ -76,9 +152,9 @@ const mezzcanvasBackground = ref(null as any);
 const completedCount = ref(0);
 const timerFrontFontWeight = ref("");
 const clockStyles = ref({
-    'background-color': 'red',
-    'font-weight': 'normal',
-    'text-shadow': 'initial'
+    "background-color": "red",
+    "font-weight": "normal",
+    "text-shadow": "initial"
 });
 
 onMounted(async function () {
@@ -127,7 +203,7 @@ onMounted(async function () {
 
 async function startPauseResume() {
     if (realState === states.IDLE) {
-        let desc = await window.api.promptDescription(taskDescription);
+        const desc = await window.api.promptDescription(taskDescription);
         if (desc) {
             taskDescription = desc;
             processEvent(events.START);
@@ -229,7 +305,7 @@ function updateClock() {
         // audioTick.pause();
         pauses = [];
         if ("true" === props.alarm) {
-            audioAlarm.play();
+            audioAlarm.value.play();
         }
     } else {
         setTimeout(updateClock, nextTimeout(ellapsed));
@@ -371,13 +447,13 @@ function cancel() {
 
 function addLogEvent(eventType: string, desc: string) {
     try {
-        let me: MezzoEvent = {
+        const me: MezzoEvent = {
             rowId: 0,
             eventTimestamp: new Date().getTime(),
             description: desc,
             eventType: eventType
-        }
-        window.api.save(me)
+        };
+        window.api.save(me);
     } catch (ex) {
         error(ex);
     }
@@ -436,7 +512,7 @@ function updateGUI(mins: number) {
 }
 
 function setClockColor(c: string) {
-    clockStyles.value["background-color"] = c
+    clockStyles.value["background-color"] = c;
 }
 
 function stepVolume() {
@@ -493,7 +569,7 @@ async function refreshTimerCount() {
         const end = new Date();
         end.setHours(23, 59, 59, 99);
 
-        let period = {startkey: start.getTime(), endkey: end.getTime()};
+        const period = {startkey: start.getTime(), endkey: end.getTime()};
 
         completedCount.value = await window.api.completedCount(period);
 
@@ -503,7 +579,7 @@ async function refreshTimerCount() {
 }
 
 function viewLog() {
-    window.api.viewLog()
+    window.api.viewLog();
 }
 
 function menu() {
@@ -512,7 +588,7 @@ function menu() {
         realState = states.PAUSED;
         pause();
     }
-    emitter.emit('currentView', {view: 'timerMenuComponent'});
+    emitter.emit("currentView", {view: "timerMenuComponent"});
 }
 
 </script>

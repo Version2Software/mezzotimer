@@ -1,36 +1,73 @@
 <template>
-    <div id="exportData">
-        <div id="export-body">
-            Time Period:
-            <select id="time-period" v-model="timePeriod">
-                <option value="today">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-                <option value="yesterday">Yesterday</option>
-                <option value="lastweek">Last Week</option>
-                <option value="lastmonth">Last Month</option>
-                <option value="all">All Records</option>
-            </select>
-            <br><br>
-            Export Format:
-            <select v-model="exportFormat">
-                <option value="json">JSON</option>
-                <option value="csv">CSV</option>
-            </select>
-            <br><br>
-            <input type="checkbox" v-model="completedOnly">Only include Completed
-            <br><br>
-            <div class="center">
-                <button class="button" @click="exportData">Export</button>
-            </div>
-        </div>
-        <div class="done-button" @click="done"><img src="../images/arrow_left.png" title="Back"/></div>
+  <div id="exportData">
+    <div id="export-body">
+      Time Period:
+      <select
+        id="time-period"
+        v-model="timePeriod"
+      >
+        <option value="today">
+          Today
+        </option>
+        <option value="week">
+          This Week
+        </option>
+        <option value="month">
+          This Month
+        </option>
+        <option value="yesterday">
+          Yesterday
+        </option>
+        <option value="lastweek">
+          Last Week
+        </option>
+        <option value="lastmonth">
+          Last Month
+        </option>
+        <option value="all">
+          All Records
+        </option>
+      </select>
+      <br><br>
+      Export Format:
+      <select v-model="exportFormat">
+        <option value="json">
+          JSON
+        </option>
+        <option value="csv">
+          CSV
+        </option>
+      </select>
+      <br><br>
+      <input
+        v-model="completedOnly"
+        type="checkbox"
+      >Only include Completed
+      <br><br>
+      <div class="center">
+        <button
+          class="button"
+          @click="exportData"
+        >
+          Export
+        </button>
+      </div>
     </div>
+    <div
+      class="done-button"
+      @click="done"
+    >
+      <img
+        src="../images/arrow_left.png"
+        title="Back"
+      >
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
 
-import {inject, ref} from 'vue';
+import {inject, ref} from "vue";
 import {getPeriod} from "../util/util";
 import {Emitter} from "mitt";
 
@@ -44,11 +81,11 @@ const exportData = () => {
     const queryOptions:QueryOptions = {
         period: getPeriod(timePeriod.value, new Date()),
         completedOnly: completedOnly.value
-    }
-    window.api.exportData(exportFormat.value, queryOptions)
-}
+    };
+    window.api.exportData(exportFormat.value, queryOptions);
+};
 
-const done = () => emitter.emit('currentView', {view: 'timerMenuComponent'});
+const done = () => emitter.emit("currentView", {view: "timerMenuComponent"});
 
 </script>
 
